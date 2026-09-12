@@ -14,22 +14,33 @@ namespace swos {
 // Directory holding the running executable.
 //
 // On a macOS .app this is Contents/Resources, because that is what
-// SDL_GetBasePath reports for a bundle. Use data_dir() for anything writable --
-// see below.
+// SDL_GetBasePath reports for a bundle. It is an install location, not a place
+// to write -- use user_dir() for anything writable.
 std::string executable_dir();
 
-// Where ini/, dlc/ and temp/ live. This is what the Delphi launcher called
-// gCurDir, and on Windows and Linux it still is the executable's directory, so
-// an install stays portable and an existing tree keeps working.
+// The per-user SWOS folder, shared with SWOS-United so the launcher, the DLC
+// manager and the game all agree on where a user's files live. Mirrors
+// swos_io.c in that project:
 //
-// macOS is different: inside a .app, executable_dir() points into the bundle,
-// and writing there is wrong. A signed bundle fails Gatekeeper once its
-// Resources change, and an app in /Applications or on a mounted DMG is not
-// writable at all. So a bundled build uses
-// ~/Library/Application Support/SWOS/SWOS instead, which is where a Mac app is
-// expected to keep this. A non-bundled macOS build (running the bare binary out
-// of a build tree) keeps the portable behaviour.
-std::string data_dir();
+//   Windows  %USERPROFILE%\Documents\SWOS
+//   macOS    ~/Library/Application Support/SWOS
+//   Linux    ~/.swos
+//
+// SWOS-United keeps SWOS.ini and SWOS.log directly in here (career saves go in
+// a save/ subfolder, which this port has no use for); the launcher and the DLC
+// manager add ini/, dlc/ and temp/ alongside them.
+//
+// $HOME (or %USERPROFILE%) is tried first because that is what the docs say and
+// what a terminal launch uses, but a .app started from Finder gets a trimmed
+// environment with HOME unset -- SWOS-United hit exactly that, and the symptom
+// was baffling: no settings file was ever created and one placed in the
+// documented location was never read. SDL_GetPrefPath asks the OS rather than
+// the environment, so it is used as the fallback.
+//
+// The directory is created if missing. Returns an empty string only if it
+// cannot be determined at all, in which case callers should fall back to the
+// executable directory.
+std::string user_dir();
 
 // True when this process is running from a macOS .app bundle. Always false
 // elsewhere.

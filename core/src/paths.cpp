@@ -5,6 +5,7 @@
 #include <SDL.h>
 
 #include <algorithm>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 
@@ -45,22 +46,71 @@ bool running_in_bundle()
 #endif
 }
 
-std::string data_dir()
-{
-    if (!running_in_bundle()) return executable_dir();
+namespace {
 
-    // SDL_GetPrefPath creates the directory and returns
-    // ~/Library/Application Support/<org>/<app>/ on macOS.
-    if (char *pref = SDL_GetPrefPath("SWOS", "SWOS")) {
-        std::string out(pref);
-        SDL_free(pref);
-        if (out.size() > 1) {
-            const char last = out.back();
-            if (last == '/' || last == '\\') out.pop_back();
-        }
+// SDL_GetPrefPath asks the OS rather than the environment, and returns a
+// trailing separator the rest of this file would double up.
+std::string pref_path()
+{
+    // NULL organisation, matching SWOS-United's swos_io.c, so both land on the
+    // same directory.
+    char *pref = SDL_GetPrefPath(nullptr, "SWOS");
+    if (!pref || !*pref) {
+        if (pref) SDL_free(pref);
+        return {};
+    }
+    std::string out(pref);
+    SDL_free(pref);
+    while (out.size() > 1 && (out.back() == '/' || out.back() == '\\')) out.pop_back();
+    return out;
+}
+
+std::string resolve_user_dir()
+{
+#if defined(_WIN32)
+    // %USERPROFILE%\Documents\SWOS. Forward slashes are fine for the CRT and
+    // keep the rest of the path handling uniform.
+    if (const char *profile = std::getenv("USERPROFILE"); profile && *profile) {
+        std::string out = std::string(profile) + "/Documents/SWOS";
+        std::replace(out.begin(), out.end(), '\\', '/');
         return out;
     }
-    return executable_dir();
+#elif defined(__APPLE__)
+    if (const char *home = std::getenv("HOME"); home && *home)
+        return std::string(home) + "/Library/Application Support/SWOS";
+#else
+    if (const char *home = std::getenv("HOME"); home && *home)
+        return std::string(home) + "/.swos";
+#endif
+
+    // A .app launched from Finder gets a trimmed environment with HOME unset,
+    // and the silent fallback to "." is read-only inside a bundle. Ask the OS.
+    const std::string pref = pref_path();
+    if (!pref.empty())
+        std::fprintf(stderr, "[paths] HOME not set; using the OS preferences path: %s\n",
+                     pref.c_str());
+    return pref;
+}
+
+} // namespace
+
+std::string user_dir()
+{
+    static const std::string dir = [] {
+        std::string resolved = resolve_user_dir();
+        if (resolved.empty()) {
+            std::fprintf(stderr, "[paths] cannot determine the per-user directory; "
+                                 "falling back to the executable directory\n");
+            return executable_dir();
+        }
+        if (!ensure_directory(resolved)) {
+            std::fprintf(stderr, "[paths] cannot create %s; falling back to the "
+                                 "executable directory\n", resolved.c_str());
+            return executable_dir();
+        }
+        return resolved;
+    }();
+    return dir;
 }
 
 std::string path_join(const std::string &a, const std::string &b)
