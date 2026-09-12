@@ -1,4 +1,4 @@
-// main.cpp -- SWOS DLC Manager.
+// main.cpp -- SWOS United DLC Manager.
 //
 // Port of DLCManager.dpr / contents_downloader_u.pas. Same window hosting as
 // the launcher (SDL2 + GL 3.3 core + Slint through swos-core), and the same
@@ -264,7 +264,7 @@ int main(int argc, char *argv[])
     settings.load(base_dir);
 
     swos::WindowOptions win_opts;
-    win_opts.title = "SWOS DLC Manager";
+    win_opts.title = "SWOS United DLC Manager";
     win_opts.base_width = kDesignWidth;
     win_opts.base_height = kDesignHeight;
     win_opts.scale = settings.ui_scale();
@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
     swos::Window window;
     if (!window.create(win_opts)) {
         std::fprintf(stderr, "%s\n", window.last_error().c_str());
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SWOS DLC Manager",
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SWOS United DLC Manager",
                                  window.last_error().c_str(), nullptr);
         SDL_Quit();
         return 1;

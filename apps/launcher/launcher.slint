@@ -1,4 +1,4 @@
-// launcher.slint -- the SWOS Launcher UI.
+// launcher.slint -- the SWOS United Launcher UI.
 //
 // Structure follows the Delphi form (miniLauncher_u.dfm): a tabbed settings
 // surface over a persistent action bar. Every setting is exposed through the
@@ -256,7 +256,7 @@ component ThemeToggle inherits HorizontalLayout {
 }
 
 export component LauncherWindow inherits Window {
-    title: "SWOS Launcher";
+    title: "SWOS United Launcher";
     preferred-width: 940px;
     preferred-height: 760px;
     min-width: 760px;
@@ -291,7 +291,7 @@ export component LauncherWindow inherits Window {
             VerticalLayout {
                 alignment: center;
                 Text {
-                    text: "SWOS Launcher";
+                    text: "SWOS United Launcher";
                     font-size: 22px;
                     font-weight: 800;
                     color: Palette.foreground;
@@ -755,7 +755,7 @@ export component LauncherWindow inherits Window {
                     alignment: start;
                     max-width: root.content-width;
 
-                    SectionTitle { text: "SWOS Launcher \{Config.launcher-version}"; }
+                    SectionTitle { text: "SWOS United Launcher \{Config.launcher-version}"; }
                     Text {
                         text: "Cross-platform C++ port of the SWOS 2020 Game Launcher, "
                             + "built on SDL2, OpenGL 3.3 core and Slint.";

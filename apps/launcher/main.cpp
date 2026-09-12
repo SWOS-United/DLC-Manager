@@ -1,4 +1,4 @@
-// main.cpp -- SWOS Launcher entry point.
+// main.cpp -- SWOS United Launcher entry point.
 //
 // Owns the event loop. Slint's own run_event_loop() is never used: SDL owns the
 // window, so we pump SDL events, hand them to the Slint window adapter, let
@@ -198,7 +198,7 @@ struct CommandLine {
 void print_usage()
 {
     std::printf(
-            "SWOS Launcher %s\n\n"
+            "SWOS United Launcher %s\n\n"
             "Usage: swos-launcher [options]\n\n"
             "  --fullscreen[=desktop|exclusive]  start full screen (default: desktop)\n"
             "  --windowed                        start windowed (overrides the saved setting)\n"
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
     const auto displays = swos::Window::enumerate_displays();
 
     swos::WindowOptions win_opts;
-    win_opts.title = "SWOS Launcher";
+    win_opts.title = "SWOS United Launcher";
     win_opts.base_width = kDesignWidth;
     win_opts.base_height = kDesignHeight;
     win_opts.scale = cli.scale.value_or(settings.ui_scale());
@@ -274,7 +274,7 @@ int main(int argc, char *argv[])
     swos::Window window;
     if (!window.create(win_opts)) {
         std::fprintf(stderr, "%s\n", window.last_error().c_str());
-        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SWOS Launcher",
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SWOS United Launcher",
                                  window.last_error().c_str(), nullptr);
         SDL_Quit();
         return 1;
@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
 
         if (!res.started) {
             cfg.set_status_message(shared(res.error));
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SWOS Launcher", res.error.c_str(),
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "SWOS United Launcher", res.error.c_str(),
                                      window.sdl_window());
         } else {
             cfg.set_status_message(

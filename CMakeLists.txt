@@ -282,12 +282,12 @@ function(swos_add_app target)
 endfunction()
 
 swos_add_app(swos-launcher
-    DISPLAY_NAME "SWOS Launcher"
+    DISPLAY_NAME "SWOS United Launcher"
     SOURCES apps/launcher/main.cpp
     SLINT   apps/launcher/launcher.slint)
 
 swos_add_app(swos-dlc-manager
-    DISPLAY_NAME "SWOS DLC Manager"
+    DISPLAY_NAME "SWOS United DLC Manager"
     SOURCES apps/dlc_manager/main.cpp apps/dlc_manager/audio_preview.cpp
     SLINT   apps/dlc_manager/dlc_manager.slint)
 
