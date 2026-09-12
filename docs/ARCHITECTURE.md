@@ -1,8 +1,22 @@
 # Architecture
 
-The launcher is an SDL2 application with an OpenGL 3.3 core context, and a Slint
-UI composited into that context as a texture. Nothing else in the process owns a
+Each app is an SDL2 program with an OpenGL 3.3 core context and a Slint UI
+composited into that context as a texture. Nothing else in the process owns a
 window.
+
+## Layout
+
+```
+core/                shared library (swos-core)
+apps/launcher/       swos-launcher
+apps/dlc_manager/    swos-dlc-manager
+```
+
+The core is shared rather than duplicated because the Delphi build shares it
+too: `dlc_info_u.pas` is used by both the launcher (which applies the selected
+DLC before starting the game) and the DLC manager, and both read and write the
+same `ini/gameLauncher.ini`. Keeping them in one project means the DLC model is
+edited once — the same reason SWOS-United merged its two repos.
 
 ```
         SDL2 window  +  GL 3.3 core context          src/window.cpp
@@ -15,8 +29,8 @@ window.
 
 ## Why not Slint's own backend
 
-Slint ships backends (winit + FemtoVG or Skia) that open and own a window. The
-launcher cannot use them for two reasons:
+Slint ships backends (winit + FemtoVG or Skia) that open and own a window. These
+apps cannot use them for two reasons:
 
 1. The explicit target is SDL2 + OpenGL 3.3 core.
 2. This app is destined to merge into **SWOS-United**, whose renderer already
@@ -125,6 +139,20 @@ so the UI can be smoke-tested where the window manager cannot be screenshotted
 | `SWOS_LAUNCHER_TAB=<n>` | open on tab *n* |
 | `SWOS_LAUNCHER_CLICK=<x>,<y>` | synthesise a left click at window pixel *x,y* |
 | `SWOS_LAUNCHER_SCREENSHOT=<file>` | write the settled frame to a BMP, then exit |
+| `SWOS_DLC_CATEGORY=<n>` | DLC manager: open category *n* |
+| `SWOS_DLC_REFRESH=1` | DLC manager: fetch every catalogue at startup |
+| `SWOS_DLC_DOWNLOAD=<row>` | DLC manager: install the pack in row *row* |
+| `SWOS_DLC_REMOVE=<row>` | DLC manager: uninstall the pack in row *row* |
+| `SWOS_DLC_SCREENSHOT=<file>` | DLC manager: capture once idle, then exit |
 
-The capture fires once the UI has settled (nothing left to redraw), with a 5 s
-deadline so it cannot hang a CI run.
+The capture fires once the UI has settled — nothing left to redraw, and for the
+DLC manager no download or extraction still running — with a deadline so it
+cannot hang a CI run.
+
+## Background work (DLC manager)
+
+Downloads run on a worker thread inside `swos::Download`; extraction gets its
+own thread because a big sprite pack takes seconds of CPU. The UI thread never
+blocks on either: it polls them once per frame and reads progress through a
+mutex-guarded snapshot. That is also why the event loop caps its wait at one
+frame while anything is in flight, instead of sleeping until the next input.

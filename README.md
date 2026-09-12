@@ -1,13 +1,21 @@
-# SWOS Launcher
+# SWOS Tools
 
-A cross-platform C++ port of the Delphi **SWOS 2020 Game Launcher**, built on
-SDL2, OpenGL 3.3 core and [Slint](https://slint.dev). Targets Windows, macOS and
+A cross-platform C++ port of the Delphi **SWOS 2020** suite, built on SDL2,
+OpenGL 3.3 core and [Slint](https://slint.dev). Targets Windows, macOS and
 Linux, and is intended to fold into
 [SWOS-United](https://github.com/benbaker76/SWOS-United) once it settles.
 
+| binary | replaces | what it does |
+|---|---|---|
+| `swos-launcher` | `gameLauncher.dpr` | game settings and launching |
+| `swos-dlc-manager` | `DLCManager.dpr` | browse, download and install DLC |
+
+Both share `swos-core` and the same `ini/gameLauncher.ini`, so a pack selected
+in the manager is the pack the launcher applies.
+
 ![General tab](docs/images/general-light.png)
 
-## What it does today
+## The launcher
 
 * Reads and writes `ini/gameLauncher.ini` with the **exact** sections, keys and
   defaults the Delphi launcher used, so an existing install keeps working.
@@ -20,8 +28,20 @@ Linux, and is intended to fold into
   toggle and a 100%–200% interface scale.
 * Light / dark themes, defaulting to the desktop setting.
 
-See [docs/PORTING.md](docs/PORTING.md) for what is not ported yet — chiefly the
-DLC and team-database tabs.
+## The DLC manager
+
+![DLC manager](docs/images/dlc-manager.png)
+
+* Fetches all 17 DLC catalogues from `sensiblesoccer.de/swos2020`, merging them
+  with what is installed to mark each pack New / Update / Installed / Removed.
+* Downloads and extracts `.7z` packs in-process (libcurl + libarchive), on a
+  worker thread so the UI keeps painting, with progress and cancel.
+* Image previews for pitches, cups, sprites and backgrounds; audio previews for
+  commentary, sound effects and music.
+* Records the selection the launcher then applies.
+
+See [docs/PORTING.md](docs/PORTING.md) for what is not ported yet — chiefly
+applying an installed pack to the game directory, and the cup/DIY editor.
 
 ## Build
 
@@ -52,15 +72,19 @@ The launcher looks for the game in `swos-path.txt` next to the executable, or in
 ## Layout
 
 ```
-include/, src/     application code
-  window.*           SDL2 window + GL 3.3 core context (ported from SWOS-United)
+core/                shared library
+  window.*             SDL2 window + GL 3.3 core context (ported from SWOS-United)
   slint_gl_platform.*  Slint custom platform -> software render -> GL texture
-  settings.*         the Delphi TSetting record and its ini format
-  game_launch.*      command-line construction and process spawn
-  system_theme.*     desktop light/dark detection
-ui/launcher.slint  the interface
-assets/icons/      Tabler icons (MIT), vendored
-docs/              architecture, porting and build notes
+  settings.*           the Delphi TSetting record and its ini format
+  game_launch.*        command-line construction and process spawn
+  dlc_catalog.*        the DLC model, shared by both apps
+  http.*               libcurl downloads, sync and async
+  archive_extract.*    libarchive 7z extraction
+  system_theme.*       desktop light/dark detection
+apps/launcher/       swos-launcher + launcher.slint
+apps/dlc_manager/    swos-dlc-manager + dlc_manager.slint + audio preview
+assets/icons/        Tabler icons (MIT), vendored
+docs/                architecture, porting and build notes
 ```
 
 ## Licence

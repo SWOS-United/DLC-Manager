@@ -7,6 +7,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace swos {
 
@@ -21,6 +22,15 @@ bool file_exists(const std::string &p);
 bool directory_exists(const std::string &p);
 bool ensure_directory(const std::string &p);
 bool rename_file(const std::string &from, const std::string &to);
+bool remove_file(const std::string &p);
+// Recursively deletes a directory. Returns true if it is gone afterwards,
+// including when it was never there.
+bool remove_directory(const std::string &p);
+
+// Entries directly inside `dir`, names only, sorted. Empty if `dir` is missing.
+std::vector<std::string> list_directory(const std::string &dir, bool directories_only = false);
+
+int64_t file_size(const std::string &p);
 
 // Reads the first line of a text file, trimmed. Returns an empty string if the
 // file is missing or empty -- used for swos-path.txt.

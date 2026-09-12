@@ -1,0 +1,474 @@
+// dlc_manager.slint -- browse, download and install SWOS DLC.
+//
+// The Delphi form (contents_downloader_u.dfm) gave each of the 17 DLC types its
+// own tab, with the sprite types nested in a second tab strip and the music
+// types in a third -- 17 near-identical layouts to keep in step. Here the type
+// is a sidebar selection and there is one list/preview layout, because every
+// type behaves the same: pick an item, download it, select it, remove it.
+//
+// C++ owns all the state; this file renders `Dlc` and calls back.
+
+import {
+    Button, CheckBox, ComboBox, GroupBox, HorizontalBox, LineEdit, ListView,
+    Palette, ProgressIndicator, ScrollView, StandardTableView, VerticalBox
+} from "std-widgets.slint";
+
+export struct DlcCategory {
+    label: string,
+    // Section heading above the first entry of a group, "" for the rest.
+    group: string,
+    badge: int,        // new + updated packs, 0 hides the badge
+}
+
+export global Dlc {
+    // --- Categories (the 17 types) ---
+    in property <[DlcCategory]> categories;
+    in-out property <int> current-category: 0;
+
+    // --- The selected category's list ---
+    in property <[[StandardListViewItem]]> rows;
+    in-out property <int> current-row: -1;
+
+    // --- Detail of the highlighted row ---
+    in property <string> detail-title;
+    in property <string> detail-author;
+    in property <string> detail-version;
+    in property <string> detail-description;
+    in property <string> detail-status;
+    in property <bool> detail-installed;
+    in property <bool> row-selected;
+
+    // Preview: exactly one of these is meaningful, per the category.
+    in property <bool> preview-is-audio;
+    in property <image> preview-image;
+    in property <bool> preview-image-available;
+    in property <bool> audio-available;
+    in property <bool> audio-playing;
+
+    // --- Which pack is applied to the game ---
+    in property <string> applied-title;
+    in property <bool> has-enabled-flag;
+    in-out property <bool> enabled;
+
+    // --- Busy state ---
+    in property <bool> busy;
+    in property <string> busy-label;
+    in property <float> busy-fraction;   // 0..1; negative means indeterminate
+    in property <string> status-message;
+    in property <bool> status-is-error;
+    in property <bool> offline;
+
+    callback category-changed(int);
+    callback row-changed(int);
+    callback enabled-changed(bool);
+}
+
+export global DlcActions {
+    callback refresh-catalog();
+    callback download();
+    callback apply-selection();
+    callback remove();
+    callback cancel();
+    callback play-preview();
+    callback stop-preview();
+    callback open-folder();
+}
+
+export global Theme {
+    in-out property <int> mode: 0;          // 0 system, 1 light, 2 dark
+    in-out property <int> system-scheme: 1; // 1 light, 2 dark
+    out property <bool> is-dark: mode == 2 || (mode == 0 && system-scheme == 2);
+    public function apply() {
+        Palette.color-scheme = self.is-dark ? ColorScheme.dark : ColorScheme.light;
+    }
+}
+
+component Icon inherits Image {
+    in property <length> size: 18px;
+    in property <color> tint: Palette.foreground;
+    width: root.size;
+    height: root.size;
+    colorize: root.tint;
+    image-fit: contain;
+    accessible-role: none;
+}
+
+component ThemeToggle inherits HorizontalLayout {
+    spacing: 2px;
+    for entry[index] in [
+        { icon: @image-url("../../assets/icons/brightness-auto.svg"), tip: "Follow the system theme" },
+        { icon: @image-url("../../assets/icons/sun.svg"), tip: "Light theme" },
+        { icon: @image-url("../../assets/icons/moon.svg"), tip: "Dark theme" },
+    ] : Rectangle {
+        width: 30px;
+        height: 26px;
+        border-radius: 5px;
+        background: Theme.mode == index ? Palette.accent-background.transparentize(0.8)
+                  : entry-touch.has-hover ? Palette.foreground.transparentize(0.92)
+                  : transparent;
+        Icon {
+            size: 16px;
+            source: entry.icon;
+            tint: Theme.mode == index ? Palette.accent-background
+                                      : Palette.foreground.transparentize(0.3);
+        }
+        entry-touch := TouchArea {
+            mouse-cursor: pointer;
+            clicked => { Theme.mode = index; Theme.apply(); }
+        }
+        accessible-role: button;
+        accessible-label: entry.tip;
+    }
+}
+
+component CategoryRow inherits Rectangle {
+    in property <string> label;
+    in property <bool> selected;
+    in property <int> badge;
+    callback clicked();
+
+    height: 30px;
+    border-radius: 5px;
+    background: root.selected ? Palette.accent-background.transparentize(0.82)
+              : touch.has-hover ? Palette.foreground.transparentize(0.94)
+              : transparent;
+
+    HorizontalLayout {
+        padding-left: 10px;
+        padding-right: 8px;
+        spacing: 6px;
+        Text {
+            text: root.label;
+            vertical-alignment: center;
+            font-weight: root.selected ? 700 : 400;
+            color: root.selected ? Palette.accent-background : Palette.foreground;
+            overflow: elide;
+            horizontal-stretch: 1;
+        }
+        // Count of new + updated packs waiting in this category.
+        if root.badge > 0: Rectangle {
+            y: (parent.height - self.height) / 2;
+            height: 17px;
+            width: badge-text.preferred-width + 10px;
+            border-radius: 8px;
+            background: Palette.accent-background;
+            badge-text := Text {
+                text: root.badge;
+                font-size: 10px;
+                font-weight: 700;
+                color: Palette.accent-foreground;
+            }
+        }
+    }
+
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { root.clicked(); }
+    }
+}
+
+export component DlcManagerWindow inherits Window {
+    title: "SWOS DLC Manager";
+    preferred-width: 1180px;
+    preferred-height: 780px;
+    min-width: 900px;
+    min-height: 600px;
+    background: Palette.background;
+
+    VerticalBox {
+        padding: 14px;
+        spacing: 10px;
+
+        // ---- Header -----------------------------------------------------
+        HorizontalBox {
+            padding: 0px;
+            spacing: 12px;
+            vertical-stretch: 0;
+
+            VerticalLayout {
+                alignment: center;
+                Text {
+                    text: "SWOS DLC Manager";
+                    font-size: 20px;
+                    font-weight: 800;
+                    color: Palette.foreground;
+                }
+                Text {
+                    text: Dlc.offline ? "Offline -- showing what is already installed"
+                                      : "sensiblesoccer.de/swos2020";
+                    font-size: 11px;
+                    color: Dlc.offline ? #d1495b : Palette.foreground.transparentize(0.45);
+                }
+            }
+
+            Rectangle { horizontal-stretch: 1; }
+
+            VerticalLayout {
+                alignment: center;
+                Button {
+                    text: "Refresh catalogue";
+                    enabled: !Dlc.busy;
+                    clicked => { DlcActions.refresh-catalog(); }
+                }
+            }
+            VerticalLayout {
+                alignment: center;
+                ThemeToggle { }
+            }
+        }
+
+        // ---- Body: categories | list | detail ----------------------------
+        HorizontalBox {
+            padding: 0px;
+            spacing: 12px;
+            vertical-stretch: 1;
+
+            // Categories
+            Rectangle {
+                width: 210px;
+                border-radius: 6px;
+                border-width: 1px;
+                border-color: Palette.border;
+                background: Palette.alternate-background;
+
+                ScrollView {
+                    VerticalLayout {
+                        padding: 6px;
+                        spacing: 1px;
+                        alignment: start;
+                        for category[index] in Dlc.categories: VerticalLayout {
+                            // Group heading, drawn once per section.
+                            if category.group != "": Text {
+                                text: category.group;
+                                font-size: 10px;
+                                font-weight: 700;
+                                color: Palette.foreground.transparentize(0.5);
+                                height: 24px;
+                                vertical-alignment: bottom;
+                                horizontal-alignment: left;
+                            }
+                            CategoryRow {
+                                label: category.label;
+                                badge: category.badge;
+                                selected: Dlc.current-category == index;
+                                clicked => {
+                                    Dlc.current-category = index;
+                                    Dlc.category-changed(index);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Available packs
+            VerticalBox {
+                padding: 0px;
+                spacing: 8px;
+                horizontal-stretch: 3;
+
+                StandardTableView {
+                    vertical-stretch: 1;
+                    // The three status columns get an explicit width: with
+                    // stretch (or min-width) alone they collapse far enough to
+                    // elide their own headers to "Inst...". Title and Author
+                    // keep the stretch and absorb whatever is left.
+                    columns: [
+                        { title: "Title", horizontal-stretch: 3, min-width: 200px },
+                        { title: "Author", horizontal-stretch: 2, min-width: 140px },
+                        { title: "Installed", width: 90px, min-width: 90px },
+                        { title: "Latest", width: 80px, min-width: 80px },
+                        { title: "Status", width: 90px, min-width: 90px },
+                    ];
+                    rows: Dlc.rows;
+                    current-row <=> Dlc.current-row;
+                    current-row-changed(row) => { Dlc.row-changed(row); }
+                }
+
+                // Applied selection + the per-type enable switch.
+                HorizontalBox {
+                    padding: 0px;
+                    spacing: 8px;
+                    vertical-stretch: 0;
+                    Text {
+                        text: "Applied: " + (Dlc.applied-title == "" ? "(none)" : Dlc.applied-title);
+                        vertical-alignment: center;
+                        color: Palette.foreground.transparentize(0.25);
+                        overflow: elide;
+                        horizontal-stretch: 1;
+                    }
+                    if Dlc.has-enabled-flag: CheckBox {
+                        text: "Enabled in game";
+                        checked <=> Dlc.enabled;
+                        toggled => { Dlc.enabled-changed(self.checked); }
+                    }
+                }
+            }
+
+            // Detail + preview
+            Rectangle {
+                width: 330px;
+                border-radius: 6px;
+                border-width: 1px;
+                border-color: Palette.border;
+                background: Palette.alternate-background;
+
+                VerticalBox {
+                    padding: 12px;
+                    spacing: 10px;
+                    alignment: start;
+
+                    if !Dlc.row-selected: Text {
+                        text: "Select a pack to see its details.";
+                        wrap: word-wrap;
+                        color: Palette.foreground.transparentize(0.45);
+                    }
+
+                    if Dlc.row-selected: Text {
+                        text: Dlc.detail-title;
+                        font-size: 14px;
+                        font-weight: 700;
+                        wrap: word-wrap;
+                        color: Palette.foreground;
+                    }
+                    if Dlc.row-selected: Text {
+                        text: Dlc.detail-author + "   ·   " + Dlc.detail-version;
+                        font-size: 11px;
+                        wrap: word-wrap;
+                        color: Palette.foreground.transparentize(0.45);
+                    }
+
+                    // Image preview
+                    if Dlc.row-selected && !Dlc.preview-is-audio: Rectangle {
+                        height: 190px;
+                        border-radius: 4px;
+                        background: Palette.background;
+                        border-width: 1px;
+                        border-color: Palette.border;
+                        if Dlc.preview-image-available: Image {
+                            source: Dlc.preview-image;
+                            image-fit: contain;
+                            width: parent.width - 12px;
+                            height: parent.height - 12px;
+                        }
+                        if !Dlc.preview-image-available: Text {
+                            text: Dlc.detail-installed ? "No preview image in this pack"
+                                                       : "Download to see a preview";
+                            color: Palette.foreground.transparentize(0.55);
+                            font-size: 11px;
+                            wrap: word-wrap;
+                            horizontal-alignment: center;
+                        }
+                    }
+
+                    // Audio preview
+                    if Dlc.row-selected && Dlc.preview-is-audio: Rectangle {
+                        height: 60px;
+                        border-radius: 4px;
+                        background: Palette.background;
+                        border-width: 1px;
+                        border-color: Palette.border;
+                        HorizontalLayout {
+                            padding: 10px;
+                            spacing: 8px;
+                            alignment: center;
+                            if Dlc.audio-available && Dlc.detail-installed: Button {
+                                text: Dlc.audio-playing ? "Stop" : "Play sample";
+                                clicked => {
+                                    if (Dlc.audio-playing) {
+                                        DlcActions.stop-preview();
+                                    } else {
+                                        DlcActions.play-preview();
+                                    }
+                                }
+                            }
+                            if !Dlc.audio-available || !Dlc.detail-installed: Text {
+                                text: !Dlc.audio-available
+                                        ? "Audio preview unavailable in this build"
+                                        : "Download to hear a sample";
+                                vertical-alignment: center;
+                                color: Palette.foreground.transparentize(0.55);
+                                font-size: 11px;
+                                wrap: word-wrap;
+                            }
+                        }
+                    }
+
+                    if Dlc.row-selected && Dlc.detail-description != "": Text {
+                        text: Dlc.detail-description;
+                        wrap: word-wrap;
+                        font-size: 11px;
+                        color: Palette.foreground.transparentize(0.2);
+                    }
+
+                    if Dlc.row-selected && Dlc.detail-installed: Button {
+                        text: "Open pack folder";
+                        clicked => { DlcActions.open-folder(); }
+                    }
+                }
+            }
+        }
+
+        // ---- Action bar ---------------------------------------------------
+        HorizontalBox {
+            padding: 0px;
+            spacing: 10px;
+            vertical-stretch: 0;
+
+            if Dlc.busy: HorizontalBox {
+                padding: 0px;
+                spacing: 8px;
+                horizontal-stretch: 1;
+                Text {
+                    text: Dlc.busy-label;
+                    vertical-alignment: center;
+                    color: Palette.foreground.transparentize(0.25);
+                    overflow: elide;
+                }
+                ProgressIndicator {
+                    width: 220px;
+                    y: (parent.height - self.height) / 2;
+                    // A download with no Content-Length, or an extraction,
+                    // reports no fraction -- spin rather than lie.
+                    indeterminate: Dlc.busy-fraction < 0;
+                    progress: Dlc.busy-fraction < 0 ? 0 : Dlc.busy-fraction;
+                }
+                Button {
+                    text: "Cancel";
+                    clicked => { DlcActions.cancel(); }
+                }
+                Rectangle { horizontal-stretch: 1; }
+            }
+
+            if !Dlc.busy: Text {
+                text: Dlc.status-message;
+                vertical-alignment: center;
+                color: Dlc.status-is-error ? #d1495b : Palette.foreground.transparentize(0.35);
+                overflow: elide;
+                horizontal-stretch: 1;
+            }
+
+            Button {
+                text: "Remove";
+                icon: @image-url("../../assets/icons/x.svg");
+                colorize-icon: true;
+                enabled: Dlc.row-selected && Dlc.detail-installed && !Dlc.busy;
+                clicked => { DlcActions.remove(); }
+            }
+            Button {
+                text: Dlc.detail-status == "Update" ? "Update" : "Download";
+                enabled: Dlc.row-selected && !Dlc.busy && !Dlc.offline
+                    && Dlc.detail-status != "Installed" && Dlc.detail-status != "Removed";
+                clicked => { DlcActions.download(); }
+            }
+            Button {
+                text: "Use this pack";
+                icon: @image-url("../../assets/icons/player-play.svg");
+                colorize-icon: true;
+                primary: true;
+                enabled: Dlc.row-selected && Dlc.detail-installed && !Dlc.busy;
+                clicked => { DlcActions.apply-selection(); }
+            }
+        }
+    }
+}

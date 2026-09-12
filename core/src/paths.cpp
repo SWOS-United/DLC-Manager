@@ -4,6 +4,7 @@
 
 #include <SDL.h>
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 
@@ -65,6 +66,40 @@ bool rename_file(const std::string &from, const std::string &to)
     std::error_code ec;
     fs::rename(from, to, ec);
     return !ec;
+}
+
+bool remove_file(const std::string &p)
+{
+    std::error_code ec;
+    fs::remove(p, ec);
+    return !ec;
+}
+
+bool remove_directory(const std::string &p)
+{
+    std::error_code ec;
+    fs::remove_all(p, ec);
+    return !ec;
+}
+
+std::vector<std::string> list_directory(const std::string &dir, bool directories_only)
+{
+    std::vector<std::string> out;
+    std::error_code ec;
+    for (const auto &entry : fs::directory_iterator(dir, ec)) {
+        if (directories_only && !entry.is_directory(ec)) continue;
+        out.push_back(entry.path().filename().string());
+    }
+    std::sort(out.begin(), out.end());
+    return out;
+}
+
+int64_t file_size(const std::string &p)
+{
+    std::error_code ec;
+    const auto size = fs::file_size(p, ec);
+    if (ec) return -1;
+    return static_cast<int64_t>(size);
 }
 
 std::string read_first_line(const std::string &p)

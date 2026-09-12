@@ -224,9 +224,9 @@ component ThemeToggle inherits HorizontalLayout {
     spacing: 2px;
 
     for entry[index] in [
-        { icon: @image-url("../assets/icons/brightness-auto.svg"), tip: "Follow the system theme" },
-        { icon: @image-url("../assets/icons/sun.svg"), tip: "Light theme" },
-        { icon: @image-url("../assets/icons/moon.svg"), tip: "Dark theme" },
+        { icon: @image-url("../../assets/icons/brightness-auto.svg"), tip: "Follow the system theme" },
+        { icon: @image-url("../../assets/icons/sun.svg"), tip: "Light theme" },
+        { icon: @image-url("../../assets/icons/moon.svg"), tip: "Dark theme" },
     ] : Rectangle {
         width: 30px;
         height: 26px;
@@ -339,10 +339,10 @@ export component LauncherWindow inherits Window {
                 alignment: start;
                 spacing: 2px;
                 for tab[index] in [
-                    { label: "General",  icon: @image-url("../assets/icons/device-gamepad-2.svg") },
-                    { label: "Display",  icon: @image-url("../assets/icons/device-desktop.svg") },
-                    { label: "Advanced", icon: @image-url("../assets/icons/adjustments.svg") },
-                    { label: "About",    icon: @image-url("../assets/icons/info-circle.svg") },
+                    { label: "General",  icon: @image-url("../../assets/icons/device-gamepad-2.svg") },
+                    { label: "Display",  icon: @image-url("../../assets/icons/device-desktop.svg") },
+                    { label: "Advanced", icon: @image-url("../../assets/icons/adjustments.svg") },
+                    { label: "About",    icon: @image-url("../../assets/icons/info-circle.svg") },
                 ] : TabButton {
                     label: tab.label;
                     icon: tab.icon;
@@ -776,7 +776,7 @@ export component LauncherWindow inherits Window {
                         }
                         Button {
                             text: "Reveal";
-                            icon: @image-url("../assets/icons/folder-open.svg");
+                            icon: @image-url("../../assets/icons/folder-open.svg");
                             colorize-icon: true;
                             clicked => { Actions.browse-swos-dir(); }
                         }
@@ -827,13 +827,13 @@ export component LauncherWindow inherits Window {
 
             Button {
                 text: "Exit";
-                icon: @image-url("../assets/icons/x.svg");
+                icon: @image-url("../../assets/icons/x.svg");
                 colorize-icon: true;
                 clicked => { Actions.exit-app(); }
             }
             Button {
                 text: "Run SWOS";
-                icon: @image-url("../assets/icons/player-play.svg");
+                icon: @image-url("../../assets/icons/player-play.svg");
                 colorize-icon: true;
                 primary: true;
                 enabled: Config.game-found;

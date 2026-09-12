@@ -9,17 +9,21 @@
 | SDL2 ≥ 2.0.5 | window, input, GL context | `SDL_GetWindowBordersSize` needs 2.0.5 |
 | OpenGL 3.3 core | presentation | driver, no SDK needed |
 | Slint ≥ 1.17 (C++) | UI | `scripts/fetch_slint.*` |
+| libcurl | DLC downloads | |
+| libarchive | 7z extraction | needs liblzma, pulled in automatically |
+| SDL2_mixer | DLC audio preview | **optional** — without it the DLC manager builds and runs, it just cannot play a sample |
 
 No Rust toolchain is needed: the fetch scripts download Slint's prebuilt C++ SDK.
 
 ## Linux
 
 ```bash
-sudo apt install build-essential cmake ninja-build libsdl2-dev libgl1-mesa-dev libinput10
+sudo apt install build-essential cmake ninja-build libsdl2-dev libgl1-mesa-dev \
+                 libinput10 libcurl4-openssl-dev libarchive-dev libsdl2-mixer-dev
 ./scripts/fetch_slint.sh
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
-./build/bin/swos-launcher
+./build/bin/swos-launcher      # or ./build/bin/swos-dlc-manager
 ```
 
 `libinput10` is not used by the launcher — it is a link-time dependency of the
@@ -29,11 +33,15 @@ Without it the link fails with `undefined reference to libinput_*`.
 ## macOS
 
 ```bash
-brew install cmake ninja sdl2
+brew install cmake ninja sdl2 curl libarchive sdl2_mixer
 ./scripts/fetch_slint.sh
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
+
+`curl` and `libarchive` are keg-only because macOS ships older ones; CMake looks
+them up through `brew --prefix` automatically, so a plain `brew install` is
+enough.
 
 **Apple Silicon only** for the prebuilt route: Slint publishes no `Darwin-x86_64`
 package. On an Intel Mac, install Rust and build Slint from source (below).
@@ -46,7 +54,7 @@ cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=<vcpkg>/scripts/buildsystems/vcpkg.cm
 cmake --build build --config Release
 ```
 
-SDL2 via `vcpkg install sdl2:x64-windows`. The prebuilt Slint package is an MSVC
+Dependencies via `vcpkg install sdl2 curl libarchive sdl2-mixer --triplet x64-windows`. The prebuilt Slint package is an MSVC
 build, so the launcher must be built with MSVC too — for MinGW, build Slint from
 source.
 
@@ -80,7 +88,11 @@ where the compositor cannot be screenshotted:
 
 ```bash
 SWOS_LAUNCHER_TAB=1 SWOS_LAUNCHER_SCREENSHOT=/tmp/ui.bmp ./build/bin/swos-launcher
+
+# The DLC manager can drive a real catalogue refresh and install headlessly:
+SWOS_DLC_REFRESH=1 SWOS_DLC_CATEGORY=5 SWOS_DLC_DOWNLOAD=2 \
+    SWOS_DLC_SCREENSHOT=/tmp/dlc.bmp ./build/bin/swos-dlc-manager
 ```
 
-This opens the Display tab, writes the first settled frame to a BMP and exits.
-See the debug-hooks table in `ARCHITECTURE.md`.
+Each writes the first settled frame to a BMP and exits. See the debug-hooks
+table in `ARCHITECTURE.md`.
