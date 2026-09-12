@@ -166,11 +166,51 @@ endif()
 # Apps
 # ---------------------------------------------------------------------------
 
+set(SWOS_ICON_DIR "${CMAKE_CURRENT_SOURCE_DIR}/assets/icon")
+
+# The macOS bundle needs a .icns, which only `iconutil` can produce. Generate it
+# at configure time from the committed .iconset if it is not already there, so a
+# Mac checkout needs no extra step. See scripts/generate_icons.py.
+if(APPLE)
+    set(SWOS_ICNS "${SWOS_ICON_DIR}/swos.icns")
+    if(NOT EXISTS "${SWOS_ICNS}")
+        find_program(SWOS_ICONUTIL iconutil)
+        if(SWOS_ICONUTIL AND EXISTS "${SWOS_ICON_DIR}/swos.iconset")
+            message(STATUS "Building swos.icns from swos.iconset")
+            execute_process(COMMAND ${SWOS_ICONUTIL} -c icns
+                                    "${SWOS_ICON_DIR}/swos.iconset" -o "${SWOS_ICNS}"
+                            RESULT_VARIABLE _icns_result)
+            if(NOT _icns_result EQUAL 0)
+                message(WARNING "iconutil failed; the bundle will have no icon")
+            endif()
+        endif()
+    endif()
+endif()
+
 # Shared setup for a Slint app built on swos-core.
 function(swos_add_app target)
-    cmake_parse_arguments(APP "" "SLINT" "SOURCES" ${ARGN})
+    cmake_parse_arguments(APP "" "SLINT;DISPLAY_NAME" "SOURCES" ${ARGN})
 
-    add_executable(${target} ${APP_SOURCES})
+    # Windows: the .rc is what attaches the icon to the exe, and it must be
+    # compiled into the target rather than linked in afterwards.
+    set(_platform_sources "")
+    if(WIN32)
+        set(_rc "${CMAKE_CURRENT_BINARY_DIR}/${target}.rc")
+        # The .rc references swos.ico relative to itself, so copy both next to
+        # each other in the build tree instead of rewriting the path.
+        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/packaging/${target}.rc" "${_rc}" COPYONLY)
+        configure_file("${SWOS_ICON_DIR}/swos.ico"
+                       "${CMAKE_CURRENT_BINARY_DIR}/swos.ico" COPYONLY)
+        list(APPEND _platform_sources "${_rc}")
+    elseif(APPLE AND EXISTS "${SWOS_ICON_DIR}/swos.icns")
+        # Listing the .icns as a source with MACOSX_PACKAGE_LOCATION puts it in
+        # Contents/Resources; Info.plist then names it.
+        list(APPEND _platform_sources "${SWOS_ICON_DIR}/swos.icns")
+        set_source_files_properties("${SWOS_ICON_DIR}/swos.icns"
+            PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    endif()
+
+    add_executable(${target} ${APP_SOURCES} ${_platform_sources})
     target_link_libraries(${target} PRIVATE swos-core)
     slint_target_sources(${target} ${APP_SLINT})
 
@@ -185,7 +225,24 @@ function(swos_add_app target)
             COMMAND_EXPAND_LISTS)
     elseif(APPLE)
         set_target_properties(${target} PROPERTIES
+            MACOSX_BUNDLE TRUE
+            MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/packaging/Info.plist.in"
+            MACOSX_BUNDLE_BUNDLE_NAME "${APP_DISPLAY_NAME}"
+            MACOSX_BUNDLE_GUI_IDENTIFIER "de.sensiblesoccer.${target}"
+            MACOSX_BUNDLE_ICON_FILE "swos.icns"
+            MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+            MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+            # Inside a bundle the executable sits in Contents/MacOS, so the
+            # Slint dylib beside it and in Frameworks both have to be findable.
             INSTALL_RPATH "@executable_path;@executable_path/../Frameworks")
+        # Put the Slint runtime in the bundle so it runs off this machine.
+        add_custom_command(TARGET ${target} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory
+                "$<TARGET_BUNDLE_CONTENT_DIR:${target}>/Frameworks"
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                $<TARGET_FILE:Slint::Slint>
+                "$<TARGET_BUNDLE_CONTENT_DIR:${target}>/Frameworks"
+            COMMAND_EXPAND_LISTS)
     else()
         set_target_properties(${target} PROPERTIES
             INSTALL_RPATH "$ORIGIN"
@@ -198,14 +255,27 @@ function(swos_add_app target)
         target_compile_options(${target} PRIVATE -Wall -Wextra -Wno-unused-parameter)
     endif()
 
-    install(TARGETS ${target} RUNTIME DESTINATION .)
+    install(TARGETS ${target}
+            RUNTIME DESTINATION .
+            BUNDLE  DESTINATION .)
+
+    # Linux desktop integration: the .desktop file plus the icon theme tree, so
+    # the app appears in menus with its icon.
+    if(UNIX AND NOT APPLE)
+        install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/packaging/${target}.desktop"
+                DESTINATION share/applications)
+        install(DIRECTORY "${SWOS_ICON_DIR}/hicolor"
+                DESTINATION share/icons)
+    endif()
 endfunction()
 
 swos_add_app(swos-launcher
+    DISPLAY_NAME "SWOS Launcher"
     SOURCES apps/launcher/main.cpp
     SLINT   apps/launcher/launcher.slint)
 
 swos_add_app(swos-dlc-manager
+    DISPLAY_NAME "SWOS DLC Manager"
     SOURCES apps/dlc_manager/main.cpp apps/dlc_manager/audio_preview.cpp
     SLINT   apps/dlc_manager/dlc_manager.slint)
 

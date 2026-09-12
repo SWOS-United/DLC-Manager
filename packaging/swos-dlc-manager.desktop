@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=SWOS DLC Manager
+GenericName=Content Manager
+Comment=Browse, download and install Sensible World of Soccer add-ons
+Exec=swos-dlc-manager
+Icon=swos
+Terminal=false
+Categories=Game;SportsGame;
+Keywords=SWOS;Sensible;Soccer;Football;DLC;
+StartupNotify=true
