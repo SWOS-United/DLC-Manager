@@ -85,9 +85,9 @@ CategoryIcon icon_for(const DlcIcons &icons, swos::DlcType type)
     case swos::DlcType::Fx:               return {icons.get_fx(), true};
     case swos::DlcType::TitleMusic:       return {icons.get_tmusic(), true};
     case swos::DlcType::MenuMusic:        return {icons.get_mmusic(), true};
-    case swos::DlcType::SpriteGoalNet:    return {icons.get_sprite_goalnet(), true};
 
     // Full-colour SWOS artwork from here down.
+    case swos::DlcType::SpriteGoalNet:    return {icons.get_sprite_goalnet(), false};
     case swos::DlcType::Pitch:            return {icons.get_pitch(), false};
     case swos::DlcType::Cup:              return {icons.get_cup(), false};
     case swos::DlcType::SpriteBall:       return {icons.get_sprite_ball(), false};

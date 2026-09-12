@@ -35,6 +35,7 @@ These are drawn as-is; tinting them would destroy them, which is what
 | `pitch.svg` `cup.svg` | `Pitch.svg` `Cup.svg` |
 | `sprite_ball.svg` `sprite_flag.svg` | `Ball.svg` `Flag.svg` |
 | `sprite_gk.svg` `sprite_manager.svg` `sprite_referee.svg` | `GoalKeeper.svg` `Manager.svg` `Referee.svg` |
+| `sprite_goalnet.svg` | `Goal.svg` |
 | `sprite_team1.svg` `sprite_team2.svg` `sprite_team3.svg` | `Team1.svg` `Team2.svg` `Team3.svg` |
 
 They are not copied verbatim: `scripts/normalize_dlc_icons.py` rewrites each
@@ -57,13 +58,8 @@ palette like the chrome above.
 | `bgi2.svg` | Background Image | Tabler `photo` |
 | `commentary.svg` | Commentary | Tabler `microphone` |
 | `mmusic.svg` | Menu Music | Tabler `playlist` |
-| `sprite_goalnet.svg` | Goal Net | Tabler `grid-pattern` |
 | `fx.svg` | Sound Effects | [Iconoir](https://iconoir.com) solid `sound-high` |
 | `tmusic.svg` | Title Music | Iconoir solid `music-note` |
-
-Goal Net has no good literal icon in any of the sets — `grid-pattern` reads as
-mesh at 20px, where the nearest alternative (MATERIALBLACK `basketball_net`)
-reads as the wrong sport.
 
 ## List flags — `flags.png`
 

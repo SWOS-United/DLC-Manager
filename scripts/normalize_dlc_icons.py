@@ -53,6 +53,7 @@ SOURCES = {
     "Team2.svg": "sprite_team2",
     "Team3.svg": "sprite_team3",
     "Flag.svg": "sprite_flag",
+    "Goal.svg": "sprite_goalnet",
 }
 
 # Breathing room around the content, as a fraction of the square side.
