@@ -187,6 +187,26 @@ void UiSurface::draw(int viewport_w, int viewport_h) const
 // GlWindowAdapter
 // ---------------------------------------------------------------------------
 
+namespace {
+
+bool lc_has_min(const slint::platform::WindowAdapter::WindowProperties &props)
+{
+    const auto lc = props.layout_constraints();
+    return lc.min.has_value() && lc.min->width > 0 && lc.min->height > 0;
+}
+
+// An unconstrained maximum comes back as a huge sentinel rather than nullopt;
+// clamping the OS window to that is both pointless and, on some window
+// managers, a resize.
+bool lc_has_usable_max(const slint::platform::WindowAdapter::WindowProperties &props)
+{
+    const auto lc = props.layout_constraints();
+    return lc.max.has_value() && lc.max->width > 0 && lc.max->height > 0 &&
+           lc.max->width < 100000.0f && lc.max->height < 100000.0f;
+}
+
+} // namespace
+
 GlWindowAdapter::GlWindowAdapter(Window &window)
     : m_window(window)
       // NewBuffer = repaint the whole surface each frame.
@@ -254,10 +274,21 @@ void GlWindowAdapter::update_window_properties(const WindowProperties &props)
 {
     if (!m_window.sdl_window()) return;
 
-    SDL_SetWindowTitle(m_window.sdl_window(), props.title().data());
+    // Slint calls this whenever a property queried here is re-evaluated, which
+    // a tab switch is enough to trigger. Every branch is therefore
+    // edge-triggered: pushing the same value at SDL again is not free.
+    // SDL_SetWindowMinimumSize in particular re-applies the window size, and
+    // X11 re-places the client rect relative to the frame, so an unconditional
+    // call walks the window up-left by the decoration size on every repaint.
 
-    // Let a `fullscreen:` binding in the .slint file drive the real window, but
-    // only on an edge, so it never fights Alt+Enter.
+    const slint::SharedString title = props.title();
+    if (m_applied_title != title.data()) {
+        m_applied_title = title.data();
+        SDL_SetWindowTitle(m_window.sdl_window(), m_applied_title.c_str());
+    }
+
+    // Let a `fullscreen:` binding in the .slint file drive the real window,
+    // without fighting Alt+Enter.
     const bool want_fullscreen = props.is_fullscreen();
     if (want_fullscreen != m_slint_fullscreen) {
         m_slint_fullscreen = want_fullscreen;
@@ -265,23 +296,50 @@ void GlWindowAdapter::update_window_properties(const WindowProperties &props)
         sync_size();
     }
 
-    if (props.is_maximized())
-        SDL_MaximizeWindow(m_window.sdl_window());
-    else if (props.is_minimized())
-        SDL_MinimizeWindow(m_window.sdl_window());
+    const bool maximized = props.is_maximized();
+    const bool minimized = props.is_minimized();
+    if (maximized != m_applied_maximized) {
+        m_applied_maximized = maximized;
+        if (maximized)
+            SDL_MaximizeWindow(m_window.sdl_window());
+        else if (!minimized)
+            SDL_RestoreWindow(m_window.sdl_window());
+    }
+    if (minimized != m_applied_minimized) {
+        m_applied_minimized = minimized;
+        if (minimized)
+            SDL_MinimizeWindow(m_window.sdl_window());
+        else if (!maximized)
+            SDL_RestoreWindow(m_window.sdl_window());
+    }
 
-    // Propagate the UI's own layout constraints so the user can't drag the
-    // window smaller than the design allows.
-    const auto lc = props.layout_constraints();
-    const float sf = scale_factor();
-    if (lc.min)
-        SDL_SetWindowMinimumSize(m_window.sdl_window(),
-                                 static_cast<int>(lc.min->width * sf / m_window.dpi_scale()),
-                                 static_cast<int>(lc.min->height * sf / m_window.dpi_scale()));
-    if (lc.max && lc.max->width > 0 && lc.max->height > 0 && lc.max->width < 100000)
-        SDL_SetWindowMaximumSize(m_window.sdl_window(),
-                                 static_cast<int>(lc.max->width * sf / m_window.dpi_scale()),
-                                 static_cast<int>(lc.max->height * sf / m_window.dpi_scale()));
+    // Propagate the UI's own layout constraints so the user cannot drag the
+    // window smaller than the design allows. Constraints are logical; SDL wants
+    // window units, and window units are logical times the UI zoom (the DPI
+    // half of the scale factor cancels).
+    const float zoom = std::max(0.1f, m_ui_scale);
+
+    if (lc_has_min(props)) {
+        const auto lc = props.layout_constraints();
+        const int w = static_cast<int>(lc.min->width * zoom);
+        const int h = static_cast<int>(lc.min->height * zoom);
+        if (w != m_applied_min_w || h != m_applied_min_h) {
+            m_applied_min_w = w;
+            m_applied_min_h = h;
+            SDL_SetWindowMinimumSize(m_window.sdl_window(), std::max(w, 1), std::max(h, 1));
+        }
+    }
+
+    if (lc_has_usable_max(props)) {
+        const auto lc = props.layout_constraints();
+        const int w = static_cast<int>(lc.max->width * zoom);
+        const int h = static_cast<int>(lc.max->height * zoom);
+        if (w != m_applied_max_w || h != m_applied_max_h) {
+            m_applied_max_w = w;
+            m_applied_max_h = h;
+            SDL_SetWindowMaximumSize(m_window.sdl_window(), std::max(w, 1), std::max(h, 1));
+        }
+    }
 }
 
 std::optional<slint::PhysicalPosition> GlWindowAdapter::position()

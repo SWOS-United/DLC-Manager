@@ -21,6 +21,7 @@
 
 #include <functional>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace swos {
@@ -109,6 +110,19 @@ private:
     // Slint requested fullscreen through its own window properties (e.g. a
     // `fullscreen: true` binding); mirrored onto the SDL window.
     bool m_slint_fullscreen = false;
+
+    // Last values pushed to SDL. update_window_properties() fires whenever any
+    // property it queried is re-evaluated -- switching tabs is enough -- so
+    // every call below has to be edge-triggered. Re-applying them
+    // unconditionally is not merely wasteful: SDL_SetWindowMinimumSize
+    // re-applies the window size, and X11 then re-places the client rect
+    // relative to the window frame, walking the window across the screen by
+    // the decoration size on every call.
+    std::string m_applied_title;
+    int m_applied_min_w = -1, m_applied_min_h = -1;
+    int m_applied_max_w = -1, m_applied_max_h = -1;
+    bool m_applied_maximized = false;
+    bool m_applied_minimized = false;
 };
 
 class SdlPlatform final : public slint::platform::Platform {
