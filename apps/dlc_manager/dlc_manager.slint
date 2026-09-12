@@ -18,6 +18,11 @@ export struct DlcCategory {
     // Section heading above the first entry of a group, "" for the rest.
     group: string,
     badge: int,        // new + updated packs, 0 hides the badge
+    icon: image,
+    // The sprite categories use the game's own full-colour artwork, which must
+    // be drawn as-is; the rest are monochrome glyphs that need tinting to the
+    // palette so they work in both themes.
+    tint-icon: bool,
 }
 
 export global Dlc {
@@ -63,6 +68,31 @@ export global Dlc {
     callback enabled-changed(bool);
 }
 
+// One property per DLC type id, so C++ can hand the right image back in
+// DlcCategory. @image-url only accepts a literal path, which is why these
+// cannot be built on the C++ side -- and why they must live in a global rather
+// than being loaded from disk at runtime: the build embeds these files into the
+// binary, so a copied or installed app still has its icons.
+export global DlcIcons {
+    out property <image> teamdb: @image-url("../../assets/icons/dlc/teamdb.svg");
+    out property <image> pitch: @image-url("../../assets/icons/dlc/pitch.svg");
+    out property <image> cup: @image-url("../../assets/icons/dlc/cup.svg");
+    out property <image> bgi2: @image-url("../../assets/icons/dlc/bgi2.svg");
+    out property <image> commentary: @image-url("../../assets/icons/dlc/commentary.svg");
+    out property <image> fx: @image-url("../../assets/icons/dlc/fx.svg");
+    out property <image> tmusic: @image-url("../../assets/icons/dlc/tmusic.svg");
+    out property <image> mmusic: @image-url("../../assets/icons/dlc/mmusic.svg");
+    out property <image> sprite-ball: @image-url("../../assets/icons/dlc/sprite_ball.svg");
+    out property <image> sprite-gk: @image-url("../../assets/icons/dlc/sprite_gk.svg");
+    out property <image> sprite-goalnet: @image-url("../../assets/icons/dlc/sprite_goalnet.svg");
+    out property <image> sprite-manager: @image-url("../../assets/icons/dlc/sprite_manager.svg");
+    out property <image> sprite-referee: @image-url("../../assets/icons/dlc/sprite_referee.svg");
+    out property <image> sprite-team1: @image-url("../../assets/icons/dlc/sprite_team1.svg");
+    out property <image> sprite-team2: @image-url("../../assets/icons/dlc/sprite_team2.svg");
+    out property <image> sprite-team3: @image-url("../../assets/icons/dlc/sprite_team3.svg");
+    out property <image> sprite-flag: @image-url("../../assets/icons/dlc/sprite_flag.svg");
+}
+
 export global DlcActions {
     callback refresh-catalog();
     callback download();
@@ -86,9 +116,12 @@ export global Theme {
 component Icon inherits Image {
     in property <length> size: 18px;
     in property <color> tint: Palette.foreground;
+    // Full-colour artwork must not be recoloured; a transparent colorize is
+    // Slint's "leave the pixels alone".
+    in property <bool> tinted: true;
     width: root.size;
     height: root.size;
-    colorize: root.tint;
+    colorize: root.tinted ? root.tint : Colors.transparent;
     image-fit: contain;
     accessible-role: none;
 }
@@ -125,6 +158,8 @@ component CategoryRow inherits Rectangle {
     in property <string> label;
     in property <bool> selected;
     in property <int> badge;
+    in property <image> icon;
+    in property <bool> tint-icon: true;
     callback clicked();
 
     height: 30px;
@@ -136,7 +171,16 @@ component CategoryRow inherits Rectangle {
     HorizontalLayout {
         padding-left: 10px;
         padding-right: 8px;
-        spacing: 6px;
+        spacing: 8px;
+        Icon {
+            size: 20px;
+            source: root.icon;
+            tinted: root.tint-icon;
+            // Tinting only applies to the glyphs; the selected row highlights
+            // those in the accent colour like its label.
+            tint: root.selected ? Palette.accent-background : Palette.foreground;
+            y: (parent.height - self.height) / 2;
+        }
         Text {
             text: root.label;
             vertical-alignment: center;
@@ -250,6 +294,8 @@ export component DlcManagerWindow inherits Window {
                             CategoryRow {
                                 label: category.label;
                                 badge: category.badge;
+                                icon: category.icon;
+                                tint-icon: category.tint-icon;
                                 selected: Dlc.current-category == index;
                                 clicked => {
                                     Dlc.current-category = index;

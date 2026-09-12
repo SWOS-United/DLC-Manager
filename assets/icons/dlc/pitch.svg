@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: visioncortex VTracer -->
+
+<svg width="64" height="64"
+   id="svg"
+   version="1.1"
+   style="display: block;"
+   viewBox="0.6400 0.6400 62.7200 62.7200"
+   sodipodi:docname="Pitch.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs13" />
+  <sodipodi:namedview
+     id="namedview13"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="18.234375"
+     inkscape:cx="31.972579"
+     inkscape:cy="31.61611"
+     inkscape:window-width="3440"
+     inkscape:window-height="1369"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg" />
+  <g
+     id="g16">
+    <path
+       d="M 8,8 V 52 H 56 V 8 Z"
+       style="fill:#b4b4b4"
+       id="path16" />
+    <path
+       d="M 4,4 V 60 H 60 V 4 Z M 8,8 H 56 V 52 H 8 Z"
+       style="fill:#249000"
+       id="path15" />
+    <path
+       d="M0,0 L8,0 L8,4 L12,4 L12,0 L28,0 L28,4 L32,4 L32,0 L40,0 L40,16 L0,16 Z "
+       transform="translate(12,32)"
+       style="fill: #249000;"
+       id="path4" />
+    <path
+       d="M0,0 L40,0 L40,16 L32,16 L32,12 L28,12 L28,16 L12,16 L12,12 L8,12 L8,16 L0,16 Z "
+       transform="translate(12,12)"
+       style="fill: #249000;"
+       id="path5" />
+    <path
+       d="M0,0 L16,0 L16,4 L12,4 L12,8 L4,8 L4,4 L0,4 Z "
+       transform="translate(24,32)"
+       style="fill: #249000;"
+       id="path6" />
+    <path
+       d="M0,0 L8,0 L8,4 L12,4 L12,8 L-4,8 L-4,4 L0,4 Z "
+       transform="translate(28,20)"
+       style="fill: #249000;"
+       id="path7" />
+    <path
+       d="M0,0 L8,0 L8,4 L0,4 Z "
+       transform="translate(28,40)"
+       style="fill: #B4B4B4;"
+       id="path8" />
+    <path
+       d="M0,0 L8,0 L8,4 L0,4 Z "
+       transform="translate(28,16)"
+       style="fill: #B4B4B4;"
+       id="path9" />
+    <path
+       d="M0,0 L4,0 L4,4 L0,4 Z "
+       transform="translate(36,36)"
+       style="fill: #B4B4B4;"
+       id="path10" />
+    <path
+       d="M0,0 L4,0 L4,4 L0,4 Z "
+       transform="translate(24,36)"
+       style="fill: #B4B4B4;"
+       id="path11" />
+    <path
+       d="M0,0 L4,0 L4,4 L0,4 Z "
+       transform="translate(36,20)"
+       style="fill: #B4B4B4;"
+       id="path12" />
+    <path
+       d="M0,0 L4,0 L4,4 L0,4 Z "
+       transform="translate(24,20)"
+       style="fill: #B4B4B4;"
+       id="path13" />
+  </g>
+</svg>

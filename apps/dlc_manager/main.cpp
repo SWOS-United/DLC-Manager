@@ -64,6 +64,44 @@ const std::vector<CategoryGroup> &category_groups()
     return groups;
 }
 
+// The icon for a type, and whether it may be recoloured. The sprite categories
+// use the game's own artwork, which is full colour and must be drawn as-is; the
+// rest are monochrome glyphs that get tinted to the palette.
+//
+// The images come from the DlcIcons global because @image-url only accepts a
+// literal path, so they cannot be built here -- but going through it keeps this
+// one function the only place that decides which icon belongs to which type.
+struct CategoryIcon {
+    slint::Image image;
+    bool tint = true;
+};
+
+CategoryIcon icon_for(const DlcIcons &icons, swos::DlcType type)
+{
+    switch (type) {
+    case swos::DlcType::TeamDb:           return {icons.get_teamdb(), true};
+    case swos::DlcType::BackgroundImage:  return {icons.get_bgi2(), true};
+    case swos::DlcType::Commentary:       return {icons.get_commentary(), true};
+    case swos::DlcType::Fx:               return {icons.get_fx(), true};
+    case swos::DlcType::TitleMusic:       return {icons.get_tmusic(), true};
+    case swos::DlcType::MenuMusic:        return {icons.get_mmusic(), true};
+    case swos::DlcType::SpriteGoalNet:    return {icons.get_sprite_goalnet(), true};
+
+    // Full-colour SWOS artwork from here down.
+    case swos::DlcType::Pitch:            return {icons.get_pitch(), false};
+    case swos::DlcType::Cup:              return {icons.get_cup(), false};
+    case swos::DlcType::SpriteBall:       return {icons.get_sprite_ball(), false};
+    case swos::DlcType::SpriteGoalkeeper: return {icons.get_sprite_gk(), false};
+    case swos::DlcType::SpriteManager:    return {icons.get_sprite_manager(), false};
+    case swos::DlcType::SpriteReferee:    return {icons.get_sprite_referee(), false};
+    case swos::DlcType::SpriteTeam1:      return {icons.get_sprite_team1(), false};
+    case swos::DlcType::SpriteTeam2:      return {icons.get_sprite_team2(), false};
+    case swos::DlcType::SpriteTeam3:      return {icons.get_sprite_team3(), false};
+    case swos::DlcType::SpriteFlag:       return {icons.get_sprite_flag(), false};
+    }
+    return {};
+}
+
 // Flattened sidebar order, which is what current-category indexes.
 const std::vector<swos::DlcType> &category_order()
 {
@@ -287,6 +325,7 @@ int main(int argc, char *argv[])
     const Dlc &model = ui->global<Dlc>();
     const DlcActions &actions = ui->global<DlcActions>();
     const Theme &theme = ui->global<Theme>();
+    const DlcIcons &icons = ui->global<DlcIcons>();
 
     swos::GlWindowAdapter *adapter = platform_ptr->adapter();
     if (!adapter) {
@@ -348,6 +387,9 @@ int main(int argc, char *argv[])
                 row.group = shared(first ? group.heading : "");
                 const swos::DlcCatalog &catalog = catalogs[index];
                 row.badge = catalog.new_count() + catalog.update_count();
+                const CategoryIcon icon = icon_for(icons, type);
+                row.icon = icon.image;
+                row.tint_icon = icon.tint;
                 rows.push_back(std::move(row));
                 first = false;
                 ++index;

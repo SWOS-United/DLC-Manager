@@ -215,6 +215,11 @@ function(swos_add_app target)
     endif()
 
     add_executable(${target} ${APP_SOURCES} ${_platform_sources})
+
+    # Compile the icons into the binary. The default, as-absolute-path, stores
+    # the build machine's own paths, so a copied or installed app silently loses
+    # every icon -- verified by `strings` on the Linux build before this was set.
+    set_property(TARGET ${target} PROPERTY SLINT_EMBED_RESOURCES embed-files)
     target_link_libraries(${target} PRIVATE swos-core)
     slint_target_sources(${target} ${APP_SLINT})
 

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: visioncortex VTracer -->
+
+<svg width="64" height="64"
+   id="svg"
+   version="1.1"
+   style="display: block;"
+   viewBox="11.8400 11.8400 40.3200 40.3200"
+   sodipodi:docname="Ball.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs9" />
+  <sodipodi:namedview
+     id="namedview9"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="18.234375"
+     inkscape:cx="31.972579"
+     inkscape:cy="32"
+     inkscape:window-width="3440"
+     inkscape:window-height="1369"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg" />
+  <g
+     id="g9"
+     transform="translate(0,-2)">
+    <path
+       d="m 0,0 h 8 v 4 h 4 v 8 H 8 v 4 H 0 V 12 H -4 V 4 h 4 z"
+       transform="translate(36,36)"
+       style="fill:#242424"
+       id="path2" />
+    <path
+       d="m 0,0 h 4 v 8 h 4 v 4 H 0 v 4 H -4 V 12 H -8 V 4 h 8 z"
+       transform="translate(24,16)"
+       style="fill:#fcfcfc"
+       id="path3" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(24,28)"
+       style="fill:#000000"
+       id="path4" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(20,28)"
+       style="fill:#fcfcfc"
+       id="path5" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(28,24)"
+       style="fill:#b4b4b4"
+       id="path6" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(20,24)"
+       style="fill:#000000"
+       id="path7" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(28,20)"
+       style="fill:#000000"
+       id="path8" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(20,16)"
+       style="fill:#000000"
+       id="path9" />
+  </g>
+</svg>

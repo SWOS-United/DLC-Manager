@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: visioncortex VTracer -->
+
+<svg width="64" height="64"
+   id="svg"
+   version="1.1"
+   style="display: block;"
+   viewBox="-1.6000 -1.6000 67.2000 67.2000"
+   sodipodi:docname="Manager.svg"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs17" />
+  <sodipodi:namedview
+     id="namedview17"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="25.7873"
+     inkscape:cx="28.89019"
+     inkscape:cy="39.922752"
+     inkscape:window-width="3440"
+     inkscape:window-height="1369"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg" />
+  <g
+     id="g18"
+     transform="translate(14,2)">
+    <path
+       id="path2"
+       style="fill:#6c2400"
+       d="M 4,0 V 4 H 0 v 12 h 4 v 4 H 0 v 20 h 4 v 12 h 4 v 4 h 8 v 4 H 36 V 56 H 32 V 52 H 24 V 48 H 12 v -8 h 4 V 28 h 12 v -4 h -8 v -8 h -4 v 4 H 12 V 16 H 8 v -4 h 4 V 8 h 8 V 4 H 16 V 0 Z" />
+    <path
+       d="m 0,0 h 20 v 4 h 8 v 4 h 4 v 4 H 12 V 8 H 4 V 4 H 0 Z"
+       transform="translate(4,48)"
+       style="fill:#242424"
+       id="path3" />
+    <path
+       id="path4"
+       style="fill:#000000"
+       d="M 4,0 V 4 H 0 v 12 h 8 v -4 h 4 V 8 h 8 V 4 H 16 V 0 Z" />
+    <path
+       d="M 0,0 H 8 V 8 H 4 v 4 H 0 V 8 H -4 V 4 h 4 z"
+       transform="translate(12,8)"
+       style="fill:#fc6c00"
+       id="path5" />
+    <path
+       d="M 0,0 H 8 V 8 H 0 Z"
+       transform="translate(4,40)"
+       style="fill:#b44800"
+       id="path6" />
+    <path
+       d="M 0,0 H 12 V 4 H 0 Z"
+       transform="translate(4,48)"
+       style="fill:#000000"
+       id="path7" />
+    <path
+       id="path8"
+       style="fill:#6c2400"
+       d="m 4,0 v 4 h 8 V 0 Z"
+       transform="translate(0,16)" />
+    <path
+       d="M 0,0 H 4 V 8 H 0 Z"
+       transform="translate(16,16)"
+       style="fill:#000000"
+       id="path9" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(12,28)"
+       style="fill:#000000"
+       id="path10" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(28,24)"
+       style="fill:#fc6c00"
+       id="path11" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(12,20)"
+       style="fill:#b44800"
+       id="path12" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(4,20)"
+       style="fill:#000000"
+       id="path13" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(8,16)"
+       style="fill:#b44800"
+       id="path14" />
+    <path
+       d="M 0,0 H 4 V 4 H 0 Z"
+       transform="translate(16,12)"
+       style="fill:#fcfcfc"
+       id="path16" />
+  </g>
+</svg>
