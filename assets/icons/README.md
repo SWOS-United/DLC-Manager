@@ -65,6 +65,22 @@ Goal Net has no good literal icon in any of the sets — `grid-pattern` reads as
 mesh at 20px, where the nearest alternative (MATERIALBLACK `basketball_net`)
 reads as the wrong sport.
 
+## List flags — `flags.png`
+
+A 4x13 grid of 16x16 cells, extracted from the Delphi DLC manager's `imgFlags`
+image list by `scripts/extract_flags.py` and shipped as one sheet that the UI
+clips per cell rather than as 51 separate files.
+
+The indices are the original's, unchanged, because the code that picks a flag is
+a direct port of the `ImageIndex` chains in `lvwCommentaryInfoCustomDrawItem` and
+`lvwCupInfoCustomDrawItem` (see `swos::dlc_flag_index`): 0 Germany, 1 United
+Kingdom, 2 Spain, … 12 the "unknown" question mark, 30 Denmark, 33 UEFA, 34
+penalty shootout, 36-38 player portraits, 39-41 NBA/Sega/SNES, 42-43 trophies,
+44 England, 50 Turkey.
+
+Only Commentary and Cup show flags — they are the two lists that set
+`SmallImages = imgFlags` in the original form.
+
 ## Executable icons
 
 See `icon/` and `scripts/generate_icons.py`.

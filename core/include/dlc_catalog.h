@@ -167,6 +167,23 @@ private:
     std::vector<DlcEntry> m_entries;
 };
 
+// Index into the flag strip (assets/icons/flags.png) for a pack, or -1 when the
+// type shows no flag.
+//
+// A direct port of the ImageIndex chains in lvwCommentaryInfoCustomDrawItem and
+// lvwCupInfoCustomDrawItem: the original picked a flag by searching the visible
+// title for a substring, and the indices are positions in the same strip that
+// scripts/extract_flags.py pulls out of the Delphi form. Only Commentary and Cup
+// had flags -- those are the two lists that set SmallImages = imgFlags.
+//
+// Order matters and is preserved: "Portugues Brasileiro" has to be tested before
+// "Portuguese", and the first of two "(Sweden" arms is the one that wins.
+int dlc_flag_index(DlcType type, const std::string &title);
+
+// Geometry of assets/icons/flags.png, so the UI can clip a cell out of it.
+inline constexpr int kFlagCell = 16;
+inline constexpr int kFlagColumns = 4;
+
 // Base URL of the DLC server, without a trailing slash.
 const char *dlc_server_root();
 

@@ -33,7 +33,7 @@
 
 namespace {
 
-constexpr int kDesignWidth = 1180;
+constexpr int kDesignWidth = 1260;
 constexpr int kDesignHeight = 780;
 
 slint::SharedString shared(const std::string &s)
@@ -433,23 +433,28 @@ int main(int argc, char *argv[])
 
     auto refresh_rows = [&] {
         const swos::DlcCatalog &catalog = current_catalog();
-        std::vector<std::shared_ptr<slint::Model<slint::StandardListViewItem>>> rows;
+        std::vector<DlcRow> rows;
+        rows.reserve(catalog.entries().size());
 
         for (const swos::DlcEntry &entry : catalog.entries()) {
-            std::vector<slint::StandardListViewItem> cells;
-            cells.push_back(slint::StandardListViewItem{shared(entry.title)});
-            cells.push_back(slint::StandardListViewItem{shared(entry.author)});
-            cells.push_back(slint::StandardListViewItem{shared(entry.local_version)});
-            cells.push_back(slint::StandardListViewItem{shared(entry.server_version)});
-            cells.push_back(
-                    slint::StandardListViewItem{shared(swos::dlc_status_label(entry.status))});
-            rows.push_back(std::make_shared<slint::VectorModel<slint::StandardListViewItem>>(
-                    std::move(cells)));
+            DlcRow row;
+            row.title = shared(entry.title);
+            row.author = shared(entry.author);
+            row.installed = shared(entry.local_version);
+            row.latest = shared(entry.server_version);
+            row.status = shared(swos::dlc_status_label(entry.status));
+            switch (entry.status) {
+            case swos::DlcStatus::New:       row.status_kind = 0; break;
+            case swos::DlcStatus::Installed: row.status_kind = 1; break;
+            case swos::DlcStatus::Update:    row.status_kind = 2; break;
+            case swos::DlcStatus::Removed:   row.status_kind = 3; break;
+            }
+            // Commentary and Cup are the two lists the original gave flags to.
+            row.flag = swos::dlc_flag_index(catalog.type(), entry.title);
+            rows.push_back(std::move(row));
         }
 
-        model.set_rows(std::make_shared<slint::VectorModel<
-                               std::shared_ptr<slint::Model<slint::StandardListViewItem>>>>(
-                std::move(rows)));
+        model.set_rows(std::make_shared<slint::VectorModel<DlcRow>>(std::move(rows)));
 
         model.set_applied_title(shared(catalog.load_selection()));
         model.set_has_enabled_flag(catalog.type() == swos::DlcType::Cup ||

@@ -126,6 +126,125 @@ constexpr const char *kDlcSection = "DLC";
 
 } // namespace
 
+namespace {
+
+bool contains(const std::string &haystack, const char *needle)
+{
+    return haystack.find(needle) != std::string::npos;
+}
+
+// lvwCommentaryInfoCustomDrawItem. Default 1 (United Kingdom) for anything
+// unrecognised, as in the original.
+int commentary_flag(const std::string &t)
+{
+    if (contains(t, "Deutsch")) return 0;
+    if (contains(t, "English")) return 1;
+    if (contains(t, "Espanol")) return 2;
+    if (contains(t, "Francais")) return 3;
+    if (contains(t, "Greek")) return 4;
+    if (contains(t, "Italiano")) return 5;
+    if (contains(t, "Korean")) return 6;
+    if (contains(t, "Nederlands")) return 7;
+    if (contains(t, "Polski")) return 8;
+    // Before "Portuguese", which would otherwise swallow it.
+    if (contains(t, "Portugues Brasileiro")) return 9;
+    if (contains(t, "Portuguese")) return 10;
+    if (contains(t, "Serbian")) return 11;
+    if (contains(t, "Danish")) return 30;
+    if (contains(t, "Only FX")) return 12;
+    if (contains(t, "Turkish")) return 50;
+    return 1;
+}
+
+// lvwCupInfoCustomDrawItem. Country arms match on an opening bracket because the
+// country is a suffix like "1964 UEFA EURO CUP (Spain)". Default 12, the
+// question mark.
+int cup_flag(const std::string &t)
+{
+    if (contains(t, "(Germany")) return 0;
+    if (contains(t, "(West Germany")) return 0;
+    if (contains(t, "(England")) return 44;
+    if (contains(t, "(Spain")) return 2;
+    if (contains(t, "(France")) return 3;
+    if (contains(t, "(Greece")) return 4;
+    if (contains(t, "(Italy")) return 5;
+    if (contains(t, "(Korea")) return 6;
+    if (contains(t, "(Holland")) return 7;
+    if (contains(t, "(Poland")) return 8;
+    if (contains(t, "(Brazil")) return 9;
+    if (contains(t, "(Portugal")) return 10;
+    if (contains(t, "(Serbia")) return 11;
+    if (contains(t, "(Mexico")) return 13;
+    if (contains(t, "(Belgium")) return 14;
+    if (contains(t, "(Yugoslavia")) return 15;
+    if (contains(t, "(Argentina")) return 16;
+    // The original tests "(Sweden" twice, 17 then 26; the first arm always wins,
+    // so 26 is dead. Kept as-is rather than "fixed" -- 17 is the flag users see.
+    if (contains(t, "(Sweden")) return 17;
+    if (contains(t, "(Japan")) return 18;
+    if (contains(t, "(Austria")) return 19;
+    if (contains(t, "(Switzerland")) return 20;
+    if (contains(t, "(South Africa")) return 21;
+    if (contains(t, "(Ukraine")) return 22;
+    if (contains(t, "(Russia")) return 23;
+    if (contains(t, "(United States")) return 24;
+    if (contains(t, "(Qatar")) return 25;
+    if (contains(t, "(Chile")) return 27;
+    if (contains(t, "(Uruguay")) return 28;
+    if (contains(t, "(Europe")) return 29;
+    if (contains(t, "(Tunisia")) return 31;
+    if (contains(t, "(Cameroon")) return 32;
+
+    // Competition badges rather than countries.
+    if (contains(t, "UEFA EUROPEAN CUP 1")) return 33;
+    if (contains(t, "UEFA EUROPEAN CUP 2")) return 33;
+    if (contains(t, "UEFA CHAMPIONS LEAGUE")) return 33;
+    if (contains(t, "CLUB TEAMS (1992-1996)")) return 33;
+    if (contains(t, "CLUB TEAMS (1996-2019)")) return 33;
+    if (contains(t, "PENALTY SHOOTOUTS")) return 34;
+    if (contains(t, "CLUB TEAMS (1998-2021)")) return 35;
+
+    // 36 black, 37 blonde, 38 brown -- player portraits, used to tell the
+    // decade-spanning club sets apart.
+    if (contains(t, "CLUB TEAMS (1970-1979)")) return 38;
+    if (contains(t, "CLUB TEAMS (1980-1989)")) return 37;
+    if (contains(t, "CLUB TEAMS (1990-1999)")) return 36;
+    if (contains(t, "CLUB TEAMS (2000-2009)")) return 38;
+    if (contains(t, "CLUB TEAMS (2010-2019)")) return 37;
+    if (contains(t, "CLUB TEAMS (1980-2010)")) return 36;
+    if (contains(t, "CLUB TEAMS (1995-2018)")) return 45;
+    if (contains(t, "CLUB TEAMS (1970-2017)")) return 46;
+    if (contains(t, "CLUB TEAMS (1972-2019)")) return 47;
+
+    // 39 NBA, 40 Sega, 41 SNES.
+    if (contains(t, "FIFA SOCCER 9")) return 40;
+    if (contains(t, "INTERNATIONAL SUPERSTAR SOCCER DELUXE")) return 41;
+    if (contains(t, "INTERNATIONAL SUPERSTAR SOCCER 64")) return 48;
+    if (contains(t, "NBA")) return 39;
+    if (contains(t, "SENSIBLE SOCCER IE - CLUB")) return 38;
+    if (contains(t, "SENSIBLE SOCCER IE - NATIONAL")) return 37;
+    if (contains(t, "WORLD CUP ITALIA 90")) return 40;
+
+    // 42 small trophy, 43 large trophy.
+    if (contains(t, "LEGENDS - FIFA WORLD CUP")) return 42;
+    if (contains(t, "LEGENDS - UEFA EURO CUP")) return 43;
+    if (contains(t, "LEGENDS - HOLLAND (1990-1999)")) return 49;
+
+    if (contains(t, "British Football Pioneers")) return 1;
+    return 12;
+}
+
+} // namespace
+
+int dlc_flag_index(DlcType type, const std::string &title)
+{
+    switch (type) {
+    case DlcType::Commentary: return commentary_flag(title);
+    case DlcType::Cup: return cup_flag(title);
+    default: return -1;
+    }
+}
+
 const char *dlc_server_root()
 {
     return "http://www.sensiblesoccer.de/swos2020";

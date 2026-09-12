@@ -10,8 +10,21 @@
 
 import {
     Button, CheckBox, ComboBox, GroupBox, HorizontalBox, LineEdit, ListView,
-    Palette, ProgressIndicator, ScrollView, StandardTableView, VerticalBox
+    Palette, ProgressIndicator, ScrollView, VerticalBox
 } from "std-widgets.slint";
+
+// One pack. `flag` indexes assets/icons/flags.png, the strip lifted from the
+// Delphi form, or is -1 for the categories that showed no flag.
+export struct DlcRow {
+    title: string,
+    author: string,
+    installed: string,
+    latest: string,
+    status: string,
+    // 0 new, 1 installed, 2 update, 3 removed -- drives the status colour.
+    status-kind: int,
+    flag: int,
+}
 
 export struct DlcCategory {
     label: string,
@@ -31,7 +44,7 @@ export global Dlc {
     in-out property <int> current-category: 0;
 
     // --- The selected category's list ---
-    in property <[[StandardListViewItem]]> rows;
+    in property <[DlcRow]> rows;
     in-out property <int> current-row: -1;
 
     // --- Detail of the highlighted row ---
@@ -73,6 +86,14 @@ export global Dlc {
 // cannot be built on the C++ side -- and why they must live in a global rather
 // than being loaded from disk at runtime: the build embeds these files into the
 // binary, so a copied or installed app still has its icons.
+// The flag strip from the original DLC manager, kept as one sheet and clipped
+// per cell rather than split into 51 files. Indices are the original's.
+export global Flags {
+    out property <image> sheet: @image-url("../../assets/icons/flags.png");
+    out property <int> cell: 16;
+    out property <int> columns: 4;
+}
+
 export global DlcIcons {
     out property <image> teamdb: @image-url("../../assets/icons/dlc/teamdb.svg");
     out property <image> pitch: @image-url("../../assets/icons/dlc/pitch.svg");
@@ -213,7 +234,7 @@ component CategoryRow inherits Rectangle {
 
 export component DlcManagerWindow inherits Window {
     title: "SWOS United DLC Manager";
-    preferred-width: 1180px;
+    preferred-width: 1260px;
     preferred-height: 780px;
     min-width: 900px;
     min-height: 600px;
@@ -308,27 +329,138 @@ export component DlcManagerWindow inherits Window {
             }
 
             // Available packs
-            VerticalBox {
+            packs := VerticalBox {
                 padding: 0px;
                 spacing: 8px;
                 horizontal-stretch: 3;
 
-                StandardTableView {
+                // Column geometry, shared by the header and the rows. Title and
+                // Author share whatever is left after the three narrow columns,
+                // 2:1, because a fixed Author width left titles like
+                // "1930 FIFA WORLD CUP (Uruguay)" eliding to "1930 FIFA WORLD ...".
+                property <length> col-installed: 72px;
+                property <length> col-latest: 64px;
+                property <length> col-status: 80px;
+
+                // Header
+                Rectangle {
+                    height: 28px;
+                    vertical-stretch: 0;
+                    HorizontalLayout {
+                        padding-left: 8px;
+                        padding-right: 8px;
+                        spacing: 8px;
+                        Text {
+                            text: "Title";
+                            vertical-alignment: center;
+                            font-size: 11px;
+                            font-weight: 700;
+                            color: Palette.foreground.transparentize(0.4);
+                            horizontal-stretch: 2;
+                            overflow: elide;
+                        }
+                        Text {
+                            text: "Author";
+                            vertical-alignment: center; font-size: 11px; font-weight: 700;
+                            color: Palette.foreground.transparentize(0.4);
+                            horizontal-stretch: 1;
+                            overflow: elide;
+                        }
+                        Text {
+                            text: "Installed"; width: packs.col-installed;
+                            vertical-alignment: center; font-size: 11px; font-weight: 700;
+                            color: Palette.foreground.transparentize(0.4);
+                        }
+                        Text {
+                            text: "Latest"; width: packs.col-latest;
+                            vertical-alignment: center; font-size: 11px; font-weight: 700;
+                            color: Palette.foreground.transparentize(0.4);
+                        }
+                        Text {
+                            text: "Status"; width: packs.col-status;
+                            vertical-alignment: center; font-size: 11px; font-weight: 700;
+                            color: Palette.foreground.transparentize(0.4);
+                        }
+                    }
+                    Rectangle {
+                        y: parent.height - 1px;
+                        height: 1px;
+                        background: Palette.border;
+                    }
+                }
+
+                ListView {
                     vertical-stretch: 1;
-                    // The three status columns get an explicit width: with
-                    // stretch (or min-width) alone they collapse far enough to
-                    // elide their own headers to "Inst...". Title and Author
-                    // keep the stretch and absorb whatever is left.
-                    columns: [
-                        { title: "Title", horizontal-stretch: 3, min-width: 200px },
-                        { title: "Author", horizontal-stretch: 2, min-width: 140px },
-                        { title: "Installed", width: 90px, min-width: 90px },
-                        { title: "Latest", width: 80px, min-width: 80px },
-                        { title: "Status", width: 90px, min-width: 90px },
-                    ];
-                    rows: Dlc.rows;
-                    current-row <=> Dlc.current-row;
-                    current-row-changed(row) => { Dlc.row-changed(row); }
+                    for row[index] in Dlc.rows: Rectangle {
+                        height: 30px;
+                        background: Dlc.current-row == index
+                                  ? Palette.accent-background.transparentize(0.8)
+                                  : row-touch.has-hover
+                                  ? Palette.foreground.transparentize(0.95)
+                                  : transparent;
+
+                        HorizontalLayout {
+                            padding-left: 8px;
+                            padding-right: 8px;
+                            spacing: 8px;
+
+                            // The flag, clipped out of the shared strip. Kept at
+                            // its native 16px and pixelated: it is a 16x16
+                            // bitmap, and smoothing it just makes it muddy.
+                            Rectangle {
+                                width: 20px;
+                                if row.flag >= 0: Image {
+                                    source: Flags.sheet;
+                                    source-clip-x: mod(row.flag, Flags.columns) * Flags.cell;
+                                    source-clip-y: floor(row.flag / Flags.columns) * Flags.cell;
+                                    source-clip-width: Flags.cell;
+                                    source-clip-height: Flags.cell;
+                                    width: 16px;
+                                    height: 16px;
+                                    image-rendering: pixelated;
+                                }
+                            }
+
+                            Text {
+                                text: row.title;
+                                vertical-alignment: center;
+                                overflow: elide;
+                                color: Palette.foreground;
+                                horizontal-stretch: 2;
+                            }
+                            Text {
+                                text: row.author;
+                                vertical-alignment: center; overflow: elide; font-size: 12px;
+                                color: Palette.foreground.transparentize(0.3);
+                                horizontal-stretch: 1;
+                            }
+                            Text {
+                                text: row.installed; width: packs.col-installed;
+                                vertical-alignment: center; font-size: 12px;
+                                color: Palette.foreground.transparentize(0.3);
+                            }
+                            Text {
+                                text: row.latest; width: packs.col-latest;
+                                vertical-alignment: center; font-size: 12px;
+                                color: Palette.foreground.transparentize(0.3);
+                            }
+                            Text {
+                                text: row.status; width: packs.col-status;
+                                vertical-alignment: center; font-size: 12px; font-weight: 600;
+                                color: row.status-kind == 0 ? Palette.accent-background
+                                     : row.status-kind == 2 ? #d98324
+                                     : row.status-kind == 3 ? Palette.foreground.transparentize(0.55)
+                                     : #3fa34d;
+                            }
+                        }
+
+                        row-touch := TouchArea {
+                            clicked => {
+                                Dlc.current-row = index;
+                                Dlc.row-changed(index);
+                            }
+                        }
+                    }
                 }
 
                 // Applied selection + the per-type enable switch.
