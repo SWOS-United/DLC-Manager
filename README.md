@@ -5,10 +5,10 @@ OpenGL 3.3 core and [Slint](https://slint.dev). Targets Windows, macOS and
 Linux, and is intended to fold into
 [SWOS-United](https://github.com/benbaker76/SWOS-United) once it settles.
 
-| binary | replaces | what it does |
-|---|---|---|
-| `swos-launcher` | `gameLauncher.dpr` | game settings and launching |
-| `swos-dlc-manager` | `DLCManager.dpr` | browse, download and install DLC |
+| binary | name | replaces | what it does |
+|---|---|---|---|
+| `swos-launcher` | SWOS United Launcher | `gameLauncher.dpr` | game settings and launching |
+| `swos-dlc-manager` | SWOS United DLC Manager | `DLCManager.dpr` | browse, download and install DLC |
 
 Both share `swos-core` and the same `ini/gameLauncher.ini`, so a pack selected
 in the manager is the pack the launcher applies.
@@ -68,6 +68,19 @@ swos-launcher [options]
 
 The launcher looks for the game in `swos-path.txt` next to the executable, or in
 `./SWOS` if that file is absent.
+
+## Where your files live
+
+Settings and downloaded DLC go in the per-user SWOS folder, the same one
+SWOS-United uses, so the game and these tools agree:
+
+| | |
+|---|---|
+| Windows | `%USERPROFILE%\Documents\SWOS` |
+| macOS | `~/Library/Application Support/SWOS` |
+| Linux | `~/.swos` |
+
+Inside it, `ini/`, `dlc/` and `temp/` keep the names the Delphi build used.
 
 ## Layout
 

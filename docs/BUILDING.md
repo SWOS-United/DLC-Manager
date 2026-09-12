@@ -9,8 +9,8 @@
 | SDL2 ≥ 2.0.5 | window, input, GL context | `SDL_GetWindowBordersSize` needs 2.0.5 |
 | OpenGL 3.3 core | presentation | driver, no SDK needed |
 | Slint ≥ 1.17 (C++) | UI | `scripts/fetch_slint.*` |
-| libcurl | DLC downloads | |
-| libarchive | 7z extraction | needs liblzma, pulled in automatically |
+| libcurl | DLC downloads | already in the macOS SDK; package needed on Linux/Windows |
+| libarchive | 7z extraction | needs liblzma, pulled in automatically. **Also needed on macOS** -- Apple ships the dylib but no headers |
 | SDL2_mixer | DLC audio preview | **optional** — without it the DLC manager builds and runs, it just cannot play a sample |
 
 No Rust toolchain is needed: the fetch scripts download Slint's prebuilt C++ SDK.
@@ -33,15 +33,19 @@ Without it the link fails with `undefined reference to libinput_*`.
 ## macOS
 
 ```bash
-brew install cmake ninja sdl2 curl libarchive sdl2_mixer
+brew install cmake ninja sdl2 libarchive sdl2_mixer
 ./scripts/fetch_slint.sh
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
 
-`curl` and `libarchive` are keg-only because macOS ships older ones; CMake looks
-them up through `brew --prefix` automatically, so a plain `brew install` is
-enough.
+`libcurl` comes from the macOS SDK, so it needs no package. `libarchive` does:
+Apple ships `libarchive.dylib` but no public headers, so `find_package` fails
+without the brew formula. It installs keg-only, and CMake locates it through
+`brew --prefix`, so a plain `brew install` is enough.
+
+Verified on macOS 26.6 (Apple Silicon, Xcode clang 21): both apps build as `.app`
+bundles and run, with the `.icns` generated at configure time by `iconutil`.
 
 **Apple Silicon only** for the prebuilt route: Slint publishes no `Darwin-x86_64`
 package. On an Intel Mac, install Rust and build Slint from source (below).

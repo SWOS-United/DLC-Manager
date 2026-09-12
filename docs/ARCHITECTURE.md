@@ -149,6 +149,21 @@ The capture fires once the UI has settled — nothing left to redraw, and for th
 DLC manager no download or extraction still running — with a deadline so it
 cannot hang a CI run.
 
+## Where data goes
+
+`executable_dir()` is an install location; `user_dir()` is the writable one, and
+they are deliberately different. The Delphi build kept everything beside the
+exe, which is fine on Windows and wrong on macOS: inside a `.app`,
+`SDL_GetBasePath` points at `Contents/Resources`, a signed bundle fails
+Gatekeeper once its Resources change, and an app in `/Applications` or on a
+mounted DMG is not writable at all.
+
+`user_dir()` mirrors `swos_io.c` in SWOS-United so both projects land on the
+same folder — `%USERPROFILE%\Documents\SWOS`, `~/Library/Application
+Support/SWOS`, `~/.swos` — with `$HOME` tried first and
+`SDL_GetPrefPath(NULL, "SWOS")` as the fallback. That fallback earns its keep: a
+`.app` launched from Finder gets a trimmed environment with `HOME` unset.
+
 ## Background work (DLC manager)
 
 Downloads run on a worker thread inside `swos::Download`; extraction gets its
