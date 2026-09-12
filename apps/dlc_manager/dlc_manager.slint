@@ -334,10 +334,20 @@ export component DlcManagerWindow inherits Window {
                 spacing: 8px;
                 horizontal-stretch: 3;
 
-                // Column geometry, shared by the header and the rows. Title and
-                // Author share whatever is left after the three narrow columns,
-                // 2:1, because a fixed Author width left titles like
-                // "1930 FIFA WORLD CUP (Uruguay)" eliding to "1930 FIFA WORLD ...".
+                // Column geometry, shared by the header and the rows.
+                //
+                // Exactly one column may be flexible. A layout sizes stretchy
+                // children from their *preferred* width plus a share of the
+                // slack, and the header's preferred widths ("Author") are
+                // nothing like a row's ("Francescomanetti82 and Gorzo"), so two
+                // stretchy columns put the header and the rows in different
+                // places. With only Title flexible, every other column is a
+                // fixed width in both and Title takes the identical remainder.
+                //
+                // The flag column is part of that geometry, so the header
+                // reserves the same width even though it has nothing to draw.
+                property <length> col-flag: 20px;
+                property <length> col-author: 150px;
                 property <length> col-installed: 72px;
                 property <length> col-latest: 64px;
                 property <length> col-status: 80px;
@@ -350,20 +360,22 @@ export component DlcManagerWindow inherits Window {
                         padding-left: 8px;
                         padding-right: 8px;
                         spacing: 8px;
+                        // Matches the rows' flag column so the two line up.
+                        Rectangle { width: packs.col-flag; }
                         Text {
                             text: "Title";
                             vertical-alignment: center;
                             font-size: 11px;
                             font-weight: 700;
                             color: Palette.foreground.transparentize(0.4);
-                            horizontal-stretch: 2;
+                            horizontal-stretch: 1;
+                            min-width: 60px;
                             overflow: elide;
                         }
                         Text {
-                            text: "Author";
+                            text: "Author"; width: packs.col-author;
                             vertical-alignment: center; font-size: 11px; font-weight: 700;
                             color: Palette.foreground.transparentize(0.4);
-                            horizontal-stretch: 1;
                             overflow: elide;
                         }
                         Text {
@@ -408,7 +420,7 @@ export component DlcManagerWindow inherits Window {
                             // its native 16px and pixelated: it is a 16x16
                             // bitmap, and smoothing it just makes it muddy.
                             Rectangle {
-                                width: 20px;
+                                width: packs.col-flag;
                                 if row.flag >= 0: Image {
                                     source: Flags.sheet;
                                     source-clip-x: mod(row.flag, Flags.columns) * Flags.cell;
@@ -426,13 +438,13 @@ export component DlcManagerWindow inherits Window {
                                 vertical-alignment: center;
                                 overflow: elide;
                                 color: Palette.foreground;
-                                horizontal-stretch: 2;
+                                horizontal-stretch: 1;
+                                min-width: 60px;
                             }
                             Text {
-                                text: row.author;
+                                text: row.author; width: packs.col-author;
                                 vertical-alignment: center; overflow: elide; font-size: 12px;
                                 color: Palette.foreground.transparentize(0.3);
-                                horizontal-stretch: 1;
                             }
                             Text {
                                 text: row.installed; width: packs.col-installed;
