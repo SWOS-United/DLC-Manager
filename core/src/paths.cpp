@@ -28,6 +28,41 @@ std::string executable_dir()
     return fs::current_path().string();
 }
 
+bool running_in_bundle()
+{
+#if defined(__APPLE__)
+    // SDL_GetBasePath returns <App>.app/Contents/Resources/ for a bundled app
+    // and the plain executable directory otherwise, so the suffix is the test.
+    static const bool bundled = [] {
+        const std::string base = executable_dir();
+        const std::string suffix = "/Contents/Resources";
+        return base.size() >= suffix.size() &&
+               base.compare(base.size() - suffix.size(), suffix.size(), suffix) == 0;
+    }();
+    return bundled;
+#else
+    return false;
+#endif
+}
+
+std::string data_dir()
+{
+    if (!running_in_bundle()) return executable_dir();
+
+    // SDL_GetPrefPath creates the directory and returns
+    // ~/Library/Application Support/<org>/<app>/ on macOS.
+    if (char *pref = SDL_GetPrefPath("SWOS", "SWOS")) {
+        std::string out(pref);
+        SDL_free(pref);
+        if (out.size() > 1) {
+            const char last = out.back();
+            if (last == '/' || last == '\\') out.pop_back();
+        }
+        return out;
+    }
+    return executable_dir();
+}
+
 std::string path_join(const std::string &a, const std::string &b)
 {
     if (a.empty()) return b;

@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
     SDL_StartTextInput();
     swos::HttpSession http_session;
 
-    const std::string base_dir = swos::executable_dir();
+    const std::string base_dir = swos::data_dir();
 
     swos::Settings settings;
     settings.load(base_dir);

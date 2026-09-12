@@ -11,9 +11,29 @@
 
 namespace swos {
 
-// Directory holding the running executable. This is what the Delphi launcher
-// called gCurDir; every relative path (ini/, dlc/, col_palettes/) hangs off it.
+// Directory holding the running executable.
+//
+// On a macOS .app this is Contents/Resources, because that is what
+// SDL_GetBasePath reports for a bundle. Use data_dir() for anything writable --
+// see below.
 std::string executable_dir();
+
+// Where ini/, dlc/ and temp/ live. This is what the Delphi launcher called
+// gCurDir, and on Windows and Linux it still is the executable's directory, so
+// an install stays portable and an existing tree keeps working.
+//
+// macOS is different: inside a .app, executable_dir() points into the bundle,
+// and writing there is wrong. A signed bundle fails Gatekeeper once its
+// Resources change, and an app in /Applications or on a mounted DMG is not
+// writable at all. So a bundled build uses
+// ~/Library/Application Support/SWOS/SWOS instead, which is where a Mac app is
+// expected to keep this. A non-bundled macOS build (running the bare binary out
+// of a build tree) keeps the portable behaviour.
+std::string data_dir();
+
+// True when this process is running from a macOS .app bundle. Always false
+// elsewhere.
+bool running_in_bundle();
 
 std::string path_join(const std::string &a, const std::string &b);
 std::string parent_path(const std::string &p);
