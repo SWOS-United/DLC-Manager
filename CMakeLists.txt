@@ -240,6 +240,10 @@ function(swos_add_app target)
             MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
             # Inside a bundle the executable sits in Contents/MacOS, so the
             # Slint dylib beside it and in Frameworks both have to be findable.
+            # BUILD_RPATH as well as INSTALL_RPATH: the latter only applies to
+            # an installed binary, so without it running straight out of the
+            # build tree dies with "Library not loaded: @rpath/libslint_cpp.dylib".
+            BUILD_RPATH "@executable_path;@executable_path/../Frameworks;${SWOS_SLINT_ROOT}/lib"
             INSTALL_RPATH "@executable_path;@executable_path/../Frameworks")
         # Put the Slint runtime in the bundle so it runs off this machine.
         if(TARGET slint_cpp-shared)
