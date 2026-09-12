@@ -64,6 +64,10 @@ endif()
 # The prebuilt package advertises which Cargo features it was built with but
 # does not turn them into compile definitions, and the public headers gate whole
 # classes on them (SoftwareRenderer lives behind SLINT_FEATURE_RENDERER_SOFTWARE).
+# Slint::Slint is an INTERFACE target, so it has no TARGET_FILE. The actual
+# shared library is the imported slint_cpp-shared that SlintConfig.cmake
+# defines; a from-source static Slint has no such target, hence the guard at
+# each use below.
 get_target_property(_slint_features Slint::Slint SLINT_ENABLED_FEATURES)
 if(_slint_features)
     foreach(_feature IN LISTS _slint_features)
@@ -219,10 +223,12 @@ function(swos_add_app target)
         if(TARGET SDL2::SDL2main)
             target_link_libraries(${target} PRIVATE SDL2::SDL2main)
         endif()
-        add_custom_command(TARGET ${target} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:Slint::Slint> $<TARGET_FILE_DIR:${target}>
-            COMMAND_EXPAND_LISTS)
+        if(TARGET slint_cpp-shared)
+            add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_FILE:slint_cpp-shared> $<TARGET_FILE_DIR:${target}>
+                COMMAND_EXPAND_LISTS)
+        endif()
     elseif(APPLE)
         set_target_properties(${target} PROPERTIES
             MACOSX_BUNDLE TRUE
@@ -236,13 +242,15 @@ function(swos_add_app target)
             # Slint dylib beside it and in Frameworks both have to be findable.
             INSTALL_RPATH "@executable_path;@executable_path/../Frameworks")
         # Put the Slint runtime in the bundle so it runs off this machine.
-        add_custom_command(TARGET ${target} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E make_directory
-                "$<TARGET_BUNDLE_CONTENT_DIR:${target}>/Frameworks"
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                $<TARGET_FILE:Slint::Slint>
-                "$<TARGET_BUNDLE_CONTENT_DIR:${target}>/Frameworks"
-            COMMAND_EXPAND_LISTS)
+        if(TARGET slint_cpp-shared)
+            add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory
+                    "$<TARGET_BUNDLE_CONTENT_DIR:${target}>/Frameworks"
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    $<TARGET_FILE:slint_cpp-shared>
+                    "$<TARGET_BUNDLE_CONTENT_DIR:${target}>/Frameworks"
+                COMMAND_EXPAND_LISTS)
+        endif()
     else()
         set_target_properties(${target} PROPERTIES
             INSTALL_RPATH "$ORIGIN"
