@@ -1,0 +1,18 @@
+# Build output
+build/
+build-*/
+bin/
+dist/
+out/
+
+# Third-party SDKs fetched by scripts/fetch_slint.*
+third_party/slint/
+third_party/*.tar.gz
+third_party/*.zip
+
+# Editor / OS
+.vscode/ipch/
+.DS_Store
+Thumbs.db
+*.swp
+compile_commands.json
