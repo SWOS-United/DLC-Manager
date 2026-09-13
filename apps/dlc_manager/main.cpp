@@ -177,13 +177,19 @@ std::string preview_audio_path(const swos::DlcCatalog &catalog, const swos::DlcE
     return {};
 }
 
-// A background job: download then extract. Both legs are slow and neither may
-// run on the UI thread, but they have to report progress to it.
+// A background job: download and extract a pack, then do the same for its
+// preview archive. All four legs are slow and none may run on the UI thread,
+// but they have to report progress to it.
+//
+// The preview is a second archive alongside the pack -- "<name>_preview.7z" --
+// holding the artwork the detail pane shows: preview/pitchN.bmp for a pitch,
+// <name>.png for a cup. Not every pack has one, so a failure there is not a
+// failure of the install.
 class InstallJob {
 public:
-    enum class Stage { Idle, Downloading, Extracting, Done };
+    enum class Stage { Idle, Downloading, Extracting, PreviewDownloading, PreviewExtracting, Done };
 
-    bool active() const { return m_stage == Stage::Downloading || m_stage == Stage::Extracting; }
+    bool active() const { return m_stage != Stage::Idle && m_stage != Stage::Done; }
     Stage stage() const { return m_stage; }
 
     void start(swos::DlcCatalog &catalog, const swos::DlcEntry &entry)
@@ -191,11 +197,12 @@ public:
         m_title = entry.title;
         m_archive = catalog.package_path(entry, false);
         m_destination = catalog.install_dir(entry);
-        m_url = catalog.package_url(entry, false);
+        m_preview_archive = catalog.package_path(entry, true);
+        m_preview_url = catalog.package_url(entry, true);
         m_error.clear();
         m_cancel.store(false);
         m_stage = Stage::Downloading;
-        m_download.start(m_url, m_archive);
+        m_download.start(catalog.package_url(entry, false), m_archive);
     }
 
     void cancel()
@@ -207,38 +214,60 @@ public:
     // Drives the job forward; call once per frame from the UI thread.
     void poll()
     {
-        if (m_stage == Stage::Downloading) {
+        switch (m_stage) {
+        case Stage::Downloading: {
             if (!m_download.finished()) return;
-
             const swos::DownloadResult result = m_download.take_result();
             if (!result.ok) {
                 m_error = result.error.empty() ? "Download failed" : result.error;
                 m_stage = Stage::Done;
                 return;
             }
-            // Extraction is CPU-bound and can take seconds on a big sprite
-            // pack, so it gets its own thread rather than stalling the frame.
-            m_stage = Stage::Extracting;
-            m_extract_done.store(false);
-            m_extract_thread = std::thread([this] {
-                const swos::ExtractResult result =
-                        swos::extract_archive(m_archive, m_destination, {}, &m_cancel);
-                if (!result.ok) m_error = result.error;
-                m_extract_done.store(true);
-            });
+            begin_extract(m_archive, m_destination, Stage::Extracting);
             return;
         }
 
-        if (m_stage == Stage::Extracting && m_extract_done.load()) {
-            if (m_extract_thread.joinable()) m_extract_thread.join();
+        case Stage::Extracting: {
+            if (!m_extract_done.load()) return;
+            join_extract();
+            if (!m_error.empty()) {           // a bad pack is a real failure
+                m_stage = Stage::Done;
+                return;
+            }
+            // The preview is optional, so its download failing is silent.
+            m_stage = Stage::PreviewDownloading;
+            m_download.start(m_preview_url, m_preview_archive);
+            return;
+        }
+
+        case Stage::PreviewDownloading: {
+            if (!m_download.finished()) return;
+            const swos::DownloadResult result = m_download.take_result();
+            if (!result.ok) {
+                m_stage = Stage::Done;        // no preview published; that is fine
+                return;
+            }
+            begin_extract(m_preview_archive, m_destination, Stage::PreviewExtracting);
+            return;
+        }
+
+        case Stage::PreviewExtracting: {
+            if (!m_extract_done.load()) return;
+            join_extract();
+            // Whatever went wrong here, the pack itself is installed.
+            m_error.clear();
             m_stage = Stage::Done;
+            return;
+        }
+
+        default: return;
         }
     }
 
     // Fraction for the progress bar, or -1 when it cannot be known.
     float fraction() const
     {
-        if (m_stage != Stage::Downloading) return -1.0f;
+        if (m_stage != Stage::Downloading && m_stage != Stage::PreviewDownloading) return -1.0f;
         const swos::DownloadProgress progress = m_download.progress();
         return progress.bytes_total > 0 ? progress.fraction() : -1.0f;
     }
@@ -258,7 +287,9 @@ public:
             }
             return "Downloading " + m_title;
         }
-        case Stage::Extracting: return "Extracting " + m_title;
+        case Stage::Extracting:         return "Extracting " + m_title;
+        case Stage::PreviewDownloading: return "Fetching preview for " + m_title;
+        case Stage::PreviewExtracting:  return "Extracting preview for " + m_title;
         default: return {};
         }
     }
@@ -274,8 +305,29 @@ public:
     }
 
 private:
+    // Extraction is CPU-bound and can take seconds on a big sprite pack, so it
+    // gets its own thread rather than stalling the frame.
+    void begin_extract(std::string archive, std::string destination, Stage next)
+    {
+        m_stage = next;
+        m_extract_done.store(false);
+        m_extract_thread = std::thread([this, archive = std::move(archive),
+                                        destination = std::move(destination)] {
+            const swos::ExtractResult result =
+                    swos::extract_archive(archive, destination, {}, &m_cancel);
+            if (!result.ok) m_error = result.error;
+            m_extract_done.store(true);
+        });
+    }
+
+    void join_extract()
+    {
+        if (m_extract_thread.joinable()) m_extract_thread.join();
+    }
+
     Stage m_stage = Stage::Idle;
-    std::string m_title, m_archive, m_destination, m_url, m_error;
+    std::string m_title, m_archive, m_destination, m_error;
+    std::string m_preview_archive, m_preview_url;
     swos::Download m_download;
     std::thread m_extract_thread;
     std::atomic<bool> m_extract_done{false};
@@ -589,6 +641,14 @@ int main(int argc, char *argv[])
     // SWOS_DLC_REFRESH=1 fetches every catalogue at startup, so the download
     // path can be exercised headlessly alongside the screenshot hook.
     if (SDL_getenv("SWOS_DLC_REFRESH")) actions.invoke_refresh_catalog();
+    // SWOS_DLC_ROW=<row> just highlights a row, so the detail pane can be
+    // captured without installing anything.
+    if (const char *row = SDL_getenv("SWOS_DLC_ROW")) {
+        const int index = std::atoi(row);
+        model.set_current_row(index);
+        current_row = index;
+        refresh_detail();
+    }
     // SWOS_DLC_DOWNLOAD=<row> installs one pack, so the download + extract +
     // mark-installed path can be exercised headlessly.
     if (const char *row = SDL_getenv("SWOS_DLC_DOWNLOAD")) {

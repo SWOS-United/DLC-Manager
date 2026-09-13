@@ -13,7 +13,7 @@ Linux, and is intended to fold into
 Both share `swos-core` and the same `ini/gameLauncher.ini`, so a pack selected
 in the manager is the pack the launcher applies.
 
-![General tab](docs/images/general-light.png)
+![SWOS United Launcher](docs/images/launcher.png)
 
 ## The launcher
 
@@ -30,14 +30,20 @@ in the manager is the pack the launcher applies.
 
 ## The DLC manager
 
-![DLC manager](docs/images/dlc-manager.png)
+![SWOS United DLC Manager](docs/images/dlc-manager.png)
+
+<sub>Light and dark follow the desktop by default.</sub>
+
+![SWOS United DLC Manager in dark mode](docs/images/dlc-manager-dark.png)
 
 * Fetches all 17 DLC catalogues from `sensiblesoccer.de/swos2020`, merging them
   with what is installed to mark each pack New / Update / Installed / Removed.
 * Downloads and extracts `.7z` packs in-process (libcurl + libarchive), on a
   worker thread so the UI keeps painting, with progress and cancel.
 * Image previews for pitches, cups, sprites and backgrounds; audio previews for
-  commentary, sound effects and music.
+  commentary, sound effects and music. The artwork comes from the pack's own
+  `_preview` archive, fetched alongside it.
+* Country flags in the Commentary and Cup lists, from the original's own icons.
 * Records the selection the launcher then applies.
 
 See [docs/PORTING.md](docs/PORTING.md) for what is not ported yet — chiefly

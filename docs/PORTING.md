@@ -74,6 +74,8 @@ they look like bugs but are what the game expects:
 | `addServerVersions` (status merge) | `DlcCatalog::merge` |
 | `download` (Indy / WinINet / `TDownloadURL`) | `core/src/http.cpp` (libcurl) |
 | `downloadDLC` shelling out to `temp/7z.exe` | `core/src/archive_extract.cpp` (libarchive) |
+| `downloadDLC('_preview')` | the preview leg of `InstallJob` |
+| `lvw*CustomDrawItem` `ImageIndex` chains | `swos::dlc_flag_index` |
 | `loadCurrentFromIni` / `saveCurrentToIni` | `DlcCatalog::load_selection` / `save_selection` |
 | `preview_audio_commentary_u` / `preview_audio_fx_u` (MCI) | `apps/dlc_manager/audio_preview.cpp` (SDL2_mixer) |
 | 17 near-identical tabs | one list/preview layout, type chosen in a sidebar |

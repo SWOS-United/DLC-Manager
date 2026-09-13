@@ -141,6 +141,7 @@ so the UI can be smoke-tested where the window manager cannot be screenshotted
 | `SWOS_LAUNCHER_SCREENSHOT=<file>` | write the settled frame to a BMP, then exit |
 | `SWOS_DLC_CATEGORY=<n>` | DLC manager: open category *n* |
 | `SWOS_DLC_REFRESH=1` | DLC manager: fetch every catalogue at startup |
+| `SWOS_DLC_ROW=<row>` | DLC manager: highlight row *row* |
 | `SWOS_DLC_DOWNLOAD=<row>` | DLC manager: install the pack in row *row* |
 | `SWOS_DLC_REMOVE=<row>` | DLC manager: uninstall the pack in row *row* |
 | `SWOS_DLC_SCREENSHOT=<file>` | DLC manager: capture once idle, then exit |
