@@ -763,6 +763,67 @@ export component LauncherWindow inherits Window {
                         color: Palette.foreground;
                     }
 
+                    // The credits: a box of its own that scrolls, so the list can grow
+                    // without pushing the rest of the page down.
+                    SectionTitle { text: "SWOS United"; }
+                    Rectangle {
+                        height: 232px;
+                        background: Palette.alternate-background;
+                        border-radius: 4px;
+                        border-width: 1px;
+                        border-color: Palette.border;
+                        ScrollView {
+                            VerticalLayout {
+                                padding: 10px;
+                                alignment: start;      /* rows at the top, not spread over the box */
+                                GridLayout {
+                                    spacing-horizontal: 16px;
+                                    spacing-vertical: 6px;
+                                Row {
+                                    Text { text: "Project Management"; color: Palette.foreground.transparentize(0.25); }
+                                    Text { text: "Playaveli"; wrap: word-wrap; color: Palette.foreground; horizontal-stretch: 1; }
+                                }
+                                Row {
+                                    Text { text: "Engineering Lead"; color: Palette.foreground.transparentize(0.25); }
+                                    Text { text: "benbaker76"; wrap: word-wrap; color: Palette.foreground; horizontal-stretch: 1; }
+                                }
+                                Row {
+                                    Text { text: "SWOS 2020 Feature Engineering"; color: Palette.foreground.transparentize(0.25); }
+                                    Text { text: "starwindz"; wrap: word-wrap; color: Palette.foreground; horizontal-stretch: 1; }
+                                }
+                                Row {
+                                    Text { text: "SWOS Reverse Engineering"; color: Palette.foreground.transparentize(0.25); }
+                                    Text { text: "benbaker76 (Amiga) / zkz (DOS)"; wrap: word-wrap; color: Palette.foreground; horizontal-stretch: 1; }
+                                }
+                                Row {
+                                    Text { text: "SWOS Live (swos.eu)"; color: Palette.foreground.transparentize(0.25); }
+                                    Text { text: "Redhair"; wrap: word-wrap; color: Palette.foreground; horizontal-stretch: 1; }
+                                }
+                                Row {
+                                    Text { text: "SWOS Multiplayer (GGPO-X)"; color: Palette.foreground.transparentize(0.25); }
+                                    Text { text: "thd79"; wrap: word-wrap; color: Palette.foreground; horizontal-stretch: 1; }
+                                }
+                                Row {
+                                    Text { text: "SWOS Web Online Rankings"; color: Palette.foreground.transparentize(0.25); }
+                                    Text { text: "ElMichaJ"; wrap: word-wrap; color: Palette.foreground; horizontal-stretch: 1; }
+                                }
+                                Row {
+                                    Text { text: "Custom Graphics"; color: Palette.foreground.transparentize(0.25); }
+                                    Text { text: "Francescomanetti82"; wrap: word-wrap; color: Palette.foreground; horizontal-stretch: 1; }
+                                }
+                                Row {
+                                    Text { text: "Beta Testers"; color: Palette.foreground.transparentize(0.25); }
+                                    Text { text: "crom1, ElMichaJ, EMPI, gatifun, petarku, Playaveli, Predicador, Redhair, segra, starwindz, thd79"; wrap: word-wrap; color: Palette.foreground; horizontal-stretch: 1; }
+                                }
+                                Row {
+                                    Text { text: "Donators"; color: Palette.foreground.transparentize(0.25); }
+                                    Text { text: "benbaker76, Playaveli, starwindz, Petarku, gatifun, burellapaolo, az0man0, Cartoplotus68, JoSon, aliko"; wrap: word-wrap; color: Palette.foreground; horizontal-stretch: 1; }
+                                }
+                                }
+                            }
+                        }
+                    }
+
                     SectionTitle { text: "Game directory"; }
                     HorizontalBox {
                         padding: 0px;
