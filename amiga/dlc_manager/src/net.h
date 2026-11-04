@@ -1,0 +1,32 @@
+/* net.h -- plain HTTP/1.0 GET over bsdsocket.library.
+ *
+ * Built against the Roadshow SDK headers, but bsdsocket.library is a shared
+ * API: this runs on Roadshow, AmiTCP or Miami alike. The DLC server is plain
+ * http:// (sensiblesoccer.de/swos2020), so no TLS stack is needed.
+ *
+ * Calls block. Sockets get a receive timeout so a dead server cannot hang the
+ * program forever, but the window does not repaint while a request runs.
+ */
+#ifndef SWOSDLC_NET_H
+#define SWOSDLC_NET_H
+
+#include <exec/types.h>
+
+#define DLC_HOST     "www.sensiblesoccer.de"
+#define DLC_BASEPATH "/swos2020/dlc"
+
+/* Opens bsdsocket.library. FALSE when no TCP/IP stack is running. */
+BOOL net_open(void);
+void net_close(void);
+BOOL net_available(void);
+/* e.g. "Roadshow 4.x" -- whatever the stack reports, for the status line. */
+const char *net_stack_name(void);
+
+/* Fetches http://host/path. On success *body is a NUL-terminated buffer the
+ * caller frees with FreeVec, and the result is TRUE. A non-200 answer is a
+ * failure: the DLC server redirects missing files to an HTML homepage.
+ * On failure `err` says why. */
+BOOL net_http_get(const char *host, const char *path, char **body, ULONG *length,
+                  char *err, ULONG err_size);
+
+#endif
