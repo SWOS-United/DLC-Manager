@@ -55,6 +55,34 @@ void net_close(void)
 BOOL net_available(void) { return SocketBase != NULL; }
 const char *net_stack_name(void) { return s_stack_name; }
 
+BOOL net_ready(char *why, ULONG why_size)
+{
+    ULONG status = 0;
+
+    if (!SocketBase) {
+        str_copy(why, "No TCP/IP stack - placeholder data", why_size);
+        return FALSE;
+    }
+    /* Roadshow answers this; AmiTCP, Miami and UAE's emulated library may
+     * not, and then the only way to find out is to try. */
+    if (SocketBaseTags(SBTM_GETREF(SBTC_SYSTEM_STATUS), (ULONG)&status, TAG_END) != 0)
+        return TRUE;
+
+    if (!(status & SBSYSSTAT_Interfaces)) {
+        str_copy(why, "Offline: no network interface is up", why_size);
+        return FALSE;
+    }
+    if (!(status & SBSYSSTAT_Resolver)) {
+        str_copy(why, "Offline: no DNS server configured", why_size);
+        return FALSE;
+    }
+    if (!(status & SBSYSSTAT_DefaultRoute)) {
+        str_copy(why, "Offline: no default route", why_size);
+        return FALSE;
+    }
+    return TRUE;
+}
+
 static BOOL send_all(LONG sock, const char *data, LONG len)
 {
     while (len > 0) {

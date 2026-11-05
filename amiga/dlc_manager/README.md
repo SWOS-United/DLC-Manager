@@ -19,7 +19,7 @@ installing and applying are placeholders.
 |    Info [1994 - Moon Soccer                                       ] |
 | Applied [1994 - SWOS 1.1 (Amiga)                                  ] |
 | [Refresh] [Download] [Remove] [Apply] [Quit]                        |
-| [Roadshow ready - press Refresh...                 ] [#####       ]  |
+| [Roadshow 4.364 online - press Refresh             ] [#####       ]  |
 +---------------------------------------------------------------------+
 ```
 
@@ -30,6 +30,7 @@ installing and applying are placeholders.
 | **Refresh** (and *Project → Refresh all*) | Real. `GET http://www.sensiblesoccer.de/swos2020/dlc/<type>/<type>-info.csv` over `bsdsocket.library`, the same catalogue the PC manager reads (see `core/include/dlc_catalog.h`). |
 | Status merge | Real. New / Installed / Update / Removed, computed the same way as `DlcCatalog::merge`. |
 | No TCP/IP stack | Opens anyway, with placeholder lists, and says so in the status line. |
+| Stack loaded but offline | Asks Roadshow whether an interface, DNS server and default route are up, at start-up and on every Refresh, and says which one is missing instead of failing to resolve the host. |
 | **Download** | *Placeholder.* A progress bar that runs for about 2.5 seconds, then marks the pack installed. Esc cancels. |
 | **Remove / Apply** | *Placeholder.* They change the in-memory state only. |
 

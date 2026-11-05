@@ -22,6 +22,14 @@ BOOL net_available(void);
 /* e.g. "Roadshow 4.x" -- whatever the stack reports, for the status line. */
 const char *net_stack_name(void);
 
+/* Whether the stack is actually online: bsdsocket.library opens from LIBS:
+ * whether or not an interface was ever brought up, so "the library opened"
+ * says little. Asks Roadshow for its system status (interfaces, DNS, default
+ * route). FALSE with the reason in `why` when it is not usable; TRUE when it
+ * is, or when the stack cannot say (then the request itself is the test).
+ * `why` is short enough for the status line (about 50 characters). */
+BOOL net_ready(char *why, ULONG why_size);
+
 /* Fetches http://host/path. On success *body is a NUL-terminated buffer the
  * caller frees with FreeVec, and the result is TRUE. A non-200 answer is a
  * failure: the DLC server redirects missing files to an HTML homepage.

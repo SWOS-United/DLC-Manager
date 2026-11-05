@@ -251,8 +251,11 @@ static void do_refresh(BOOL all)
     struct Pack *p = cur_pack();
     LONG i, ok = 0, tried = 0;
 
-    if (!net_available()) {
-        status("No TCP/IP stack (bsdsocket.library) - showing placeholder data");
+    /* Checked on every Refresh: the network may have come up (or gone down)
+     * since the window opened. */
+    net_open();
+    if (!net_ready(msg, sizeof(msg))) {
+        status(msg);
         return;
     }
     keep[0] = 0;
@@ -651,13 +654,13 @@ int main(void)
 
         if (open_window()) {
             select_category(s_cat);
-            if (net_available()) {
+            {
                 char msg[128];
-                str_format(msg, sizeof(msg), "%s ready - press Refresh to fetch the catalogue",
-                           (ULONG)net_stack_name());
+                if (net_ready(msg, sizeof(msg))) {
+                    str_format(msg, sizeof(msg), "%s online - press Refresh",
+                               (ULONG)net_stack_name());
+                }
                 status(msg);
-            } else {
-                status("Offline: no TCP/IP stack running - placeholder data");
             }
             event_loop();
             rc = 0;
