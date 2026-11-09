@@ -87,6 +87,18 @@ struct DlcEntry {
     std::string description;
     DlcStatus status = DlcStatus::New;
 
+    // A mod's identity and download, when the catalogue is a mod index rather
+    // than SWOS 2020's CSVs (see mod_store.h). Empty otherwise.
+    std::string uuid;
+    std::string slug;             // its folder in mods/, and its name in [mods] enabled
+    std::string slot;             // "" or pitch, commentary, fx, title_music, ...
+    std::string changes;          // cosmetic, data, modes, ...
+    std::string about;
+    std::string url, sha256;
+    long long size = 0;
+    bool offline_only = false;    // "online": false
+    bool on = false;              // named in SWOS.ini [mods] enabled
+
     // Title with '/' replaced by '_': the on-disk and in-URL form.
     std::string folder_name() const;
     bool installed() const { return status != DlcStatus::New; }
@@ -100,6 +112,20 @@ public:
 
     DlcType type() const { return m_type; }
     const std::string &base_dir() const { return m_base_dir; }
+
+    // --- Mods ------------------------------------------------------------
+    // In mods mode the list comes from the mod index and what is installed in
+    // mods/, matched by uuid; a pack installs to mods/<slug>, and "applied" means
+    // turned on in SWOS.ini [mods] (see mod_store.h). Every path, URL and
+    // selection call below follows the mode.
+    bool mods_mode() const { return m_mods; }
+    // Switches to mods mode with this type's share of the index (`server`) and of
+    // what is installed (`installed`, versions in server_version).
+    void set_mods(std::vector<DlcEntry> server, std::vector<DlcEntry> installed);
+    // Re-reads mods/ and [mods] enabled after an install, a removal or a switch.
+    void rescan_mods();
+    // Turns a mod on or off in SWOS.ini.
+    bool set_mod_on(const std::string &title, bool on);
 
     // --- Catalogue -------------------------------------------------------
     // Parses a <type>-info.csv body. The first line is a header and lines
@@ -162,6 +188,7 @@ private:
 
     DlcType m_type = DlcType::Pitch;
     std::string m_base_dir;
+    bool m_mods = false;
     std::vector<DlcEntry> m_server;
     std::vector<DlcEntry> m_local;
     std::vector<DlcEntry> m_entries;

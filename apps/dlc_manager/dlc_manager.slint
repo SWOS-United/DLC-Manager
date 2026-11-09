@@ -67,6 +67,10 @@ export global Dlc {
     in property <string> applied-title;
     in property <bool> has-enabled-flag;
     in-out property <bool> enabled;
+    // The list is SWOS United's mods (an index.json) rather than SWOS 2020's
+    // packs: "applied" is then "turned on", per mod, in SWOS.ini [mods].
+    in property <bool> mods-mode;
+    in property <bool> detail-on;
 
     // --- Busy state ---
     in property <bool> busy;
@@ -260,7 +264,7 @@ export component DlcManagerWindow inherits Window {
                 }
                 Text {
                     text: Dlc.offline ? "Offline -- showing what is already installed"
-                                      : "sensiblesoccer.de/swos2020";
+                                      : Dlc.mods-mode ? "SWOS United mods" : "sensiblesoccer.de/swos2020";
                     font-size: 11px;
                     color: Dlc.offline ? #d1495b : Palette.foreground.transparentize(0.45);
                 }
@@ -481,7 +485,7 @@ export component DlcManagerWindow inherits Window {
                     spacing: 8px;
                     vertical-stretch: 0;
                     Text {
-                        text: "Applied: " + (Dlc.applied-title == "" ? "(none)" : Dlc.applied-title);
+                        text: (Dlc.mods-mode ? "On: " : "Applied: ") + (Dlc.applied-title == "" ? "(none)" : Dlc.applied-title);
                         vertical-alignment: center;
                         color: Palette.foreground.transparentize(0.25);
                         overflow: elide;
@@ -652,7 +656,7 @@ export component DlcManagerWindow inherits Window {
                 clicked => { DlcActions.download(); }
             }
             Button {
-                text: "Use this pack";
+                text: !Dlc.mods-mode ? "Use this pack" : Dlc.detail-on ? "Turn off" : "Turn on";
                 icon: @image-url("../../assets/icons/player-play.svg");
                 colorize-icon: true;
                 primary: true;

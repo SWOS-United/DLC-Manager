@@ -46,6 +46,23 @@ in the manager is the pack the launcher applies.
 * Country flags in the Commentary and Cup lists, from the original's own icons.
 * Records the selection the launcher then applies.
 
+### SWOS United mods
+
+With a mod index configured (`[DLC] modIndexUrl` in `ini/gameLauncher.ini`, or
+`$SWOS_MOD_INDEX` for one run; `file://` works for testing) the manager lists
+SWOS United's mods instead of SWOS 2020's packs. The index is OpenSWOS's
+`index.json` (its `docs/MODS.md` §10.1). Each mod is downloaded as a zip,
+checked against the index's sha256, and unpacked into the user folder's `mods/`.
+**Turn on** adds it to `SWOS.ini`'s `[mods] enabled`, turns off the other mods of
+its slot (one pitch, one commentary, …), and makes the setting the game needs
+to use it: `[graphics] style = 2020` for a pitch, `[audio] style = pc` for
+commentary and effects, `[audio] music = pc` for music (menu music also sets
+`menu_music = mp3`).
+
+`scripts/dlc2020_to_mods.py` turns SWOS 2020's server packs into those mods and
+writes the index. Each mod's uuid and folder name are kept in
+`scripts/dlc2020_uuids.json`, so commit it after a conversion.
+
 See [docs/PORTING.md](docs/PORTING.md) for what is not ported yet — chiefly
 applying an installed pack to the game directory, and the cup/DIY editor.
 
@@ -97,6 +114,8 @@ core/                shared library
   settings.*           the Delphi TSetting record and its ini format
   game_launch.*        command-line construction and process spawn
   dlc_catalog.*        the DLC model, shared by both apps
+  mod_store.*          SWOS United mods: the index, mods/, SWOS.ini [mods]
+  json.*, sha256.*     small readers for the index and download checks
   http.*               libcurl downloads, sync and async
   archive_extract.*    libarchive 7z extraction
   system_theme.*       desktop light/dark detection

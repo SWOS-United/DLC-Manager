@@ -149,6 +149,9 @@ add_library(swos-core STATIC
     core/src/http.cpp
     core/src/archive_extract.cpp
     core/src/dlc_catalog.cpp
+    core/src/json.cpp
+    core/src/sha256.cpp
+    core/src/mod_store.cpp
 )
 
 target_include_directories(swos-core PUBLIC core/include)

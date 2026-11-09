@@ -13,7 +13,9 @@
 #include "audio_preview.h"
 #include "dlc_catalog.h"
 #include "http.h"
+#include "mod_store.h"
 #include "paths.h"
+#include "sha256.h"
 #include "settings.h"
 #include "slint_gl_platform.h"
 #include "system_theme.h"
@@ -25,6 +27,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <initializer_list>
 #include <cstdio>
 #include <memory>
 #include <string>
@@ -116,10 +119,39 @@ const std::vector<swos::DlcType> &category_order()
 
 // Where a pack's preview image lives, by type. Ported from
 // TDLCInfoManager.viewPreview's per-type branches.
+// The first file under `dir` (one level of folders deep, sorted) with one of
+// `extensions`, or "".
+std::string first_file(const std::string &dir, std::initializer_list<const char *> extensions)
+{
+    auto matches = [&](const std::string &file) {
+        const auto dot = file.rfind('.');
+        if (dot == std::string::npos) return false;
+        std::string ext = file.substr(dot);
+        std::transform(ext.begin(), ext.end(), ext.begin(),
+                       [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+        for (const char *want : extensions)
+            if (ext == want) return true;
+        return false;
+    };
+    for (const std::string &file : swos::list_directory(dir))
+        if (matches(file) && swos::file_exists(swos::path_join(dir, file)))
+            return swos::path_join(dir, file);
+    for (const std::string &sub : swos::list_directory(dir, true)) {
+        const std::string inner = swos::path_join(dir, sub);
+        for (const std::string &file : swos::list_directory(inner))
+            if (matches(file)) return swos::path_join(inner, file);
+    }
+    return {};
+}
+
 std::string preview_image_path(const swos::DlcCatalog &catalog, const swos::DlcEntry &entry)
 {
     const std::string dir = catalog.install_dir(entry);
     const std::string name = entry.folder_name();
+
+    // A gallery shows its first picture. Other mods carry no artwork of their own.
+    if (catalog.mods_mode())
+        return first_file(swos::path_join(dir, "images"), {".png", ".jpg", ".jpeg", ".bmp"});
 
     std::vector<std::string> candidates;
     switch (catalog.type()) {
@@ -155,6 +187,20 @@ std::string preview_audio_path(const swos::DlcCatalog &catalog, const swos::DlcE
 {
     const std::string dir = catalog.install_dir(entry);
     const std::string name = entry.folder_name();
+
+    if (catalog.mods_mode()) {
+        const std::string sound = swos::path_join(dir, "sound_dos");
+        for (const char *song : {"title.mp3", "menu.mp3"})
+            if (swos::file_exists(swos::path_join(sound, song))) return swos::path_join(sound, song);
+        // A goal call says the most about a commentator; effects are raw PCM,
+        // which the previewer cannot play, unless the pack's are .wav/.ogg/.mp3.
+        const std::string goal = first_file(swos::path_join(sound, "commentary/goal"),
+                                            {".wav", ".ogg", ".mp3"});
+        if (!goal.empty()) return goal;
+        const std::string any = first_file(swos::path_join(sound, "commentary"), {".wav", ".ogg", ".mp3"});
+        if (!any.empty()) return any;
+        return first_file(swos::path_join(sound, "fx"), {".wav", ".ogg", ".mp3"});
+    }
 
     std::vector<std::string> candidates = {
             swos::path_join(dir, name + ".mp3"),
@@ -199,6 +245,17 @@ public:
         m_destination = catalog.install_dir(entry);
         m_preview_archive = catalog.package_path(entry, true);
         m_preview_url = catalog.package_url(entry, true);
+        // A mod is unpacked beside its folder and swapped in whole once checked,
+        // so a failed update leaves the old one working and the game never reads
+        // half a mod.
+        m_mod = catalog.mods_mode() ? std::make_unique<swos::DlcEntry>(entry) : nullptr;
+        m_final.clear();
+        if (m_mod) {
+            m_final = m_destination;
+            m_destination = swos::path_join(swos::parent_path(m_final), "." + entry.slug + ".part");
+            swos::remove_directory(m_destination);
+            swos::ensure_directory(swos::parent_path(m_archive));
+        }
         m_error.clear();
         m_cancel.store(false);
         m_stage = Stage::Downloading;
@@ -223,6 +280,19 @@ public:
                 m_stage = Stage::Done;
                 return;
             }
+            if (m_mod && !m_mod->sha256.empty()) {
+                // The index's hash is the only proof the zip is the one listed.
+                std::string digest = swos::sha256_file(m_archive);
+                std::string want = m_mod->sha256;
+                std::transform(want.begin(), want.end(), want.begin(),
+                               [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+                if (digest != want) {
+                    swos::remove_file(m_archive);
+                    m_error = "the download does not match the index (sha256)";
+                    m_stage = Stage::Done;
+                    return;
+                }
+            }
             begin_extract(m_archive, m_destination, Stage::Extracting);
             return;
         }
@@ -231,6 +301,12 @@ public:
             if (!m_extract_done.load()) return;
             join_extract();
             if (!m_error.empty()) {           // a bad pack is a real failure
+                if (m_mod) swos::remove_directory(m_destination);
+                m_stage = Stage::Done;
+                return;
+            }
+            if (m_mod) {
+                finish_mod();
                 m_stage = Stage::Done;
                 return;
             }
@@ -305,6 +381,19 @@ public:
     }
 
 private:
+    // Checks the unpacked mod and swaps it in for any older copy.
+    void finish_mod()
+    {
+        m_error = swos::check_extracted_mod(m_destination, *m_mod);
+        if (m_error.empty()) {
+            swos::remove_directory(m_final);
+            if (!swos::rename_file(m_destination, m_final))
+                m_error = "could not move it into " + m_final;
+        }
+        if (!m_error.empty()) swos::remove_directory(m_destination);
+        swos::remove_file(m_archive);      // the folder is the install; the zip is not kept
+    }
+
     // Extraction is CPU-bound and can take seconds on a big sprite pack, so it
     // gets its own thread rather than stalling the frame.
     void begin_extract(std::string archive, std::string destination, Stage next)
@@ -328,6 +417,8 @@ private:
     Stage m_stage = Stage::Idle;
     std::string m_title, m_archive, m_destination, m_error;
     std::string m_preview_archive, m_preview_url;
+    std::unique_ptr<swos::DlcEntry> m_mod;   // set when installing a mod
+    std::string m_final;                      // the mod's folder, once checked
     swos::Download m_download;
     std::thread m_extract_thread;
     std::atomic<bool> m_extract_done{false};
@@ -398,11 +489,46 @@ int main(int argc, char *argv[])
     // --- State ------------------------------------------------------------
     std::vector<swos::DlcCatalog> catalogs;
     for (swos::DlcType type : category_order()) catalogs.emplace_back(type, base_dir);
-    for (auto &catalog : catalogs) catalog.load();
+
+    // SWOS United's mods when an index is configured, else SWOS 2020's packs.
+    const std::string mod_index = swos::mod_index_url(base_dir);
+    const bool mods = !mod_index.empty();
+    const std::string index_cache = swos::path_join(swos::path_join(base_dir, "temp"), "mod-index.json");
+    std::vector<swos::CategorisedMod> index_mods;
+
+    // Shares the index and what is installed out among the categories.
+    auto apply_mods = [&] {
+        const std::vector<swos::CategorisedMod> installed = swos::scan_installed_mods(base_dir);
+        for (size_t i = 0; i < catalogs.size(); ++i) {
+            std::vector<swos::DlcEntry> server, local;
+            for (const auto &[type, entry] : index_mods)
+                if (type == category_order()[i]) server.push_back(entry);
+            for (const auto &[type, entry] : installed)
+                if (type == category_order()[i]) local.push_back(entry);
+            catalogs[i].set_mods(std::move(server), std::move(local));
+        }
+    };
+
+    if (mods) {
+        // The last index fetched, so the lists are there before a refresh.
+        std::string cached, error;
+        if (FILE *f = std::fopen(index_cache.c_str(), "rb")) {
+            char buffer[65536];
+            size_t got;
+            while ((got = std::fread(buffer, 1, sizeof buffer, f)) > 0) cached.append(buffer, got);
+            std::fclose(f);
+        }
+        if (!cached.empty()) swos::parse_mod_index(cached, index_mods, error);
+        apply_mods();
+    } else {
+        for (auto &catalog : catalogs) catalog.load();
+    }
 
     swos::AudioPreview audio;
     InstallJob job;
     swos::Download catalog_download;
+    swos::Download index_download;
+    bool refreshing_index = false;
     size_t catalog_refresh_index = 0;
     bool refreshing_catalogs = false;
     // Types whose catalogue did not come back as a catalogue. Not fatal: some
@@ -466,6 +592,7 @@ int main(int argc, char *argv[])
             model.set_detail_description(shared(""));
             model.set_detail_status(shared(""));
             model.set_detail_installed(false);
+            model.set_detail_on(false);
             model.set_preview_image_available(false);
             return;
         }
@@ -473,7 +600,21 @@ int main(int argc, char *argv[])
         model.set_detail_title(shared(entry->title));
         model.set_detail_author(shared(entry->author.empty() ? "Unknown author" : entry->author));
         model.set_detail_version(shared("v" + entry->server_version));
-        model.set_detail_description(shared(entry->description));
+        std::string description = entry->description;
+        if (mods) {
+            if (entry->size > 0) {
+                char size[48];
+                std::snprintf(size, sizeof size, "%s%.1f MB download.", description.empty() ? "" : "\n\n",
+                              static_cast<double>(entry->size) / (1024.0 * 1024.0));
+                description += size;
+            }
+            if (!entry->slot.empty())
+                description += "\nOne " + entry->slot + " mod is on at a time: turning this on turns the other off.";
+            if (entry->offline_only)
+                description += "\nOffline only: turn it off to play online.";
+        }
+        model.set_detail_description(shared(description));
+        model.set_detail_on(entry->on);
         model.set_detail_status(shared(swos::dlc_status_label(entry->status)));
         model.set_detail_installed(entry->installed() && current_catalog().is_extracted(*entry));
 
@@ -494,7 +635,9 @@ int main(int argc, char *argv[])
             row.author = shared(entry.author);
             row.installed = shared(entry.local_version);
             row.latest = shared(entry.server_version);
-            row.status = shared(swos::dlc_status_label(entry.status));
+            row.status = shared(entry.on && entry.status != swos::DlcStatus::Update
+                                        ? std::string("On")
+                                        : std::string(swos::dlc_status_label(entry.status)));
             switch (entry.status) {
             case swos::DlcStatus::New:       row.status_kind = 0; break;
             case swos::DlcStatus::Installed: row.status_kind = 1; break;
@@ -509,9 +652,9 @@ int main(int argc, char *argv[])
         model.set_rows(std::make_shared<slint::VectorModel<DlcRow>>(std::move(rows)));
 
         model.set_applied_title(shared(catalog.load_selection()));
-        model.set_has_enabled_flag(catalog.type() == swos::DlcType::Cup ||
+        model.set_has_enabled_flag(!mods && (catalog.type() == swos::DlcType::Cup ||
                                    catalog.type() == swos::DlcType::TeamDb ||
-                                   swos::is_sprite_type(catalog.type()));
+                                   swos::is_sprite_type(catalog.type())));
         model.set_enabled(catalog.load_enabled());
     };
 
@@ -525,9 +668,11 @@ int main(int argc, char *argv[])
         refresh_detail();
     };
 
+    model.set_mods_mode(mods);
     refresh_categories();
     select_category(0);
-    set_status("Ready. Refresh the catalogue to see what is available.");
+    set_status(mods ? "Ready. Refresh to see the mods available for SWOS United."
+                    : "Ready. Refresh the catalogue to see what is available.");
 
     // --- Callbacks ---------------------------------------------------------
     bool running = true;
@@ -547,7 +692,15 @@ int main(int argc, char *argv[])
     });
 
     actions.on_refresh_catalog([&] {
-        if (refreshing_catalogs || job.active()) return;
+        if (refreshing_catalogs || refreshing_index || job.active()) return;
+        if (mods) {
+            refreshing_index = true;
+            index_download.start_to_memory(mod_index);
+            model.set_busy(true);
+            model.set_busy_fraction(-1.0f);
+            model.set_busy_label(shared("Fetching the mod index…"));
+            return;
+        }
         if (!swos::reachable(swos::dlc_server_root())) {
             offline = true;
             model.set_offline(true);
@@ -575,11 +728,24 @@ int main(int argc, char *argv[])
     actions.on_cancel([&] {
         job.cancel();
         catalog_download.cancel();
+        index_download.cancel();
     });
 
     actions.on_apply_selection([&] {
         const swos::DlcEntry *entry = current_entry();
         if (!entry) return;
+        if (mods) {
+            const std::string title = entry->title;
+            const bool on = !entry->on;
+            if (current_catalog().set_mod_on(title, on))
+                set_status("\"" + title + "\" is " + (on ? "on" : "off") +
+                           " the next time SWOS United starts.");
+            else
+                set_status("Could not change SWOS.ini for \"" + title + "\".", true);
+            refresh_rows();
+            refresh_detail();
+            return;
+        }
         current_catalog().save_selection(entry->title);
         model.set_applied_title(shared(entry->title));
         set_status("\"" + entry->title + "\" will be used the next time the game starts.");
@@ -658,6 +824,14 @@ int main(int argc, char *argv[])
         refresh_detail();
         actions.invoke_download();
     }
+    // SWOS_DLC_APPLY=<row> presses "Use this pack" / "Turn on" for an installed row.
+    if (const char *row = SDL_getenv("SWOS_DLC_APPLY")) {
+        const int index = std::atoi(row);
+        model.set_current_row(index);
+        current_row = index;
+        refresh_detail();
+        actions.invoke_apply_selection();
+    }
     // SWOS_DLC_REMOVE=<row> exercises the uninstall path.
     if (const char *row = SDL_getenv("SWOS_DLC_REMOVE")) {
         const int index = std::atoi(row);
@@ -672,7 +846,7 @@ int main(int argc, char *argv[])
 
     // --- Event loop --------------------------------------------------------
     while (running) {
-        const bool work_in_flight = job.active() || refreshing_catalogs;
+        const bool work_in_flight = job.active() || refreshing_catalogs || refreshing_index;
 
         // While a job is running the UI has to repaint for the progress bar,
         // so cap the wait; otherwise sleep until there is something to do.
@@ -703,6 +877,40 @@ int main(int argc, char *argv[])
         }
 
         // --- Drive the background work ------------------------------------
+        if (refreshing_index && index_download.finished()) {
+            const swos::DownloadResult result = index_download.take_result();
+            refreshing_index = false;
+            model.set_busy(false);
+            std::string error;
+            std::vector<swos::CategorisedMod> fresh;
+            if (!result.ok) {
+                set_status("Could not fetch the mod index: " +
+                           (result.error.empty() ? std::string("download failed") : result.error), true);
+            } else if (!swos::parse_mod_index(index_download.result_body(), fresh, error)) {
+                set_status("The mod index could not be read: " + error, true);
+            } else {
+                index_mods = std::move(fresh);
+                swos::ensure_directory(swos::parent_path(index_cache));
+                if (FILE *f = std::fopen(index_cache.c_str(), "wb")) {
+                    const std::string &body = index_download.result_body();
+                    std::fwrite(body.data(), 1, body.size(), f);
+                    std::fclose(f);
+                }
+                apply_mods();
+                int waiting = 0;
+                for (const auto &catalog : catalogs)
+                    waiting += catalog.new_count() + catalog.update_count();
+                set_status(std::to_string(index_mods.size()) + " mods listed" +
+                           (waiting > 0 ? ", " + std::to_string(waiting) + " new or updated" : std::string()) +
+                           ".");
+            }
+            current_row = -1;
+            model.set_current_row(-1);
+            refresh_categories();
+            refresh_rows();
+            refresh_detail();
+        }
+
         if (refreshing_catalogs && catalog_download.finished()) {
             const swos::DownloadResult result = catalog_download.take_result();
             const bool accepted =
@@ -775,7 +983,8 @@ int main(int argc, char *argv[])
         if (adapter->render_if_needed()) {
             // Settled means nothing left to draw AND no background work, so a
             // capture taken during a refresh does not catch a half-filled list.
-            const bool settled = !adapter->needs_redraw() && !job.active() && !refreshing_catalogs;
+            const bool settled = !adapter->needs_redraw() && !job.active() && !refreshing_catalogs &&
+                                 !refreshing_index;
             if (screenshot_path && (settled || SDL_GetTicks64() > capture_deadline_ms)) {
                 if (window.capture_framebuffer(screenshot_path))
                     std::fprintf(stderr, "[debug] wrote %s\n", screenshot_path);

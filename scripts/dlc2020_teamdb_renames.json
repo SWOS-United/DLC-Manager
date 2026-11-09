@@ -1,0 +1,470 @@
+{
+ "2019_TarajiMod": {
+  "strings": {
+   "_aSouthDivision": "S.ARABIA",
+   "_aSouthDivision_0": "S.ARABIA",
+   "_aNswDivision": "IRAN",
+   "_aNsw": "IRN",
+   "_aQueenslandDivi": "S.KOREA",
+   "_aQueensland": "S.KOREA",
+   "_aNorthernRegion": "QATAR",
+   "_aNorthern": "QATAR",
+   "_aCentralRegion": "THAILAND",
+   "_aCentral": "THAI.",
+   "_aSouthernRegion": "U.A.E.",
+   "_aSouthern": "U.A.E."
+  },
+  "countries": {
+   "_aOceania": [
+    "ASIA",
+    "ASIA"
+   ],
+   "_aAustralia": [
+    "AFC",
+    "AFC"
+   ],
+   "_aNewZealand": [
+    "AFC",
+    "AFC"
+   ],
+   "_aElSalvadore": [
+    "CONCACAF",
+    "CONCACAF"
+   ],
+   "_aSurinam": [
+    "C.RICA",
+    "C.RICA"
+   ],
+   "_aSouthAfrica": [
+    "TUNISIA",
+    "TUNISIAN"
+   ],
+   "_aSanMarino": [
+    "KAZAKHSTAN",
+    "KAZAKHSTAN"
+   ]
+  },
+  "nationality_codes": {
+   "114": "LBY",
+   "67": "CUW",
+   "101": "HAI",
+   "143": "RWA",
+   "121": "KAZ",
+   "82": "MNE",
+   "85": "CPV",
+   "61": "NGR",
+   "65": "KOS"
+  }
+ },
+ "2021_GorzoMod": {
+  "strings": {},
+  "countries": {
+   "_aIndia": [
+    "QATAR",
+    "QATARI"
+   ],
+   "_aElSalvadore": [
+    "EUR RESERVE",
+    "EUR RESERVE"
+   ]
+  },
+  "nationality_codes": {}
+ },
+ "2019": {
+  "strings": {
+   "_a1stDivision": "A LEAGUE",
+   "_aSouthDivision": "S.EASTERN",
+   "_aSouthDivision_0": "S.EASTERN",
+   "_aNswDivision": "SOUTHERN",
+   "_aNsw": "SOU",
+   "_aQueenslandDivi": "NORTHERN",
+   "_aQueensland": "NORTHERN",
+   "_aNorthernRegion": "NEW ZEALAND",
+   "_aNorthern": "NZL",
+   "_aCentralRegion": "FIJI LEAGUE",
+   "_aCentral": "FIJI",
+   "_aSouthernRegion": "SOLOMON ISLANDS",
+   "_aSouthern": "SOLOMON"
+  },
+  "countries": {
+   "_aNewZealand": [
+    "OCEANIA",
+    "OCEANIA"
+   ],
+   "_aTaiwan": [
+    "CHINA",
+    "CHINESE"
+   ],
+   "_aGhana": [
+    "EGYPT",
+    "EGYPT"
+   ],
+   "_aYugoslavia": [
+    "SERBIA",
+    "SERBIAN"
+   ]
+  },
+  "nationality_codes": {}
+ },
+ "1990": {
+  "strings": {},
+  "countries": {
+   "_aCroatia": [
+    "LIECHT",
+    "LIECHTEN"
+   ],
+   "_aCzechRepublic": [
+    "CZECHOSLOVAKIA",
+    "CZECH"
+   ],
+   "_aEstonia": [
+    "DDR",
+    "DDR"
+   ],
+   "_aSlovenia": [
+    "YUGOSLAV",
+    "YUGOSLAV."
+   ],
+   "_aUkraine": [
+    "GEORGIA",
+    "GEORGIAN"
+   ],
+   "_aYugoslavia": [
+    "ANDORRA",
+    "ANDORRAN"
+   ],
+   "_aIndia": [
+    "KOREA",
+    "KOREAN"
+   ]
+  },
+  "nationality_codes": {}
+ },
+ "1991": {
+  "strings": {},
+  "countries": {
+   "_aBelarus": [
+    "YUGOSL.",
+    "YUGOSLAVIA"
+   ],
+   "_aCroatia": [
+    "EMPTY",
+    "EMPTY"
+   ],
+   "_aCzechRepublic": [
+    "CZECHOSLOVAKIA",
+    "CZECH"
+   ],
+   "_aEstonia": [
+    "EMPTY",
+    "EMPTY"
+   ],
+   "_aLatvia": [
+    "EMPTY",
+    "EMPTY"
+   ],
+   "_aLithuania": [
+    "EMPTY",
+    "EMPTY"
+   ],
+   "_aRussia": [
+    "USSR",
+    "SOVIET"
+   ],
+   "_aSlovenia": [
+    "EMPTY",
+    "EMPTY"
+   ],
+   "_aUkraine": [
+    "EMPTY",
+    "EMPTY"
+   ],
+   "_aYugoslavia": [
+    "EMPTY",
+    "EMPTY"
+   ],
+   "_aAlgeria": [
+    "NIGERIA",
+    "NIGERIAN"
+   ],
+   "_aIndia": [
+    "KOREA",
+    "KOREAN"
+   ],
+   "_aTaiwan": [
+    "ARBIA",
+    "ARABIC"
+   ]
+  },
+  "nationality_codes": {}
+ },
+ "2022": {
+  "strings": {},
+  "countries": {
+   "_aIndia": [
+    "QATAR",
+    "QATARI"
+   ],
+   "_aElSalvadore": [
+    "CENTRAL AM.",
+    "CENTRAL AM."
+   ]
+  },
+  "nationality_codes": {}
+ },
+ "2023": {
+  "strings": {},
+  "countries": {
+   "_aTaiwan": [
+    "SAUDI",
+    "SAUDI"
+   ]
+  },
+  "nationality_codes": {}
+ },
+ "2021": {
+  "strings": {},
+  "countries": {
+   "_aSurinam": [
+    "C.RICA",
+    "C.RICA"
+   ]
+  },
+  "nationality_codes": {}
+ },
+ "2008": {
+  "strings": {},
+  "countries": {
+   "_aSurinam": [
+    "C.RICA",
+    "C.RICA"
+   ],
+   "_aGhana": [
+    "EGYPT",
+    "EGYPT"
+   ],
+   "_aTaiwan": [
+    "KOREA",
+    "KOREAN"
+   ]
+  },
+  "nationality_codes": {}
+ },
+ "allNationalTeams": {
+  "strings": {
+   "_aClubTeams": "ALL NATIONS",
+   "_aNationalTeams": "   "
+  },
+  "countries": {
+   "_aEurope": [
+    "FIFA",
+    "EUROPEAN"
+   ],
+   "_aNorthAmerica": [
+    "NON FIFA",
+    "NORTH AMERICAN"
+   ],
+   "_aSouthAmerica": [
+    "   ",
+    "SOUTH AMERICAN"
+   ],
+   "_aAfrica": [
+    "   ",
+    "AFRICAN"
+   ],
+   "_aAsia": [
+    " ",
+    "ASIAN"
+   ],
+   "_aOceania": [
+    "   ",
+    "OCEANIAN"
+   ],
+   "_aAlbania": [
+    "CAF",
+    "ALBANIAN"
+   ],
+   "_aAustria": [
+    "CAF-2",
+    "AUSTRIAN"
+   ],
+   "_aBelarus": [
+    "CAF-3",
+    "BELARUSSIAN"
+   ],
+   "_aBelgium": [
+    "CAF-4",
+    "BELGIAN"
+   ],
+   "_aBulgaria": [
+    "UEFA",
+    "BULGARIAN"
+   ],
+   "_aCroatia": [
+    "UEFA-2",
+    "CROATIAN"
+   ],
+   "_aCyprus": [
+    "UEFA-3",
+    "CYPRIOT"
+   ],
+   "_aCzechRepublic": [
+    "UEFA-4",
+    "CZECH"
+   ],
+   "_aDenmark": [
+    "   ",
+    "DANISH"
+   ],
+   "_aEngland": [
+    "   ",
+    "ENGLISH"
+   ],
+   "_aEngland_0": [
+    "   ",
+    "ENGLISH"
+   ],
+   "_aEstonia": [
+    "   ",
+    "ESTONIAN"
+   ],
+   "_aFaroeIslands": [
+    "   ",
+    "FAROE ISLES"
+   ],
+   "_aFinland": [
+    "OFC",
+    "FINNISH"
+   ],
+   "_aFrance": [
+    "   ",
+    "FRENCH"
+   ],
+   "_aGermany": [
+    "   ",
+    "GERMAN"
+   ],
+   "_aGreece": [
+    "   ",
+    "GREEK"
+   ],
+   "_aHolland": [
+    "   ",
+    "DUTCH"
+   ],
+   "_aHungary": [
+    "   ",
+    "HUNGARIAN"
+   ],
+   "_aIceland": [
+    "   ",
+    "ICELANDIC"
+   ],
+   "_aIsrael": [
+    "   ",
+    "ISRAELI"
+   ],
+   "_aItaly": [
+    "   ",
+    "ITALIAN"
+   ],
+   "_aLatvia": [
+    "   ",
+    "LATVIAN"
+   ],
+   "_aLithuania": [
+    "CONCACAF",
+    "LITHUANIAN"
+   ],
+   "_aLuxembourg": [
+    "CONCACAF-2",
+    "LUXEMBOURG"
+   ],
+   "_aMalta": [
+    "   ",
+    "MALTESE"
+   ],
+   "_aNorthernIreland": [
+    "   ",
+    "NORTHERN IRISH"
+   ],
+   "_aNorway": [
+    "   ",
+    "NORWEGIAN"
+   ],
+   "_aPoland": [
+    "   ",
+    "POLISH"
+   ],
+   "_aPortugal": [
+    "   ",
+    "PORTUGESE"
+   ],
+   "_aRepublicIreland": [
+    "CONMEBOL",
+    "IRISH"
+   ],
+   "_aRomania": [
+    "   ",
+    "ROMANIAN"
+   ],
+   "_aRussia": [
+    "   ",
+    "RUSSIAN"
+   ],
+   "_aSanMarino": [
+    "   ",
+    "SAN MARINO"
+   ],
+   "_aScotland": [
+    "   ",
+    "SCOTTISH"
+   ],
+   "_aSlovakia": [
+    "   ",
+    "SLOVAKIAN"
+   ],
+   "_aSlovenia": [
+    "   ",
+    "SLOVENIAN"
+   ],
+   "_aSpain": [
+    "   ",
+    "SPANISH"
+   ],
+   "_aSweden": [
+    "   ",
+    "SWEDISH"
+   ],
+   "_aSwitzerland": [
+    "CONCACAF-3",
+    "SWISS"
+   ],
+   "_aTurkey": [
+    "   ",
+    "TURKISH"
+   ],
+   "_aUkraine": [
+    "AFC",
+    "UKRAINIAN"
+   ],
+   "_aWales": [
+    "AFC-2",
+    "WELSH"
+   ],
+   "_aYugoslavia": [
+    "AFC-3",
+    "YUGOSLAVIAN"
+   ],
+   "_aMexico": [
+    "   ",
+    "MEXICAN"
+   ],
+   "_aUSA": [
+    "   ",
+    "AMERICAN"
+   ]
+  },
+  "nationality_codes": {}
+ }
+}

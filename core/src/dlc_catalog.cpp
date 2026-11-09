@@ -6,6 +6,7 @@
 
 #include "http.h"
 #include "ini_file.h"
+#include "mod_store.h"
 #include "paths.h"
 
 #include <algorithm>
@@ -371,6 +372,7 @@ std::string DlcCatalog::catalog_url() const
 
 std::string DlcCatalog::package_url(const DlcEntry &entry, bool preview) const
 {
+    if (m_mods) return preview ? std::string() : entry.url;   // a mod's zip has its own art
     const std::string name = entry.folder_name() + (preview ? "_preview" : "") + ".7z";
     return std::string(dlc_server_root()) + "/dlc/" + dlc_type_id(m_type) + "/" +
            url_encode_segment(name);
@@ -378,11 +380,15 @@ std::string DlcCatalog::package_url(const DlcEntry &entry, bool preview) const
 
 std::string DlcCatalog::package_path(const DlcEntry &entry, bool preview) const
 {
+    if (m_mods)
+        return preview ? std::string()
+                       : path_join(path_join(m_base_dir, "temp"), entry.slug + ".zip");
     return path_join(type_dir(), entry.folder_name() + (preview ? "_preview" : "") + ".7z");
 }
 
 std::string DlcCatalog::install_dir(const DlcEntry &entry) const
 {
+    if (m_mods) return path_join(mods_root(m_base_dir), entry.slug);
     return path_join(type_dir(), entry.folder_name());
 }
 
@@ -461,11 +467,17 @@ void DlcCatalog::merge()
     m_entries.clear();
     m_entries.reserve(m_server.size());
 
+    // SWOS 2020's packs are known by title; a mod by its uuid, which never changes
+    // while its name and folder may.
+    auto same = [this](const DlcEntry &a, const DlcEntry &b) {
+        return m_mods ? a.uuid == b.uuid : a.title == b.title;
+    };
+
     for (const DlcEntry &server : m_server) {
         DlcEntry entry = server;
 
         const auto local = std::find_if(m_local.begin(), m_local.end(),
-                                        [&](const DlcEntry &l) { return l.title == server.title; });
+                                        [&](const DlcEntry &l) { return same(l, server); });
         if (local == m_local.end()) {
             entry.local_version = "-";
             entry.status = DlcStatus::New;
@@ -475,6 +487,8 @@ void DlcCatalog::merge()
             entry.local_version = local->server_version;
             entry.status = (entry.server_version == entry.local_version) ? DlcStatus::Installed
                                                                         : DlcStatus::Update;
+            entry.on = local->on;
+            if (m_mods) entry.slug = local->slug;   // where it is, whatever the index calls it
         }
         m_entries.push_back(std::move(entry));
     }
@@ -484,7 +498,7 @@ void DlcCatalog::merge()
     // the UI even though the code already had a "Removed" status for them.
     for (const DlcEntry &local : m_local) {
         const bool on_server = std::any_of(m_server.begin(), m_server.end(),
-                                           [&](const DlcEntry &s) { return s.title == local.title; });
+                                           [&](const DlcEntry &s) { return same(s, local); });
         if (on_server) continue;
 
         DlcEntry entry = local;
@@ -540,6 +554,10 @@ bool DlcCatalog::write_local_catalog() const
 
 bool DlcCatalog::mark_installed(const std::string &title)
 {
+    if (m_mods) {        // what is in mods/ is the record
+        rescan_mods();
+        return true;
+    }
     const auto server = std::find_if(m_server.begin(), m_server.end(),
                                      [&](const DlcEntry &e) { return e.title == title; });
     if (server == m_server.end()) return false;
@@ -561,6 +579,15 @@ bool DlcCatalog::remove(const std::string &title)
     const auto entry = std::find_if(m_entries.begin(), m_entries.end(),
                                     [&](const DlcEntry &e) { return e.title == title; });
     if (entry == m_entries.end()) return false;
+
+    if (m_mods) {
+        const DlcEntry gone = *entry;
+        const bool off = turn_mod_off(m_base_dir, gone.slug);
+        const bool deleted = remove_directory(install_dir(gone));
+        remove_file(package_path(gone, false));
+        rescan_mods();
+        return off && deleted;
+    }
 
     remove_directory(install_dir(*entry));
     remove_file(package_path(*entry, false));
@@ -584,6 +611,12 @@ const char *DlcCatalog::default_selection() const
 
 std::string DlcCatalog::load_selection() const
 {
+    if (m_mods) {        // the mods of this category that are on
+        std::string out;
+        for (const DlcEntry &e : m_entries)
+            if (e.on) out += (out.empty() ? "" : ", ") + e.title;
+        return out.empty() ? std::string("None (the game's own)") : out;
+    }
     IniFile ini;
     ini.load(path_join(path_join(m_base_dir, "ini"), "gameLauncher.ini"));
     return ini.read_string(kDlcSection, dlc_type_id(m_type), default_selection());
@@ -591,6 +624,10 @@ std::string DlcCatalog::load_selection() const
 
 void DlcCatalog::save_selection(const std::string &title) const
 {
+    if (m_mods) {
+        const_cast<DlcCatalog *>(this)->set_mod_on(title, true);
+        return;
+    }
     const std::string path = path_join(path_join(m_base_dir, "ini"), "gameLauncher.ini");
     ensure_directory(parent_path(path));
 
@@ -602,6 +639,7 @@ void DlcCatalog::save_selection(const std::string &title) const
 
 bool DlcCatalog::load_enabled() const
 {
+    if (m_mods) return true;      // a mod is on or off by itself; there is no category switch
     const TypeInfo &info = info_for(m_type);
     if (!info.has_enabled_flag) return true;
 
@@ -612,6 +650,7 @@ bool DlcCatalog::load_enabled() const
 
 void DlcCatalog::save_enabled(bool enabled) const
 {
+    if (m_mods) return;
     const TypeInfo &info = info_for(m_type);
     if (!info.has_enabled_flag) return;
 
@@ -623,6 +662,39 @@ void DlcCatalog::save_enabled(bool enabled) const
     // The Delphi build stored these as the strings "true"/"false", not 0/1.
     ini.write_string(kDlcSection, std::string(info.id) + "_Enabled", enabled ? "true" : "false");
     ini.save(path);
+}
+
+// --- Mods --------------------------------------------------------------------
+
+void DlcCatalog::set_mods(std::vector<DlcEntry> server, std::vector<DlcEntry> installed)
+{
+    m_mods = true;
+    m_server = std::move(server);
+    m_local = std::move(installed);
+    const std::vector<std::string> on = enabled_mods(m_base_dir);
+    for (DlcEntry &e : m_local)
+        e.on = std::find(on.begin(), on.end(), e.slug) != on.end();
+    merge();
+}
+
+void DlcCatalog::rescan_mods()
+{
+    std::vector<DlcEntry> mine;
+    for (auto &[type, entry] : scan_installed_mods(m_base_dir))
+        if (type == m_type) mine.push_back(std::move(entry));
+    set_mods(std::move(m_server), std::move(mine));
+}
+
+bool DlcCatalog::set_mod_on(const std::string &title, bool on)
+{
+    const auto entry = std::find_if(m_entries.begin(), m_entries.end(),
+                                    [&](const DlcEntry &e) { return e.title == title; });
+    if (!m_mods || entry == m_entries.end() || !entry->installed()) return false;
+    const DlcEntry mod = *entry;
+    const bool ok = on ? turn_mod_on(m_base_dir, mod, m_type, scan_installed_mods(m_base_dir))
+                       : turn_mod_off(m_base_dir, mod.slug);
+    rescan_mods();
+    return ok;
 }
 
 } // namespace swos
