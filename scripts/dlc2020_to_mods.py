@@ -46,7 +46,8 @@ and the shipped 96/97 teams tell which of a database's teams are unchanged (they
 original's ids; any other team gets ids of its own, derived from the mod's uuid so that a
 re-conversion gives the same ones). Its renames -- what SWOS 2020's exe patched per database
 in options.cpp changeLeagueNames() -- come from scripts/dlc2020_teamdb_renames.json, chosen
-by the database's season year (the title's first year) and, for two, its folder name. The
+by the database's season year (the catalogue's Desc field for the special editions, else the
+title's first year) and, for two, its folder name. The
 league rules SWOS 2020 applied at a career's start (fixupLeague) are the engine's, driven by
 teamdb.json.
 
@@ -338,20 +339,23 @@ FOLDER_LEAGUES["All National Teams"] = {EL_SALVADOR: {"divisions_count": 1}}
 DEFAULT_SEASON = 1996        # SWOS 2020's own default, for a database whose title has no year
 
 
-def season_of(title):
-    m = re.match(r"(\d{4})", title)
+def season_of(row):
+    """A database's season year: the catalogue's Desc field when it starts with one (the
+    special editions: "2008|*|*"), else the title's first year ("2020_21 - ...")."""
+    m = re.match(r"(\d{4})\|", row.get("desc", "")) or re.match(r"(\d{4})", row["title"])
     return int(m.group(1)) if m else None
 
 
-def rename_rules(title):
+def rename_rules(row):
     """The options.cpp rename functions SWOS 2020 ran for this database, in its order
     (changeLeagueNames(year))."""
+    title = row["title"]
     folder = title.replace("/", "_")
     if "VIVA SWOS" in folder:
         return []
     if "All National Teams" in folder:
         return ["allNationalTeams"]
-    year = season_of(title) or DEFAULT_SEASON
+    year = season_of(row) or DEFAULT_SEASON
     if year >= 2019:
         rules = ["2019"]
         if "2020_21 - SWOS Taraji's 20_21" in folder:
@@ -363,10 +367,10 @@ def rename_rules(title):
     return {1990: ["1990"], 1991: ["1991"], 2008: ["2008"]}.get(year, [])
 
 
-def merged_renames(title):
+def merged_renames(row):
     table = json.load(open(RENAMES, encoding="utf-8"))
     out = {"strings": {}, "countries": {}, "nationality_codes": {}}
-    for rule in rename_rules(title):
+    for rule in rename_rules(row):
         for part in out:
             out[part].update(table[rule][part])
     return out
@@ -464,7 +468,7 @@ def convert_teamdb(row, archive, out_dir, registry, seven, base_url, openswos):
             with open(path, "w", encoding="utf-8") as f:
                 json.dump(doc, f, separators=(",", ":"), ensure_ascii=False)
 
-        renames = merged_renames(row["title"])
+        renames = merged_renames(row)
         if renames["strings"] or renames["countries"]:
             tr = os.path.join(mod, "data_json", "translations")
             os.makedirs(tr)
@@ -481,7 +485,7 @@ def convert_teamdb(row, archive, out_dir, registry, seven, base_url, openswos):
                     first = open(os.path.join(dp, f), encoding="latin-1").readline().strip()
                     if re.fullmatch(r"[01]{7}", first):
                         fixes = first
-        season = season_of(row["title"])
+        season = season_of(row)
         teamdb = {"format": "openswos-teamdb", "version": 1, "name": row["title"],
                   "season_year": season or DEFAULT_SEASON, "fixes": fixes,
                   # SWOS 2020's launcher passed --always-points-per-win-3=1 for every database.
