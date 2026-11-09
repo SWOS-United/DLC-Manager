@@ -48,9 +48,11 @@ in the manager is the pack the launcher applies.
 
 ### SWOS United mods
 
-With a mod index configured (`[DLC] modIndexUrl` in `ini/gameLauncher.ini`, or
-`$SWOS_MOD_INDEX` for one run; `file://` works for testing) the manager lists
-SWOS United's mods instead of SWOS 2020's packs. The index is OpenSWOS's
+The manager lists SWOS United's mods, from
+`http://www.sensiblesoccer.de/swos2020/dlc/swosutd/index.json` unless
+`[DLC] modIndexUrl` in `ini/gameLauncher.ini` (or `$SWOS_MOD_INDEX` for one run;
+`file://` works for testing) names another. `modIndexUrl = off` shows SWOS
+2020's own packs instead. The index is OpenSWOS's
 `index.json` (its `docs/MODS.md` §10.1). Each mod is downloaded as a zip,
 checked against the index's sha256, and unpacked into the user folder's `mods/`.
 **Turn on** adds it to `SWOS.ini`'s `[mods] enabled`, turns off the other mods of

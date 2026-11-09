@@ -31,8 +31,9 @@ std::string mods_root(const std::string &base_dir);
 std::string game_ini_path(const std::string &base_dir);
 
 // Where the index lives: $SWOS_MOD_INDEX, else [DLC] modIndexUrl in
-// ini/gameLauncher.ini. Empty when neither is set -- the manager then shows SWOS
-// 2020's own catalogues, as it always did.
+// ini/gameLauncher.ini, else SWOS United's on the SWOS 2020 server
+// (http://www.sensiblesoccer.de/swos2020/dlc/swosutd/index.json). Empty when set
+// to "off" -- the manager then shows SWOS 2020's own catalogues.
 std::string mod_index_url(const std::string &base_dir);
 
 // A mod as listed, with the sidebar category it belongs to.

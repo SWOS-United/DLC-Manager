@@ -15,6 +15,9 @@ namespace swos {
 
 namespace {
 
+// SWOS United's own DLC folder on the SWOS 2020 server (dlc/swosutd/).
+constexpr const char *kDefaultModIndex = "http://www.sensiblesoccer.de/swos2020/dlc/swosutd/index.json";
+
 std::string read_text(const std::string &path)
 {
     std::ifstream in(path, std::ios::binary);
@@ -129,11 +132,16 @@ std::string game_ini_path(const std::string &base_dir)
 
 std::string mod_index_url(const std::string &base_dir)
 {
-    if (const char *env = std::getenv("SWOS_MOD_INDEX"))
-        if (*env) return env;
-    IniFile ini;
-    ini.load(path_join(path_join(base_dir, "ini"), "gameLauncher.ini"));
-    return trim(ini.read_string("DLC", "modIndexUrl"));
+    std::string url;
+    if (const char *env = std::getenv("SWOS_MOD_INDEX")) url = env;
+    if (url.empty()) {
+        IniFile ini;
+        ini.load(path_join(path_join(base_dir, "ini"), "gameLauncher.ini"));
+        url = trim(ini.read_string("DLC", "modIndexUrl", kDefaultModIndex));
+    }
+    // "off" (or "none") shows SWOS 2020's own catalogues instead.
+    if (url == "off" || url == "none") return {};
+    return url;
 }
 
 bool parse_mod_index(const std::string &body, std::vector<CategorisedMod> &out,
