@@ -192,7 +192,7 @@
     "KOREAN"
    ],
    "_aTaiwan": [
-    "ARBIA",
+    "ARABIA",
     "ARABIC"
    ]
   },
@@ -463,6 +463,32 @@
    "_aUSA": [
     "   ",
     "AMERICAN"
+   ]
+  },
+  "nationality_codes": {}
+ },
+ "1992_93_Forlino": {
+  "strings": {},
+  "countries": {
+   "_aCzechRepublic": [
+    "CZECHOSLOVAKIA",
+    "CZECH"
+   ],
+   "_aSlovakia": [
+    "GEORGIA",
+    "GEORGIAN"
+   ],
+   "_aAlgeria": [
+    "EGYPT",
+    "EGYPTIAN"
+   ],
+   "_aIndia": [
+    "KOREA",
+    "KOREAN"
+   ],
+   "_aTaiwan": [
+    "ARABIA",
+    "ARABIC"
    ]
   },
   "nationality_codes": {}

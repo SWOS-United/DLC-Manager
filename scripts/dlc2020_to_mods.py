@@ -364,6 +364,8 @@ def rename_rules(row):
         if "2021_22 - European Reserve Teams" in folder:
             rules.append("2021_GorzoMod")
         return rules
+    if folder.startswith("1992_93 - ") and "Forlino" in row.get("author", ""):
+        return ["1992_93_Forlino"]          # not one of SWOS 2020's: his notes' renames
     return {1990: ["1990"], 1991: ["1991"], 2008: ["2008"]}.get(year, [])
 
 
@@ -376,7 +378,7 @@ def merged_renames(row):
     return out
 
 
-def convert_teamdb(row, archive, out_dir, registry, seven, base_url, openswos):
+def convert_teamdb(row, archive, out_dir, registry, seven, base_url, openswos, readme=None):
     if not openswos:
         raise ValueError("team databases need --openswos (an OpenSWOS checkout with its data)")
     sys.path.insert(0, os.path.join(openswos, "scripts"))
@@ -388,8 +390,11 @@ def convert_teamdb(row, archive, out_dir, registry, seven, base_url, openswos):
     try:
         raw = os.path.join(work, "raw")
         mod = os.path.join(work, slug)
-        os.makedirs(raw)
-        extract(archive, raw, seven)
+        if os.path.isdir(archive):          # a local DATA folder (--local-teamdb), copied as is
+            shutil.copytree(archive, os.path.join(raw, "data"))
+        else:
+            os.makedirs(raw)
+            extract(archive, raw, seven)
         data = None
         for dp, _, fs in os.walk(raw):
             if any(f.upper().startswith("TEAM.") for f in fs):
@@ -499,6 +504,8 @@ def convert_teamdb(row, archive, out_dir, registry, seven, base_url, openswos):
             json.dump(teamdb, f, indent=1, ensure_ascii=False)
             f.write("\n")
 
+        if readme:
+            shutil.copyfile(readme, os.path.join(mod, "readme.txt"))
         for dp, _, fs in os.walk(raw):          # the authors' notes travel with their data
             for f in fs:
                 if f.lower() in ("readme.txt", "readme.md"):
@@ -678,6 +685,13 @@ def main():
                                        "for team databases: its scripts/decode_data.py and the 96/97 teams")
     ap.add_argument("--openswos-teams", help="the game's 96/97 team JSON, if not <openswos>/bin/data_json/teams "
                                              "(a worktree has no data)")
+    ap.add_argument("--local-teamdb", metavar="DATA_DIR",
+                    help="convert a team database that is not on SWOS 2020's server, from its DATA folder "
+                         "(with --title, --author, --pack-version); it joins the index like the rest")
+    ap.add_argument("--title", help="with --local-teamdb: its title, SWOS 2020's style (\"1992_93 - ...\")")
+    ap.add_argument("--author", help="with --local-teamdb: its author")
+    ap.add_argument("--pack-version", default="1.0", help="with --local-teamdb: its version")
+    ap.add_argument("--readme", help="with --local-teamdb: a text file to ship as its readme.txt")
     ap.add_argument("--base-url", default="https://CHANGE-ME/swos2020-mods",
                     help="where the zips will be hosted; each index entry's url is <base-url>/<type>/<slug>.zip")
     args = ap.parse_args()
@@ -703,6 +717,17 @@ def main():
     by_uuid = {m["uuid"]: m for m in index["mods"]}
 
     failures = 0
+    if args.local_teamdb:
+        if not (args.title and args.author):
+            sys.exit("dlc2020_to_mods: --local-teamdb needs --title and --author")
+        row = {"title": args.title, "author": args.author, "version": args.pack_version, "desc": ""}
+        entry, placed, notes = convert_teamdb(row, args.local_teamdb, args.out, uuids, seven,
+                                              args.base_url, args.openswos, readme=args.readme)
+        by_uuid[entry["uuid"]] = entry
+        print("  %-60s %4d file(s), %6.1f MB%s" % (row["title"][:60], placed, entry["size"] / 1e6,
+                                                   (", note: " + ", ".join(notes)) if notes else ""))
+        save_registry(uuids)
+        types = []
     for t in types:
         rows = catalogue(t, cache)
         if args.only:
