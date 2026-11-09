@@ -1,0 +1,1194 @@
+{
+ "bgi2-gallery/Francescomanetti82": {
+  "uuid": "4c24308f-3ee8-4eff-b963-785b3fb09ce2",
+  "slug": "bg-francescomanetti82",
+  "revision": 1,
+  "sig": "dc2c32aca8f4cebffbfe3687b9f6a37bba26ea26"
+ },
+ "bgi2-gallery/Insane": {
+  "uuid": "79244bd5-4097-480b-a3e7-cea5f0f1063e",
+  "slug": "bg-insane",
+  "revision": 1,
+  "sig": "f8f96c104f0f0f4b71812c308cb8128dfd46d995"
+ },
+ "bgi2-gallery/Redhair": {
+  "uuid": "432509c1-cfec-499e-bc2e-2ae1dc73827c",
+  "slug": "bg-redhair",
+  "revision": 1,
+  "sig": "2c95ec3d2a7f058d56b73325cbf5af2924a33ac1"
+ },
+ "bgi2-gallery/Rossonero": {
+  "uuid": "99852bfb-3403-42c0-97e4-bfbd97ca7e3b",
+  "slug": "bg-rossonero",
+  "revision": 1,
+  "sig": "9f4558cff795d261aacf76ed0d36f222259c25d5"
+ },
+ "bgi2-gallery/SrS": {
+  "uuid": "12062875-1121-465f-b1c6-2be03d7d870d",
+  "slug": "bg-srs",
+  "revision": 1,
+  "sig": "9394733d4981b65bad850895f30b8575549b68cb"
+ },
+ "bgi2-gallery/Taraji": {
+  "uuid": "ca2289b7-7b5a-4fc6-af00-316a9d5f733a",
+  "slug": "bg-taraji",
+  "revision": 1,
+  "sig": "15fc94a2435781f4d52a3699dbca79c905fce4bc"
+ },
+ "bgi2-gallery/Various": {
+  "uuid": "1816ac9c-2c69-40ba-ba92-172b6e7017c3",
+  "slug": "bg-various",
+  "revision": 1,
+  "sig": "aead2c0a3a545eca20618e2ed71809adacc70ff4"
+ },
+ "bgi2-gallery/starwindz": {
+  "uuid": "84723a98-5bbe-4a77-aee5-a4434c86fb2e",
+  "slug": "bg-starwindz",
+  "revision": 1,
+  "sig": "6fe9482ae31fb33bda5fa1c499c9c52dbd3585c6"
+ },
+ "commentary/American - Randy Marsh (Trey Parker)": {
+  "uuid": "c5b8f156-ba34-43aa-af90-f2937de65b27",
+  "slug": "cm-american-randy-marsh-t-e1b57"
+ },
+ "commentary/Belgisch - Carl Huybrechts": {
+  "uuid": "9d5459c0-031e-4649-b9da-afbdab8f5f07",
+  "slug": "cm-belgisch-carl-huybrechts"
+ },
+ "commentary/Danish - Svend Ghers": {
+  "uuid": "1f52338e-7156-4acd-a94e-c91d721df9ab",
+  "slug": "cm-danish-svend-ghers"
+ },
+ "commentary/Deutsch - Bela Rethy": {
+  "uuid": "98c1d7e5-317e-4327-ac15-52641e4170de",
+  "slug": "cm-deutsch-bela-rethy"
+ },
+ "commentary/Deutsch - Detlev Lindner": {
+  "uuid": "a9523e42-6bf4-422e-b5dd-f4c78ebb2f79",
+  "slug": "cm-deutsch-detlev-lindner"
+ },
+ "commentary/Deutsch - Marcel Reif": {
+  "uuid": "6c254103-12ee-487b-a690-b5c69d0c6c98",
+  "slug": "cm-deutsch-marcel-reif"
+ },
+ "commentary/Deutsch - Original 96_97": {
+  "uuid": "759de0b5-1125-418c-8ec4-be2d031d4d49",
+  "slug": "cm-deutsch-original-96-97"
+ },
+ "commentary/Deutsch - Sensiblesoccer 98 ECE": {
+  "uuid": "e8b9c9fd-9e30-412e-a36d-152589449e5e",
+  "slug": "cm-deutsch-sensiblesoccer-b2875"
+ },
+ "commentary/Deutsch - Werner Hansch": {
+  "uuid": "551e2fbe-7180-4aed-bed2-6192fa23e6a7",
+  "slug": "cm-deutsch-werner-hansch"
+ },
+ "commentary/Deutsch - Wolff-Christoph Fuss": {
+  "uuid": "3c7bfc1b-d4b7-4311-b89b-1b1f82476ad0",
+  "slug": "cm-deutsch-wolff-christoph-fuss"
+ },
+ "commentary/English - Barry Davies": {
+  "uuid": "bc9c1919-6e99-4785-80bd-46af38c04d96",
+  "slug": "cm-english-barry-davies"
+ },
+ "commentary/English - Clive Tyldesley": {
+  "uuid": "87caaa9b-fba9-46d1-abac-249dbaf582cd",
+  "slug": "cm-english-clive-tyldesley"
+ },
+ "commentary/English - Guy Mowbray": {
+  "uuid": "8d0d5ead-2c72-4325-b9a5-45cb334feff3",
+  "slug": "cm-english-guy-mowbray"
+ },
+ "commentary/English - John Motson": {
+  "uuid": "365b3aff-dad4-4b7f-bcc0-1b62b2fdce30",
+  "slug": "cm-english-john-motson"
+ },
+ "commentary/English - John Motson v2.0": {
+  "uuid": "e56aa9c0-47bd-407b-ab5f-1b303aa3decf",
+  "slug": "cm-english-john-motson-v2-0"
+ },
+ "commentary/English - Jon Champion and Jim Beglin": {
+  "uuid": "ae4b4019-496a-4a95-aae5-0ccd973d3b68",
+  "slug": "cm-english-jon-champion-a-3d215"
+ },
+ "commentary/English - Jonathan Pearce": {
+  "uuid": "00306d9c-5ff8-4f7e-b274-acc46ab26283",
+  "slug": "cm-english-jonathan-pearce"
+ },
+ "commentary/English - Martin Tyler": {
+  "uuid": "ab3ced32-c826-4616-8431-27df67856ccc",
+  "slug": "cm-english-martin-tyler"
+ },
+ "commentary/English - Original 96_97 (Jonathan Pearce)": {
+  "uuid": "e49d9f2b-4b50-432b-b3f8-9851dc5044b4",
+  "slug": "cm-english-original-96-97-0569d"
+ },
+ "commentary/English - Peter Brackley": {
+  "uuid": "b02ebe02-2e3a-4320-81f1-4695356d239a",
+  "slug": "cm-english-peter-brackley"
+ },
+ "commentary/English - Peter Drury": {
+  "uuid": "cc618a7a-06e9-4d3a-8f5a-8afdf85f2a85",
+  "slug": "cm-english-peter-drury"
+ },
+ "commentary/English - Simon Brotherton and Chris Kamara": {
+  "uuid": "9daa2ac9-7f46-4849-9ef3-ae9dbc5f2fd2",
+  "slug": "cm-english-simon-brothert-8ecd4"
+ },
+ "commentary/English - Special soundmod": {
+  "uuid": "0033218d-0820-45d8-ac8d-324dcb1e1e6f",
+  "slug": "cm-english-special-soundmod"
+ },
+ "commentary/English - Tony Gubba": {
+  "uuid": "7a6c17bb-7486-4679-937e-4a1a47cd9d73",
+  "slug": "cm-english-tony-gubba"
+ },
+ "commentary/Enlgish - Sensiblesoccer 98 ECE": {
+  "uuid": "21aa02df-b763-43dc-b9fe-61df85bc99e6",
+  "slug": "cm-enlgish-sensiblesoccer-a046b"
+ },
+ "commentary/Espanol - Carlos Martinez and Julio Maldanado": {
+  "uuid": "f307449b-b172-4f4a-973f-da69f1ffacbe",
+  "slug": "cm-espanol-carlos-martine-596b7"
+ },
+ "commentary/Espanol - Gatifun and Friends": {
+  "uuid": "548e2aa7-4560-4d82-90c3-e8fd9c823fbd",
+  "slug": "cm-espanol-gatifun-and-friends"
+ },
+ "commentary/Espanol - Sensiblesoccer 98 ECE": {
+  "uuid": "f90c6099-dd9e-4134-b318-cace2e711768",
+  "slug": "cm-espanol-sensiblesoccer-de69e"
+ },
+ "commentary/Francais - Original 96_97": {
+  "uuid": "ab8f6ba8-fa29-47e9-8c9f-703b7ae01314",
+  "slug": "cm-francais-original-96-97"
+ },
+ "commentary/Francais - Sensiblesoccer 98 ECE": {
+  "uuid": "caadf738-075a-466e-880f-131b6456bbb7",
+  "slug": "cm-francais-sensiblesocce-d6e90"
+ },
+ "commentary/Greek - Christos Sotirakopoulos and Georgios Thanailakis": {
+  "uuid": "53c0648f-5744-4996-af54-c91a4ce328d1",
+  "slug": "cm-greek-christos-sotirak-df998"
+ },
+ "commentary/Italiano - Bruno Pizzul": {
+  "uuid": "62bec25d-5c33-4c47-92cf-7fbd41e01217",
+  "slug": "cm-italiano-bruno-pizzul"
+ },
+ "commentary/Italiano - Fabio Caressa and Luca Marchegiani": {
+  "uuid": "310a9f88-513a-46da-83e5-b8b5c2268789",
+  "slug": "cm-italiano-fabio-caressa-b5f47"
+ },
+ "commentary/Italiano - Original 96_97": {
+  "uuid": "6f70b382-974e-46d6-8359-b8bd657b562e",
+  "slug": "cm-italiano-original-96-97"
+ },
+ "commentary/Italiano - Pierluigi Pardo and Jose Altafini": {
+  "uuid": "5233ae37-ec22-4871-80fd-feb5e9811382",
+  "slug": "cm-italiano-pierluigi-par-916b5"
+ },
+ "commentary/Italiano - Sensiblesoccer 98 ECE": {
+  "uuid": "6eb550ea-5989-4c06-9c41-35a65bb5dad5",
+  "slug": "cm-italiano-sensiblesocce-cf648"
+ },
+ "commentary/Italiano - The Italian Job": {
+  "uuid": "16956c30-4d3b-439b-87b5-da16a84bca92",
+  "slug": "cm-italiano-the-italian-job"
+ },
+ "commentary/Korean - Jae-Hyung Lee and Ji-Hyun Jang": {
+  "uuid": "47f9e393-f5f4-4a3e-b67b-c7c31af70581",
+  "slug": "cm-korean-jae-hyung-lee-a-a9c04"
+ },
+ "commentary/Nederlands - Evert ten Napel": {
+  "uuid": "bd1fff35-88be-4b3b-be4c-5afb5a591a6b",
+  "slug": "cm-nederlands-evert-ten-napel"
+ },
+ "commentary/Nederlands - Frank Vischschraper": {
+  "uuid": "c898f9fe-601c-4f26-acf1-0f45baf2b4fe",
+  "slug": "cm-nederlands-frank-visch-61f2d"
+ },
+ "commentary/Nederlands - Hugo Walker": {
+  "uuid": "47149332-a837-473a-a5d6-ab490fa24f0f",
+  "slug": "cm-nederlands-hugo-walker"
+ },
+ "commentary/Nederlands - SensibleSoccer 98 ECE": {
+  "uuid": "ab608162-d238-4926-81c0-0795a395b190",
+  "slug": "cm-nederlands-sensiblesoc-abe2c"
+ },
+ "commentary/Nederlands - Wilfred Genee": {
+  "uuid": "95adac19-696d-46c2-b4ab-d8221d296402",
+  "slug": "cm-nederlands-wilfred-genee"
+ },
+ "commentary/Only FX - Amiga Original Sound Part 2": {
+  "uuid": "17d26b6c-9908-4c41-ac73-cca5ea59eb77",
+  "slug": "cm-only-fx-amiga-original-f5eea"
+ },
+ "commentary/Only FX - Carling Combination Files B": {
+  "uuid": "92d922b9-cb57-4050-82b4-fac96a86cde9",
+  "slug": "cm-only-fx-carling-combin-82e12"
+ },
+ "commentary/Only FX - More atmosphere (EreWeGo's Soundmod)": {
+  "uuid": "62f10fc7-34c7-4876-b101-4be126e5b3e5",
+  "slug": "cm-only-fx-more-atmospher-0fc47"
+ },
+ "commentary/Only FX - Training": {
+  "uuid": "2722a4e2-7312-417d-809c-edc5da42194b",
+  "slug": "cm-only-fx-training"
+ },
+ "commentary/Polski - Dariusz Szpakowski and Wlodzimierz Szaranowicz": {
+  "uuid": "4b6bcde9-616f-4f35-9344-2241cd3a5072",
+  "slug": "cm-polski-dariusz-szpakow-cb342"
+ },
+ "commentary/Portugues Brasileiro - Galvao Bueno and Arnaldo Cezar Coelho": {
+  "uuid": "dd0375ac-986a-4d22-89a3-aef58ad2e6a2",
+  "slug": "cm-portugues-brasileiro-g-6e4ed"
+ },
+ "commentary/Portuguese - Pedro Sousa and Luis Freitas Lobos": {
+  "uuid": "fa45c9a6-ec9d-431f-be82-0716f3cd6343",
+  "slug": "cm-portuguese-pedro-sousa-6aacb"
+ },
+ "commentary/Serbian - Serbian Commentary": {
+  "uuid": "a8232218-586c-42fe-b0fd-2251474d7e3d",
+  "slug": "cm-serbian-serbian-commentary"
+ },
+ "commentary/Turkish - Ercan Taner": {
+  "uuid": "0d642ab5-1fc0-4a62-8de5-9db024ab6cbc",
+  "slug": "cm-turkish-ercan-taner"
+ },
+ "commentary/Turkish - Ertem Sener": {
+  "uuid": "d9584633-75bd-46fd-8e9c-c8fd883e2e3b",
+  "slug": "cm-turkish-ertem-sener"
+ },
+ "fx/Amiga Original Sound Part 1": {
+  "uuid": "dfabca59-4bc3-4701-8bb8-901335244ccc",
+  "slug": "fx-amiga-original-sound-part-1"
+ },
+ "fx/Amiga Stereo Mix": {
+  "uuid": "25100c2b-1a20-4752-a048-99ff9b095686",
+  "slug": "fx-amiga-stereo-mix"
+ },
+ "fx/Besiktas Carsi": {
+  "uuid": "2b8be756-519d-43ab-95a8-0d04274a0b02",
+  "slug": "fx-besiktas-carsi"
+ },
+ "fx/Besiktas Carsi Light": {
+  "uuid": "33d776bc-2726-4f40-9c85-3f8e1b328cc3",
+  "slug": "fx-besiktas-carsi-light"
+ },
+ "fx/British Football Pioneers": {
+  "uuid": "69305ea5-e2ee-4262-a0ab-9e312931ffb3",
+  "slug": "fx-british-football-pioneers"
+ },
+ "fx/Carling Combination Files A": {
+  "uuid": "9e0cdd2c-7154-491d-80c1-f9e4038063d2",
+  "slug": "fx-carling-combination-files-a"
+ },
+ "fx/Euro 2024 Germany FX": {
+  "uuid": "ae70d7cc-8c19-4635-9b48-ae227b53ee0e",
+  "slug": "fx-euro-2024-germany-fx"
+ },
+ "fx/Fenerbahce Kadikoy": {
+  "uuid": "6dc72266-3425-47b7-9732-dce41f721270",
+  "slug": "fx-fenerbahce-kadikoy"
+ },
+ "fx/Leagues Sound FX": {
+  "uuid": "180be967-9ce8-47de-b787-4479ef1dbe2e",
+  "slug": "fx-leagues-sound-fx"
+ },
+ "fx/More atmosphere chant": {
+  "uuid": "f1b2948e-cec9-430d-b5bd-eb3e2e961eb0",
+  "slug": "fx-more-atmosphere-chant"
+ },
+ "fx/Official 2020": {
+  "uuid": "b73545e2-5a2a-4474-9901-e65d27826240",
+  "slug": "fx-official-2020"
+ },
+ "fx/Official 2021": {
+  "uuid": "edd7a93f-2e88-4d7f-90f1-43fa1c415ccd",
+  "slug": "fx-official-2021"
+ },
+ "fx/Original 96_97": {
+  "uuid": "32a433bd-1e8b-40b5-afe4-f4dbc6f6b560",
+  "slug": "fx-original-96-97"
+ },
+ "fx/Original 96_97 Stereo 3D": {
+  "uuid": "4f58063c-5ce4-406a-899e-a69d8fcd2bb7",
+  "slug": "fx-original-96-97-stereo-3d"
+ },
+ "fx/Real crowd recordings": {
+  "uuid": "ba8335c9-9d41-4e44-98a8-640c79aa1ef6",
+  "slug": "fx-real-crowd-recordings"
+ },
+ "fx/Stereo sound": {
+  "uuid": "d6413f7f-5cc2-46cd-9e34-2a1f319d14fa",
+  "slug": "fx-stereo-sound"
+ },
+ "fx/Training Stadiums - Official Sound FX": {
+  "uuid": "5beeee40-74d7-4abd-b13e-87652d30b41d",
+  "slug": "fx-training-stadiums-offi-800c4"
+ },
+ "fx/Training Summer Beach Soccer - Official Sound FX": {
+  "uuid": "50b50d65-72fe-46b9-baeb-ccfb472d3af1",
+  "slug": "fx-training-summer-beach-a64fb"
+ },
+ "mmusic/AMIGA - SWOS 1.0": {
+  "uuid": "8a188e8b-0bff-4cbe-a0bb-85b42f9cea27",
+  "slug": "mm-amiga-swos-1-0"
+ },
+ "mmusic/AMIGA - SWOS 96_97": {
+  "uuid": "72cfd5c9-140f-47e6-a72b-61144372043a",
+  "slug": "mm-amiga-swos-96-97"
+ },
+ "mmusic/AMIGA - Sensible Soccer 1.1": {
+  "uuid": "1ea452a0-9e50-4dbf-a928-ccb9fe358e41",
+  "slug": "mm-amiga-sensible-soccer-1-1"
+ },
+ "mmusic/AMIGA - Sensible Soccer 1.2": {
+  "uuid": "8a1af1e0-8caf-4bed-ab51-de0de7cf0d80",
+  "slug": "mm-amiga-sensible-soccer-1-2"
+ },
+ "mmusic/AMIGA CD32 - Sensible Soccer - European Champions 1.1": {
+  "uuid": "f3c9266b-6403-495c-b76d-378d2ade1ff4",
+  "slug": "mm-amiga-cd32-sensible-so-c504a"
+ },
+ "mmusic/AMIGA CD32 - Sensible Soccer 1.2": {
+  "uuid": "a2143d74-8e2c-422d-ab03-5f4edf132406",
+  "slug": "mm-amiga-cd32-sensible-so-2f485"
+ },
+ "mmusic/Atari Jaguar - Sensible Soccer 1.2 - World Cup Teams": {
+  "uuid": "5c2b76bd-5ea9-4e5e-b8ae-52cec4ef0b14",
+  "slug": "mm-atari-jaguar-sensible-57dcb"
+ },
+ "mmusic/British Football Pioneers - Victorian London Ambience": {
+  "uuid": "46f4d262-5701-4060-85bf-83dca7d50062",
+  "slug": "mm-british-football-pione-116c7"
+ },
+ "mmusic/British Football Pioneers - Waltz in C sharp minor by Chopin": {
+  "uuid": "8b661a2c-bdc7-4746-afd7-2a1ac8a96de7",
+  "slug": "mm-british-football-pione-5317b"
+ },
+ "mmusic/Cannon Fodder - Cannon Straits OC ReMix": {
+  "uuid": "65d8bd71-c666-4fb6-a19c-a8a2336b579e",
+  "slug": "mm-cannon-fodder-cannon-s-3a580"
+ },
+ "mmusic/Cannon Fodder - Remix by Lukhash": {
+  "uuid": "b76d2115-92e7-4562-8774-a495db6f9f47",
+  "slug": "mm-cannon-fodder-remix-by-2a8c8"
+ },
+ "mmusic/Goalscoringsuperstarhero - Remix by Ottoman": {
+  "uuid": "a4fe4b39-385c-455a-a06f-5f6b0be58a2b",
+  "slug": "mm-goalscoringsuperstarhe-f5e81"
+ },
+ "mmusic/Jelen - SWOS Theme": {
+  "uuid": "f5638955-a450-407b-9328-ba4e2e06e0d2",
+  "slug": "mm-jelen-swos-theme"
+ },
+ "mmusic/Microprose Soccer (Swamp Cabin Mix)": {
+  "uuid": "58e01582-6a6e-4aec-b2e1-3bcabc3faeef",
+  "slug": "mm-microprose-soccer-swam-a3226"
+ },
+ "mmusic/Microprose Soccer C64": {
+  "uuid": "807a9b6e-5cc7-4c9f-9bb0-8416b26ad911",
+  "slug": "mm-microprose-soccer-c64"
+ },
+ "mmusic/PC DOS - Dreamblaster S1": {
+  "uuid": "2ea79192-dcae-4c20-b9e5-5775f20ad258",
+  "slug": "mm-pc-dos-dreamblaster-s1"
+ },
+ "mmusic/PC DOS - Original midi (xmi)": {
+  "uuid": "51918bfb-555e-42c9-9896-d8324aad1bc4",
+  "slug": "mm-pc-dos-original-midi-xmi"
+ },
+ "mmusic/PC DOS - Roland MPU-401": {
+  "uuid": "a48c8a5b-853c-44d9-aead-c23a64d4c96f",
+  "slug": "mm-pc-dos-roland-mpu-401"
+ },
+ "mmusic/SEGA MEGA CD - Sensible Soccer 1.2": {
+  "uuid": "1446973b-ee58-4eba-9272-5c353fb1acb9",
+  "slug": "mm-sega-mega-cd-sensible-95271"
+ },
+ "mmusic/SEGA Megadrive - Sensible Soccer European Champions": {
+  "uuid": "b6d0984c-0902-4757-835c-3bd337d27f5d",
+  "slug": "mm-sega-megadrive-sensibl-79bdc"
+ },
+ "mmusic/SNES - Sensible Soccer European Champions": {
+  "uuid": "620f0649-337b-492e-9bd2-9470b7f53da6",
+  "slug": "mm-snes-sensible-soccer-e-82b26"
+ },
+ "mmusic/SWOS Menu Music (Chillout Remix)": {
+  "uuid": "ab10d60e-65d1-418c-991f-af74fad70166",
+  "slug": "mm-swos-menu-music-chillo-e8877"
+ },
+ "mmusic/SWOS Menu Music (Ethno-Ambient Remix)": {
+  "uuid": "d496ce2e-22e9-4ed9-a8ba-fcff1334fb7f",
+  "slug": "mm-swos-menu-music-ethno-6ca6b"
+ },
+ "mmusic/SWOS Menu Music (Liquid DnB Remix)": {
+  "uuid": "acaceb31-c137-490d-9fbf-b10c7628e9ab",
+  "slug": "mm-swos-menu-music-liquid-920b0"
+ },
+ "mmusic/SWOS Menu Music (Lofi Lounge Remix)": {
+  "uuid": "dfa189a0-3b0c-4190-b90a-d2781754639a",
+  "slug": "mm-swos-menu-music-lofi-l-f3081"
+ },
+ "mmusic/SWOS Menu Music (Piano Remix)": {
+  "uuid": "9998856c-1788-4f4d-a088-f3abb1b02760",
+  "slug": "mm-swos-menu-music-piano-remix"
+ },
+ "mmusic/Soundblaster S1": {
+  "uuid": "d7e0963b-793f-4722-a879-5d87148a0095",
+  "slug": "mm-soundblaster-s1"
+ },
+ "mmusic/Xbox Live Arcade - SWOS": {
+  "uuid": "1bd63074-1a6f-48b4-b386-668fee7c260b",
+  "slug": "mm-xbox-live-arcade-swos"
+ },
+ "mmusic/Yamaha DB50XG": {
+  "uuid": "6d3f789b-434f-4d0c-88e5-9ef618480003",
+  "slug": "mm-yamaha-db50xg"
+ },
+ "pitch/1994 - Moon Soccer": {
+  "uuid": "c76e37cb-d3da-4ce6-8302-427b3c9a77ad",
+  "slug": "pt-1994-moon-soccer"
+ },
+ "pitch/1994 - SWOS 1.1 (Amiga)": {
+  "uuid": "c3c2757f-019e-4042-ada8-42a8f4332671",
+  "slug": "pt-1994-swos-1-1-amiga"
+ },
+ "pitch/1996 - 95_96 - ECE": {
+  "uuid": "89694070-b224-466b-a9fb-c16da65e8171",
+  "slug": "pt-1996-95-96-ece"
+ },
+ "pitch/1997 - 96_97 - Original": {
+  "uuid": "af2a0aba-9737-40b5-9d1b-5b21ef1940d4",
+  "slug": "pt-1997-96-97-original"
+ },
+ "pitch/1998 - Worldcup 98 (Amiga)": {
+  "uuid": "52dc3a6d-4d3b-4091-bbe1-84c016988123",
+  "slug": "pt-1998-worldcup-98-amiga"
+ },
+ "pitch/2004 - 03_04 Pitches": {
+  "uuid": "00b8fd2e-cc93-463f-871a-759cbd9c6c42",
+  "slug": "pt-2004-03-04-pitches"
+ },
+ "pitch/2004 - intrav0lv0's Pitches": {
+  "uuid": "5b1b2eee-d940-452b-8762-eae042b0ca6d",
+  "slug": "pt-2004-intrav0lv0-s-pitches"
+ },
+ "pitch/2005 - Component System": {
+  "uuid": "4cf41489-ef67-4a1a-a988-24c48a72586b",
+  "slug": "pt-2005-component-system"
+ },
+ "pitch/2006 - 05_06 (Amiga)": {
+  "uuid": "4d2481f2-2085-49f6-a450-6f20e1018da9",
+  "slug": "pt-2006-05-06-amiga"
+ },
+ "pitch/2006 - SWOS Grafiki - 2006": {
+  "uuid": "215259e4-b4ac-4550-b35a-375af4bb123a",
+  "slug": "pt-2006-swos-grafiki-2006"
+ },
+ "pitch/2009 - SWOS Grafiki - 2009": {
+  "uuid": "7d67ec1e-be1c-4ff3-b23b-b2f1042a73a2",
+  "slug": "pt-2009-swos-grafiki-2009"
+ },
+ "pitch/2010 - Azscromados": {
+  "uuid": "3992538f-f32b-445a-8e8c-5b1f46e4b37e",
+  "slug": "pt-2010-azscromados"
+ },
+ "pitch/2012 - Summer Pack": {
+  "uuid": "0b5a1a0a-554c-4951-9d96-d5a33b3b5356",
+  "slug": "pt-2012-summer-pack"
+ },
+ "pitch/2015 - New Graphics 2015": {
+  "uuid": "ec68a3e5-edeb-4245-96d5-d2896567b552",
+  "slug": "pt-2015-new-graphics-2015"
+ },
+ "pitch/2016 - 16_17 - SWOS United Anniv. Ed": {
+  "uuid": "b3988f76-7814-4cf6-a42a-e52538945b6a",
+  "slug": "pt-2016-16-17-swos-united-6dfdb"
+ },
+ "pitch/2017 - New Graphics 2017": {
+  "uuid": "4ce24ef9-f6d5-4fd5-bdfb-2af0ff129fbf",
+  "slug": "pt-2017-new-graphics-2017"
+ },
+ "pitch/2018 - EreWeGo Mod (Amiga)": {
+  "uuid": "c6fffc6c-3d2e-4cf0-ae97-e7ae80e35b50",
+  "slug": "pt-2018-erewego-mod-amiga"
+ },
+ "pitch/2018 - EreWeGo Mod - Dark Grass (Amiga)": {
+  "uuid": "666b7aeb-6f33-4ff5-ab69-550f83f126d2",
+  "slug": "pt-2018-erewego-mod-dark-655f3"
+ },
+ "pitch/2018 - New Graphics 2018": {
+  "uuid": "6184430c-0aea-4d59-b3c5-dfc5608da164",
+  "slug": "pt-2018-new-graphics-2018"
+ },
+ "pitch/2018 - Rugby": {
+  "uuid": "15719dae-52fc-4e63-8493-f910703cafd6",
+  "slug": "pt-2018-rugby"
+ },
+ "pitch/2018 - SWOS.pl Pitches": {
+  "uuid": "68793bd7-c651-4e1b-942c-e90ff3beda40",
+  "slug": "pt-2018-swos-pl-pitches"
+ },
+ "pitch/2018 - Tomplus Lower Division Pitches": {
+  "uuid": "5862ac51-cbbb-49ea-a019-9415955a7b2b",
+  "slug": "pt-2018-tomplus-lower-div-8483b"
+ },
+ "pitch/2019 - New Pitches 2019": {
+  "uuid": "b3e265a0-de46-4e57-ab82-42f3bb1dc876",
+  "slug": "pt-2019-new-pitches-2019"
+ },
+ "pitch/2019 - Speedball": {
+  "uuid": "d6727575-68e7-4c64-a657-39122bef21a0",
+  "slug": "pt-2019-speedball"
+ },
+ "pitch/2020 - 19_20 - Black Kit Asst. Refs": {
+  "uuid": "a7c0a5bd-a217-474f-9ccc-e4a1b0b77199",
+  "slug": "pt-2020-19-20-black-kit-a-5fd31"
+ },
+ "pitch/2020 - 19_20 - No Asst. Refs": {
+  "uuid": "5a369147-e26e-4fe5-a615-e381f43fbddd",
+  "slug": "pt-2020-19-20-no-asst-refs"
+ },
+ "pitch/2020 - 19_20 - Yellow Kit Asst. Refs": {
+  "uuid": "29dc9f96-94c3-4c86-a7db-6c34ae32925e",
+  "slug": "pt-2020-19-20-yellow-kit-6b3fd"
+ },
+ "pitch/2020 - New Grass 2020": {
+  "uuid": "01d38620-ee27-4f0c-abed-a040e5029d6a",
+  "slug": "pt-2020-new-grass-2020"
+ },
+ "pitch/2020 - New Grass 2020 - Shadow": {
+  "uuid": "46e2f3db-c8b5-4845-b093-9d2649a239b8",
+  "slug": "pt-2020-new-grass-2020-shadow"
+ },
+ "pitch/2020 - New Retro HD": {
+  "uuid": "6085d322-d111-47da-b0ee-2f304815c817",
+  "slug": "pt-2020-new-retro-hd"
+ },
+ "pitch/2020 - New Retro HD - Shadow": {
+  "uuid": "99493293-388d-4cd2-90ca-4c9a76da327d",
+  "slug": "pt-2020-new-retro-hd-shadow"
+ },
+ "pitch/2020 - Official 2020": {
+  "uuid": "e62bd093-2a05-4cd9-8eb1-cc560f64d0b5",
+  "slug": "pt-2020-official-2020"
+ },
+ "pitch/2020 - Official 2021": {
+  "uuid": "56a77a10-a33d-4d82-a4b5-438f8ba4f533",
+  "slug": "pt-2020-official-2021"
+ },
+ "pitch/2020 - Tribute 2020": {
+  "uuid": "055157f5-d228-4099-802f-3cd4d79aabe6",
+  "slug": "pt-2020-tribute-2020"
+ },
+ "pitch/2021 - BAR Modern Retro HD - Shadow": {
+  "uuid": "f4a6bc68-c670-49e5-a653-a2bb9c469b90",
+  "slug": "pt-2021-bar-modern-retro-5ddb8"
+ },
+ "pitch/2021 - BAY Modern Retro HD - Shadow": {
+  "uuid": "58de4872-af2a-4f60-a70c-70fabfaf91e4",
+  "slug": "pt-2021-bay-modern-retro-8aaed"
+ },
+ "pitch/2021 - Classic World Cup Stadiums 1966-1998": {
+  "uuid": "3e73506a-626e-4c02-b5cd-bf5d245e6cdd",
+  "slug": "pt-2021-classic-world-cup-3977e"
+ },
+ "pitch/2021 - Classic World Cup Stadiums 2002-2018": {
+  "uuid": "8ce93bfa-c5b2-41fd-b411-413fe7079090",
+  "slug": "pt-2021-classic-world-cup-fcd39"
+ },
+ "pitch/2021 - EURO 2020 Modern Retro HD - Shadow": {
+  "uuid": "dd4ec67a-d98c-4be3-a69a-871287a8a61b",
+  "slug": "pt-2021-euro-2020-modern-5b45e"
+ },
+ "pitch/2021 - Euro Cup Classic Retro HD - Shadow": {
+  "uuid": "58535886-7b2d-410a-8f81-4517e5daa860",
+  "slug": "pt-2021-euro-cup-classic-23d54"
+ },
+ "pitch/2021 - Euro Cup Modern Retro HD - Shadow": {
+  "uuid": "e2775325-1df7-45cb-a9d4-2991322a74a4",
+  "slug": "pt-2021-euro-cup-modern-r-4a72b"
+ },
+ "pitch/2021 - Futsal Retro HD": {
+  "uuid": "40995a91-2b67-4759-9c85-038d32bc0240",
+  "slug": "pt-2021-futsal-retro-hd"
+ },
+ "pitch/2021 - Futsal Retro HD - Extra Assist": {
+  "uuid": "a5d64c81-a815-478d-b67c-36becf3fe7f1",
+  "slug": "pt-2021-futsal-retro-hd-e-3fd28"
+ },
+ "pitch/2021 - Futsal Retro HD World Tour": {
+  "uuid": "029797c3-eb17-4975-91aa-aaef9d4c5eb2",
+  "slug": "pt-2021-futsal-retro-hd-w-8338a"
+ },
+ "pitch/2021 - Futsal Retro HD World Tour - Extra Assist": {
+  "uuid": "671ab34d-fb4f-48c6-b479-f3f47839fda6",
+  "slug": "pt-2021-futsal-retro-hd-w-19573"
+ },
+ "pitch/2021 - LIV Modern Retro HD - Shadow": {
+  "uuid": "16e13f3f-0b1f-4b92-9531-3d18b277ef2e",
+  "slug": "pt-2021-liv-modern-retro-5b8ea"
+ },
+ "pitch/2021 - Minor League": {
+  "uuid": "27922928-c76e-477d-9a25-fca9fbbf72e7",
+  "slug": "pt-2021-minor-league"
+ },
+ "pitch/2021 - SWOS Animated": {
+  "uuid": "1cd58a23-5d3d-4850-ae3b-d1a865e986c3",
+  "slug": "pt-2021-swos-animated"
+ },
+ "pitch/2021 - Sci-Fi Pitches": {
+  "uuid": "736eee80-757e-40ee-a343-8cc45f15bf35",
+  "slug": "pt-2021-sci-fi-pitches"
+ },
+ "pitch/2021 - Snow Pack": {
+  "uuid": "c89ef675-4664-41d6-8618-e32f1a0f8ade",
+  "slug": "pt-2021-snow-pack"
+ },
+ "pitch/2021 - Snow Pack (All white version)": {
+  "uuid": "0e4e6b39-45af-4ce5-9fda-ac96a2863d00",
+  "slug": "pt-2021-snow-pack-all-whi-9dd52"
+ },
+ "pitch/2021 - Star Trek": {
+  "uuid": "73c8a3e3-60b1-4c1a-96e1-24d5e6e04079",
+  "slug": "pt-2021-star-trek"
+ },
+ "pitch/2021 - Subbuteo": {
+  "uuid": "f04b210c-af92-445b-a155-06a132120afe",
+  "slug": "pt-2021-subbuteo"
+ },
+ "pitch/2021 - World Cup Modern Retro HD - Shadow": {
+  "uuid": "3578cee6-da1c-4174-be6e-883ce4810d84",
+  "slug": "pt-2021-world-cup-modern-c3e7e"
+ },
+ "pitch/2022 - AMIGA 23": {
+  "uuid": "b14a6527-006c-44b9-ba03-468962675987",
+  "slug": "pt-2022-amiga-23"
+ },
+ "pitch/2022 - British Football Pioneers": {
+  "uuid": "a85ae765-cbb5-4282-81e5-a0d114a2a2ff",
+  "slug": "pt-2022-british-football-c2da6"
+ },
+ "pitch/2023 - England Stadiums Pack A": {
+  "uuid": "4a6ec5bb-121c-4db6-8844-e6a33c28214a",
+  "slug": "pt-2023-england-stadiums-pack-a"
+ },
+ "pitch/2023 - England Stadiums Pack B": {
+  "uuid": "9faf6a7d-696e-4c22-a2a2-4f29ee91b79a",
+  "slug": "pt-2023-england-stadiums-pack-b"
+ },
+ "pitch/2023 - England Stadiums Pack C": {
+  "uuid": "719097ed-9854-4df5-900b-cb8862b2d755",
+  "slug": "pt-2023-england-stadiums-pack-c"
+ },
+ "pitch/2023 - England Training Stadiums Pack A": {
+  "uuid": "c28cfe2a-21e6-4c5e-9c8f-d8fda6b491d6",
+  "slug": "pt-2023-england-training-e8764"
+ },
+ "pitch/2023 - England Training Stadiums Pack B": {
+  "uuid": "d1b754cd-baac-455c-88fc-811bacfa4561",
+  "slug": "pt-2023-england-training-5cfcc"
+ },
+ "pitch/2023 - England Training Stadiums Pack C": {
+  "uuid": "300c5660-701b-4053-a6ce-5c99f741d5fc",
+  "slug": "pt-2023-england-training-55905"
+ },
+ "pitch/2023 - France Stadiums Pack A": {
+  "uuid": "a9dba0fc-9eda-4dc7-bdd5-33b4bfe0ca0e",
+  "slug": "pt-2023-france-stadiums-pack-a"
+ },
+ "pitch/2023 - France Training Stadiums Pack A": {
+  "uuid": "ad642713-b823-4d40-9a2c-d039f31d89fc",
+  "slug": "pt-2023-france-training-s-6579d"
+ },
+ "pitch/2023 - Italy Stadiums Pack A": {
+  "uuid": "90bd3d99-2592-4bde-991f-f9b7edd5eb99",
+  "slug": "pt-2023-italy-stadiums-pack-a"
+ },
+ "pitch/2023 - Italy Stadiums Pack B": {
+  "uuid": "97744428-30f2-4c9e-88aa-f38ae483bc6a",
+  "slug": "pt-2023-italy-stadiums-pack-b"
+ },
+ "pitch/2023 - Italy Stadiums Pack C": {
+  "uuid": "80e45c83-8873-445e-8789-3e9d7a19a315",
+  "slug": "pt-2023-italy-stadiums-pack-c"
+ },
+ "pitch/2023 - Italy Training Stadiums Pack A": {
+  "uuid": "79591cb2-33e9-43fa-b5f8-32ddf3a4bf2a",
+  "slug": "pt-2023-italy-training-st-7f905"
+ },
+ "pitch/2023 - Italy Training Stadiums Pack B": {
+  "uuid": "793d5234-5a00-4860-b24a-671e3bc7c747",
+  "slug": "pt-2023-italy-training-st-a1026"
+ },
+ "pitch/2023 - Italy Training Stadiums Pack C": {
+  "uuid": "706bf9c1-ebdd-4efd-a9b6-ae3cf9b5d2ef",
+  "slug": "pt-2023-italy-training-st-6fead"
+ },
+ "pitch/2023 - Leagues Stadiums Pack": {
+  "uuid": "f3057ced-0b92-4399-bd4e-868fff619f33",
+  "slug": "pt-2023-leagues-stadiums-pack"
+ },
+ "pitch/2023 - Leagues Training Stadiums Pack": {
+  "uuid": "d25588ac-4117-4343-bebf-2713a02ccb4e",
+  "slug": "pt-2023-leagues-training-76048"
+ },
+ "pitch/2023 - Netherlands Stadiums Pack A": {
+  "uuid": "8028db82-8098-4a58-bff0-7601ea229712",
+  "slug": "pt-2023-netherlands-stadi-f14eb"
+ },
+ "pitch/2023 - Netherlands Training Stadiums Pack A": {
+  "uuid": "3135d217-43db-4157-9a01-b648d84c9cef",
+  "slug": "pt-2023-netherlands-train-906f4"
+ },
+ "pitch/2023 - SWOS Multiplayer Pitches": {
+  "uuid": "2fe99f8b-26f8-422b-b11d-3bb545dcd82f",
+  "slug": "pt-2023-swos-multiplayer-25c62"
+ },
+ "pitch/2023 - Scotland Stadiums Pack A": {
+  "uuid": "e282a206-158b-47d4-a052-625ec26a3783",
+  "slug": "pt-2023-scotland-stadiums-c7f91"
+ },
+ "pitch/2023 - Scotland Training Stadiums Pack A": {
+  "uuid": "8567ff27-afec-43b2-8b4f-408dc00f8972",
+  "slug": "pt-2023-scotland-training-49960"
+ },
+ "pitch/2023 - Sensible Days 2024 Promotion Pitches": {
+  "uuid": "a40ae31f-8f84-4038-8abf-32b5a810f362",
+  "slug": "pt-2023-sensible-days-202-8200c"
+ },
+ "pitch/2023 - Spain Stadiums Pack A": {
+  "uuid": "9effae66-2ed0-4954-9171-7725e3c86b9b",
+  "slug": "pt-2023-spain-stadiums-pack-a"
+ },
+ "pitch/2023 - Spain Stadiums Pack B": {
+  "uuid": "637b4140-7093-4769-9ecc-264d7abb9eaf",
+  "slug": "pt-2023-spain-stadiums-pack-b"
+ },
+ "pitch/2023 - Spain Training Stadiums Pack A": {
+  "uuid": "2d13f270-dde7-400a-b874-a5a93ccd68e7",
+  "slug": "pt-2023-spain-training-st-15f10"
+ },
+ "pitch/2023 - Spain Training Stadiums Pack B": {
+  "uuid": "2f1e5c51-3bb3-451e-aeb2-0454f74c618a",
+  "slug": "pt-2023-spain-training-st-da23d"
+ },
+ "pitch/2023 - Summer Beach Soccer Pack": {
+  "uuid": "a4e73e2a-687e-4d0d-94a0-b74e78a3b742",
+  "slug": "pt-2023-summer-beach-socc-ae872"
+ },
+ "pitch/2023 - Sunday League Stadiums": {
+  "uuid": "cbe982ac-906a-4aa8-b752-ba6884cd18bb",
+  "slug": "pt-2023-sunday-league-stadiums"
+ },
+ "pitch/2023 - Tiny Stadiums": {
+  "uuid": "7c27c83b-b321-4e96-b7e2-1d8ed26fc3ae",
+  "slug": "pt-2023-tiny-stadiums"
+ },
+ "pitch/2023 - Tiny Training Stadiums": {
+  "uuid": "dde8981b-a47d-4e02-ac78-f7699d2bdf56",
+  "slug": "pt-2023-tiny-training-stadiums"
+ },
+ "pitch/2024 - Challenge Mode Pitches": {
+  "uuid": "1147f7f3-495d-47a2-a418-4de5863df682",
+  "slug": "pt-2024-challenge-mode-pitches"
+ },
+ "pitch/2024 - EURO 2024 Modern Retro HD - Shadow": {
+  "uuid": "6c753c4c-7dbb-42c4-b847-ce0fe311e80e",
+  "slug": "pt-2024-euro-2024-modern-47272"
+ },
+ "pitch/2024 - Eredivisie 2023-2024": {
+  "uuid": "f1d0d7bd-2fed-41ac-99b0-af25fa51bf6f",
+  "slug": "pt-2024-eredivisie-2023-2024"
+ },
+ "pitch/2024 - European Stadiums for Cup Finals Pack A": {
+  "uuid": "25e02a4a-ab63-4fdf-b256-9181487e82a8",
+  "slug": "pt-2024-european-stadiums-6213b"
+ },
+ "pitch/2024 - Generic Season Pitches 1996-1997": {
+  "uuid": "dcce4e0f-32e9-41de-86cb-6737899095c1",
+  "slug": "pt-2024-generic-season-pi-3a954"
+ },
+ "pitch/2024 - Generic Season Pitches 2023-2024": {
+  "uuid": "68c2d1f9-8a9e-4437-b8c8-5901d82c597a",
+  "slug": "pt-2024-generic-season-pi-f886f"
+ },
+ "pitch/2024 - Premier League 2023-2024": {
+  "uuid": "27a83da9-aa9e-4977-8a6d-de5d76501a9e",
+  "slug": "pt-2024-premier-league-20-37345"
+ },
+ "pitch/2024 - Scotland Stadiums Pack B": {
+  "uuid": "d2a257d0-508c-401d-b345-55fc620c01b4",
+  "slug": "pt-2024-scotland-stadiums-0f6fc"
+ },
+ "pitch/2024 - Scotland Stadiums Pack C": {
+  "uuid": "bf2ed7fa-2422-47b2-8c10-61c56ae9cb22",
+  "slug": "pt-2024-scotland-stadiums-54fdc"
+ },
+ "pitch/2024 - Scotland Training Stadiums Pack B": {
+  "uuid": "ae0790a9-547c-4097-afba-02f3cf9a7945",
+  "slug": "pt-2024-scotland-training-9d448"
+ },
+ "pitch/2024 - Scotland Training Stadiums Pack C": {
+  "uuid": "8a0f1389-7778-4cf1-b1aa-94fe156f65f2",
+  "slug": "pt-2024-scotland-training-503f0"
+ },
+ "pitch/2024 - Serie A 2023-2024": {
+  "uuid": "33e36148-1271-4fc4-a25b-4d1b44d4b60a",
+  "slug": "pt-2024-serie-a-2023-2024"
+ },
+ "pitch/2024 - UEFA Champions League 2023-2024": {
+  "uuid": "44ab5801-7d32-4733-97ed-dea086eeea02",
+  "slug": "pt-2024-uefa-champions-le-da518"
+ },
+ "pitch/2024 - UEFA EURO CUP (Germany)": {
+  "uuid": "410804cf-4683-4a2b-a448-d5fb438cbd59",
+  "slug": "pt-2024-uefa-euro-cup-germany"
+ },
+ "pitch/2025 - 1900s Retro Full Crowded Pack": {
+  "uuid": "e2d2763a-9ac8-4c2d-8197-d367ed2e5d22",
+  "slug": "pt-2025-1900s-retro-full-e96c9"
+ },
+ "pitch/2025 - 1900s Retro Training Pack": {
+  "uuid": "3891a921-c133-4342-94b5-232ec1931caa",
+  "slug": "pt-2025-1900s-retro-train-dfc77"
+ },
+ "pitch/2025 - British Football Pioneers - Dynamic Grass": {
+  "uuid": "bba2d4e0-d03e-4fef-a57a-01c811152184",
+  "slug": "pt-2025-british-football-e9911"
+ },
+ "pitch/2025 - Classic Retro Pitches": {
+  "uuid": "5499240e-4946-4318-8223-aec04d772d36",
+  "slug": "pt-2025-classic-retro-pitches"
+ },
+ "pitch/2025 - England Stadiums Pack D": {
+  "uuid": "647c185e-9677-4b28-9097-72e1d028c040",
+  "slug": "pt-2025-england-stadiums-pack-d"
+ },
+ "pitch/2025 - England Training Stadiums Pack D": {
+  "uuid": "874adaa0-605e-47d9-ad73-a79998bfab93",
+  "slug": "pt-2025-england-training-01e8e"
+ },
+ "pitch/2025 - Generic Season Pitches 2024-2025": {
+  "uuid": "64c0cdd6-af6e-4aed-b49a-94dd3f03672f",
+  "slug": "pt-2025-generic-season-pi-30e81"
+ },
+ "pitch/2025 - Sensible Days 2025 Promotion Pitches": {
+  "uuid": "1762a0e5-ac1e-4dda-8c5f-0768345d492d",
+  "slug": "pt-2025-sensible-days-202-090c9"
+ },
+ "pitch/2026 - Euro Cup Classic Retro HD - Shadow": {
+  "uuid": "d0c3ef2a-2541-4470-9837-75e14d47074e",
+  "slug": "pt-2026-euro-cup-classic-8d561"
+ },
+ "pitch/2026 - Euro Cup Modern Retro HD - Shadow": {
+  "uuid": "d42b5b54-75d6-40e4-9f5d-ebf0f9aee6f4",
+  "slug": "pt-2026-euro-cup-modern-r-30086"
+ },
+ "pitch/2026 - Futsal Retro HD": {
+  "uuid": "4b224fd5-57f0-4664-9a81-45e01a397a9b",
+  "slug": "pt-2026-futsal-retro-hd"
+ },
+ "pitch/2026 - Futsal Retro HD - Extra Assist": {
+  "uuid": "dd130f16-a1fa-4869-a9f6-8c517b98609e",
+  "slug": "pt-2026-futsal-retro-hd-e-85bd8"
+ },
+ "pitch/2026 - Generic Season Pitches 2025-2026": {
+  "uuid": "5fed8556-8bf1-42b5-a6a6-f9110abec724",
+  "slug": "pt-2026-generic-season-pi-b545b"
+ },
+ "pitch/2026 - Sensible Days 2026 Promotion Pitches": {
+  "uuid": "be4f9664-2fa6-4d5c-b854-9b3cf1e68ee1",
+  "slug": "pt-2026-sensible-days-202-854a8"
+ },
+ "pitch/Graphics Composer": {
+  "uuid": "7f54395c-2f43-4ada-aa65-77add1b3465c",
+  "slug": "pt-graphics-composer"
+ },
+ "teamdb/1990_91 - Team Updates": {
+  "uuid": "9f904c3f-9a1f-48e5-b5d3-f593c4e1ee90",
+  "slug": "td-1990-91-team-updates"
+ },
+ "teamdb/1991_92 - Sensible Soccer 1.0 (Dec '91)": {
+  "uuid": "bab47a64-af65-4aeb-a172-63e8c016866c",
+  "slug": "td-1991-92-sensible-socce-933be"
+ },
+ "teamdb/1994_95 - Original Amiga 0.9 (Dec '94)": {
+  "uuid": "d6bf80d9-9b2f-467c-9185-f1f4483d072e",
+  "slug": "td-1994-95-original-amiga-ec457"
+ },
+ "teamdb/1994_95 - Original Amiga 1.0 (Jan '95)": {
+  "uuid": "2a480e7d-0acf-4d7d-9600-1b5d936446ae",
+  "slug": "td-1994-95-original-amiga-3e6b2"
+ },
+ "teamdb/1994_95 - Original Amiga 1.1 (Mar '95)": {
+  "uuid": "c9a438c0-a3f9-49ed-b27e-af019bea7c95",
+  "slug": "td-1994-95-original-amiga-a6f16"
+ },
+ "teamdb/1995_96 - European Championship Edition": {
+  "uuid": "9197bc08-7ddc-43f0-9033-0521e3c1ed41",
+  "slug": "td-1995-96-european-champ-4d9f6"
+ },
+ "teamdb/1995_96 - PC DOS 1.0": {
+  "uuid": "f24efe65-8978-4e83-9ba1-b335a05ac9df",
+  "slug": "td-1995-96-pc-dos-1-0"
+ },
+ "teamdb/1996_97 - Original Amiga _ PC DOS": {
+  "uuid": "d3920464-7cd9-4486-8aff-65e7fa2b3fe3",
+  "slug": "td-1996-97-original-amiga-b1f94"
+ },
+ "teamdb/1996_97 - Revised (some leagues corrected)": {
+  "uuid": "694aa3eb-d77f-49b1-b349-2ed9cd1e5a56",
+  "slug": "td-1996-97-revised-some-l-b4f87"
+ },
+ "teamdb/1997_98 - Revised Team Updates": {
+  "uuid": "f35756ab-7c3c-49f8-a64d-73bac0dc8e24",
+  "slug": "td-1997-98-revised-team-updates"
+ },
+ "teamdb/1997_98 - Team Updates": {
+  "uuid": "e4f58e1e-1931-4c12-83f9-573321975c76",
+  "slug": "td-1997-98-team-updates"
+ },
+ "teamdb/1999_00 - Team Updates": {
+  "uuid": "a8bec3c5-c714-4258-a979-4e736b4ad3a1",
+  "slug": "td-1999-00-team-updates"
+ },
+ "teamdb/2000_01 - Team Updates": {
+  "uuid": "154ecdb2-b492-4bab-869d-b850d753285b",
+  "slug": "td-2000-01-team-updates"
+ },
+ "teamdb/2004_05 - Team Updates": {
+  "uuid": "07c8ac8b-a99b-4dcd-b7eb-4bdcb343d35a",
+  "slug": "td-2004-05-team-updates"
+ },
+ "teamdb/2005_06 - Team Updates": {
+  "uuid": "22b143ef-673c-4b93-9fc6-a633674eb92e",
+  "slug": "td-2005-06-team-updates"
+ },
+ "teamdb/2006_07 - Synchronated Update Final": {
+  "uuid": "e172cc1e-f730-42a4-a55d-ecd668f26a27",
+  "slug": "td-2006-07-synchronated-u-8f133"
+ },
+ "teamdb/2006_07 - Team Updates": {
+  "uuid": "0cef0374-8903-42de-8ad6-1d1a7dc68e33",
+  "slug": "td-2006-07-team-updates"
+ },
+ "teamdb/2007_08 - Mega Data Patch": {
+  "uuid": "ff6b9090-4215-4c8d-a07a-76c656cdd427",
+  "slug": "td-2007-08-mega-data-patch"
+ },
+ "teamdb/2008_09 - Team Updates": {
+  "uuid": "6d07a83d-7b38-48c2-ac53-454eeb91c5a2",
+  "slug": "td-2008-09-team-updates"
+ },
+ "teamdb/2010_11 - Synchronated Update v2.2": {
+  "uuid": "160ebec7-8928-42c2-8034-d9f2fdd8bffb",
+  "slug": "td-2010-11-synchronated-u-c9975"
+ },
+ "teamdb/2011_12 - Synchronated Update v1.0": {
+  "uuid": "f79e93ff-fdb4-495d-9a91-5ac6a679c635",
+  "slug": "td-2011-12-synchronated-u-933f7"
+ },
+ "teamdb/2012_13 - Synchronated Update v1.2": {
+  "uuid": "af70c793-eaf2-403a-8292-2392661455d2",
+  "slug": "td-2012-13-synchronated-u-1ae6b"
+ },
+ "teamdb/2013_14 - Synchronated Update v1.0": {
+  "uuid": "70f92e07-85a4-4e89-a88b-ab87addd382d",
+  "slug": "td-2013-14-synchronated-u-f94ef"
+ },
+ "teamdb/2014_15 - Team Updates": {
+  "uuid": "3d8f4690-9115-402d-85b6-8565f1fc541a",
+  "slug": "td-2014-15-team-updates"
+ },
+ "teamdb/2015_16 - Team Updates": {
+  "uuid": "41b8e63d-6c1e-4460-b9e0-d3e6611a6177",
+  "slug": "td-2015-16-team-updates"
+ },
+ "teamdb/2016_17 - SWOS United Anniversary Edition": {
+  "uuid": "a0521f41-1b6f-4d18-94dc-7e0d8660213d",
+  "slug": "td-2016-17-swos-united-an-032aa"
+ },
+ "teamdb/2019_20 - SWOS 2020": {
+  "uuid": "2c535be5-5e19-46cd-b0b6-546ce6b0e91a",
+  "slug": "td-2019-20-swos-2020"
+ },
+ "teamdb/2019_20 - SWOS 2020 Winter Transfer": {
+  "uuid": "cb0a8102-7aef-49a3-ae9e-69f1a17f3f08",
+  "slug": "td-2019-20-swos-2020-wint-ce8c5"
+ },
+ "teamdb/2020_21 - SWOS 2020": {
+  "uuid": "cc9bcc65-79da-402e-8ba8-f8e14e70e24f",
+  "slug": "td-2020-21-swos-2020"
+ },
+ "teamdb/2020_21 - SWOS 2020 Winter Transfer": {
+  "uuid": "de86605b-309b-43a7-ac0c-9cfa5f9de8f0",
+  "slug": "td-2020-21-swos-2020-wint-958ed"
+ },
+ "teamdb/2020_21 - SWOS Taraji's 20_21": {
+  "uuid": "3e045185-fb87-4cf8-a78d-5aa5be2615a4",
+  "slug": "td-2020-21-swos-taraji-s-20-21"
+ },
+ "teamdb/2021_22 - European Reserve Teams": {
+  "uuid": "584364bb-ec42-499a-a14b-963f716e933c",
+  "slug": "td-2021-22-european-reser-561c6"
+ },
+ "teamdb/2021_22 - SWOS 2020": {
+  "uuid": "98760af5-b3b2-484a-8e8b-a0291a8e2c21",
+  "slug": "td-2021-22-swos-2020"
+ },
+ "teamdb/2022_23 - SWOS 2020": {
+  "uuid": "9d8c686a-ff1f-4ceb-b1cb-ee7e7a0d4a1c",
+  "slug": "td-2022-23-swos-2020"
+ },
+ "teamdb/2023_24 - SWOS 2020": {
+  "uuid": "6afa68e8-4085-45be-acdf-d03e1eb6e8af",
+  "slug": "td-2023-24-swos-2020"
+ },
+ "teamdb/2024_25 - SWOS 2020": {
+  "uuid": "87195ce9-d3cd-4005-a694-b3d713c9a3e4",
+  "slug": "td-2024-25-swos-2020"
+ },
+ "teamdb/SPECIAL EDITION - All National Teams": {
+  "uuid": "38a8cd81-4d17-44a1-a4ac-c1fab01707bf",
+  "slug": "td-special-edition-all-na-f447d"
+ },
+ "teamdb/SPECIAL EDITION - Synchronated SWOS Fantasy": {
+  "uuid": "e113ef45-e648-4eac-9608-d45210ebb6a8",
+  "slug": "td-special-edition-synchr-80e71"
+ },
+ "teamdb/SPECIAL EDITION - Synchronated SWOS Legends": {
+  "uuid": "1eddb40a-3996-4b75-ab79-b75b457d25a3",
+  "slug": "td-special-edition-synchr-d3357"
+ },
+ "teamdb/SPECIAL EDITION - VIVA SWOS (History of the World Cup 1930-1974)": {
+  "uuid": "60df6931-2877-4754-8547-5832fb73a5b4",
+  "slug": "td-special-edition-viva-s-f92c9"
+ },
+ "teamdb/SPECIAL EDITION - World Cup 1998": {
+  "uuid": "7b428ff9-72fe-4d30-83e2-cf1decc3d445",
+  "slug": "td-special-edition-world-d448c"
+ },
+ "teamdb/SPECIAL EDITION - World Cup 2010": {
+  "uuid": "34b9f10d-59a8-423b-a337-06efc7e0ac3c",
+  "slug": "td-special-edition-world-4a95e"
+ },
+ "tmusic/AMIGA - Goalscoringsuperstarhero": {
+  "uuid": "2ec97d0b-6dd4-4c4c-8276-3ffc8e2eabf9",
+  "slug": "tm-amiga-goalscoringsuper-5d7b6"
+ },
+ "tmusic/AMIGA - Goalscoringsuperstarhero - Remix by daXX": {
+  "uuid": "cdb690cc-dad4-45d5-940a-dded97c4831c",
+  "slug": "tm-amiga-goalscoringsuper-02762"
+ },
+ "tmusic/AMIGA - Sensible Soccer 1.1": {
+  "uuid": "d31ba801-15ad-4558-951e-52085baa33b8",
+  "slug": "tm-amiga-sensible-soccer-1-1"
+ },
+ "tmusic/AMIGA - Sensible Soccer 1.2": {
+  "uuid": "76f62720-8112-4ae0-b7ba-7714f38d9b16",
+  "slug": "tm-amiga-sensible-soccer-1-2"
+ },
+ "tmusic/AMIGA CD32 - Sensible Soccer - European Champions 1.1": {
+  "uuid": "2a239d29-5fc4-4d23-9c91-1b57819fa782",
+  "slug": "tm-amiga-cd32-sensible-so-67a2b"
+ },
+ "tmusic/AMIGA CD32 - Sensible Soccer 1.2": {
+  "uuid": "ed6e97a1-f0c3-42aa-b008-31880cfa9ec9",
+  "slug": "tm-amiga-cd32-sensible-so-9c56f"
+ },
+ "tmusic/Atari Jaguar - Sensible Soccer 1.2 - World Cup Teams": {
+  "uuid": "a8284c94-461a-4601-a3d6-4ab52da5665a",
+  "slug": "tm-atari-jaguar-sensible-d13db"
+ },
+ "tmusic/British Football Pioneers - Victorian London Ambience": {
+  "uuid": "6f667328-d8e7-47fb-b1f1-03286da09f41",
+  "slug": "tm-british-football-pione-6931a"
+ },
+ "tmusic/British Football Pioneers - Waltz in C sharp minor by Chopin": {
+  "uuid": "77927373-d113-4d4a-bec5-df447afd085c",
+  "slug": "tm-british-football-pione-06f08"
+ },
+ "tmusic/Commander Flying Kick - Sensible Rocker": {
+  "uuid": "a57e03b2-1249-47b7-a353-36e17f8318ce",
+  "slug": "tm-commander-flying-kick-7d13b"
+ },
+ "tmusic/Goalscoringsuperstarhero - MIDI Soundblaster Pro": {
+  "uuid": "a94457ca-af99-4e28-98d4-71a8dfc8b9f2",
+  "slug": "tm-goalscoringsuperstarhe-fd955"
+ },
+ "tmusic/Goalscoringsuperstarhero - Piano by Lucaa83": {
+  "uuid": "6b1d3929-5283-46be-a211-492aa7351d81",
+  "slug": "tm-goalscoringsuperstarhe-4805e"
+ },
+ "tmusic/Goalscoringsuperstarhero - Remix by Ottoman": {
+  "uuid": "d87af666-f701-4028-8d44-a3d03b5497a7",
+  "slug": "tm-goalscoringsuperstarhe-b0269"
+ },
+ "tmusic/Goalscoringsuperstarhero - Rendition by Rasmus": {
+  "uuid": "7bf82b4d-c3e5-4e7f-9261-7ba788df787a",
+  "slug": "tm-goalscoringsuperstarhe-960d9"
+ },
+ "tmusic/Goalscoringsuperstarhero - Sociable Soccer Version": {
+  "uuid": "a0dda94d-8d0f-4d4d-aa00-9999859d2348",
+  "slug": "tm-goalscoringsuperstarhe-78d71"
+ },
+ "tmusic/Goalscoringsuperstarhero - Studio Version": {
+  "uuid": "639d7842-b34c-4635-9542-09f196cb1a86",
+  "slug": "tm-goalscoringsuperstarhe-3b975"
+ },
+ "tmusic/Microprose Soccer C64": {
+  "uuid": "efbb1ad9-86df-4135-b647-629e662e5155",
+  "slug": "tm-microprose-soccer-c64"
+ },
+ "tmusic/NES - Sensible Soccer (Prototype)": {
+  "uuid": "5f0c02a4-dd39-4daa-94a2-74ada208df7c",
+  "slug": "tm-nes-sensible-soccer-pr-4534d"
+ },
+ "tmusic/PC DOS - Goalscoringsuperstarhero": {
+  "uuid": "971f4658-208e-472f-9a8e-a4fa9e1d27e2",
+  "slug": "tm-pc-dos-goalscoringsupe-63727"
+ },
+ "tmusic/PC DOS - Goalscoringsuperstarhero - Dreamblaster S1 midi": {
+  "uuid": "fb3575f9-210d-4c42-bf2b-06c30cb4ec9c",
+  "slug": "tm-pc-dos-goalscoringsupe-5545c"
+ },
+ "tmusic/PC DOS - Goalscoringsuperstarhero - Original 3.5inch Floppy midi (xmi)": {
+  "uuid": "7f8cc025-191b-4d97-9523-8a2d81fd774f",
+  "slug": "tm-pc-dos-goalscoringsupe-44c00"
+ },
+ "tmusic/PC DOS - Goalscoringsuperstarhero - Roland MPU-401 midi": {
+  "uuid": "03a8ac8d-d1b6-46a1-8cb5-eef488894496",
+  "slug": "tm-pc-dos-goalscoringsupe-b1685"
+ },
+ "tmusic/SEGA MEGA CD - Sensible Soccer 1.2": {
+  "uuid": "8db7421d-c6ec-4282-a1a7-f68dc1dd3a2e",
+  "slug": "tm-sega-mega-cd-sensible-6bbd2"
+ },
+ "tmusic/SEGA Megadrive - Sensible Soccer European Champions": {
+  "uuid": "7cf001d5-ce17-44fa-9143-8161f4cd2fd4",
+  "slug": "tm-sega-megadrive-sensibl-ebdda"
+ },
+ "tmusic/SNES - Sensible Soccer European Champions": {
+  "uuid": "76d7674e-331f-4e99-b4f8-5f2d31a8fbf3",
+  "slug": "tm-snes-sensible-soccer-e-f4902"
+ },
+ "tmusic/Sensible World of Soccer (Remix) [HQ]": {
+  "uuid": "fe167083-5a58-47ec-bda8-79e3cdb73512",
+  "slug": "tm-sensible-world-of-socc-02453"
+ },
+ "tmusic/Soundblaster S1": {
+  "uuid": "2983904a-7d1c-4c99-9ee2-ba9af33c9922",
+  "slug": "tm-soundblaster-s1"
+ },
+ "tmusic/Xbox Live Arcade - Goalscoringsuperstarhero": {
+  "uuid": "14d0d480-7a31-4dfb-812f-19a4458684a8",
+  "slug": "tm-xbox-live-arcade-goals-6ef1f"
+ },
+ "tmusic/Yamaha DB50XG": {
+  "uuid": "55a011b7-2fb6-4b08-bdc7-555573231d40",
+  "slug": "tm-yamaha-db50xg"
+ }
+}
