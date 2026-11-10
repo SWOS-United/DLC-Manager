@@ -55,8 +55,8 @@ std::vector<std::string> enabled_mods(const std::string &base_dir);
 // Turns `mod` on: appended to [mods] enabled, every other mod of its slot taken
 // off, and the settings it needs to be heard or seen made (a pitch: [graphics]
 // style = 2020; commentary and effects: [audio] style = pc; music: [audio]
-// music = pc, and menu_music = mp3 for menu music -- midi when it is a
-// sound_dos/menu.xmi). `installed` is every
+// music = pc, and title_music / menu_music = mp3 -- midi when the mod's song is a
+// sound_dos/title.xmi / menu.xmi). `installed` is every
 // installed mod, so the slot's others can be found by their slot.
 bool turn_mod_on(const std::string &base_dir, const DlcEntry &mod, DlcType category,
                  const std::vector<CategorisedMod> &installed);

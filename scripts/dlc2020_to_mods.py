@@ -22,6 +22,7 @@ Layouts (checked against OpenSWOS's readers, 2026-11-09):
                                                (src/dos_sound_tables.h) names each;
                                                the engine plays all five, mixed to mono
     tmusic      <title>.mp3                 -> sound_dos/title.mp3                  slot title_music
+                <title>.xmi                 -> sound_dos/title.xmi (title_music = midi)
     mmusic      <title>.mp3                 -> sound_dos/menu.mp3                   slot menu_music
                 <title>.xmi                 -> sound_dos/menu.xmi (menu_music = midi)
     pitch       PITCH1-6.BLK/.DAT, SPRITE,  -> grafs_2020/... (the whole set:       slot pitch
@@ -32,7 +33,7 @@ Layouts (checked against OpenSWOS's readers, 2026-11-09):
 
 All are "cosmetic". Each needs a setting the DLC manager makes when it turns the mod on:
 commentary and fx [audio] style = pc; music [audio] music = pc (menu music also
-menu_music = mp3, or midi for an .xmi); a pitch [graphics] style = 2020; a gallery's pictures are chosen on the
+menu_music = mp3; title_music / menu_music = midi for an .xmi); a pitch [graphics] style = 2020; a gallery's pictures are chosen on the
 backgrounds mod's page.
 
     teamdb      data/TEAM.NNN, *.TMD,       -> data_json/teams/<COUNTRY>.json (OpenSWOS's slot teamdb
@@ -117,8 +118,8 @@ def map_fx(rel):
 
 
 def map_music(target, midi=None):
-    # A recording (.mp3), or -- for the menus -- the PC game's song as MIDI (.xmi), which the
-    # engine plays on its emulated AdLib card ([audio] menu_music = midi).
+    # A recording (.mp3), or the PC game's song as MIDI (.xmi), which the engine plays on its
+    # emulated AdLib card ([audio] title_music / menu_music = midi).
     def m(rel):
         low = rel.lower()
         if low.endswith(".mp3"):
@@ -140,7 +141,7 @@ def map_pitch(rel):
 TYPES = {
     "commentary": ("commentary", "cosmetic", map_commentary, "Commentary", "cm"),
     "fx": ("fx", "cosmetic", map_fx, "Sound effects", "fx"),
-    "tmusic": ("title_music", "cosmetic", map_music("sound_dos/title.mp3"), "Title music", "tm"),
+    "tmusic": ("title_music", "cosmetic", map_music("sound_dos/title.mp3", "sound_dos/title.xmi"), "Title music", "tm"),
     "mmusic": ("menu_music", "cosmetic", map_music("sound_dos/menu.mp3", "sound_dos/menu.xmi"), "Menu music", "mm"),
     "pitch": ("pitch", "cosmetic", map_pitch, "Pitch", "pt"),
     "bgi2": ("", "cosmetic", None, "Backgrounds", "bg"),     # galleries: convert_gallery()
@@ -163,8 +164,12 @@ ABOUT_NOTE = {
            "Online, both players need it.",
 }
 
-MIDI_NOTE = ("The PC game's own menu song as MIDI, played on an emulated AdLib card "
-             "([audio] music = pc, menu_music = midi).")
+MIDI_NOTE = {
+    "tmusic": "The PC game's title song as MIDI, played on an emulated AdLib card "
+              "([audio] music = pc, title_music = midi).",
+    "mmusic": "The PC game's own menu song as MIDI, played on an emulated AdLib card "
+              "([audio] music = pc, menu_music = midi).",
+}
 
 
 # ---- the server -----------------------------------------------------------------------
@@ -300,7 +305,7 @@ def convert(type_id, row, archive, out_dir, uuids, seven, base_url):
             "name": "%s: %s" % (label, row["title"]),
             "version": row["version"] or "1.0",
             "author": row["author"],
-            "about": "%s from SWOS 2020's DLC. %s" % (label, MIDI_NOTE if midi else ABOUT_NOTE[type_id]),
+            "about": "%s from SWOS 2020's DLC. %s" % (label, MIDI_NOTE[type_id] if midi else ABOUT_NOTE[type_id]),
             "targets": ["sdl"],
             "changes": changes,
             "slot": slot,
