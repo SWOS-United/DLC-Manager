@@ -43,6 +43,15 @@ to use it: `[graphics] style = 2020` for a pitch, `[audio] style = pc` for
 commentary and effects, `[audio] music = pc` for music, with `title_music` / `menu_music` set to `mp3`, or
 `midi` for a PC DOS song.
 
+### The Amiga
+
+`amiga/dlc_manager` is the same manager for SWOS United on the Amiga (AmigaOS
+2.04+, any `bsdsocket.library` stack): it reads
+`http://www.sensiblesoccer.de/swos2020/dlc/swosutd/amiga/index.json`, installs into
+the game drawer's `mods/` and turns mods on in `data/MODS`. Its mods are made by
+`scripts/dlc2020_to_amiga.py`: SWOS 2020's pitches as AGA maps, and the team
+databases with 96/97's leagues. See [amiga/dlc_manager/README.md](amiga/dlc_manager/README.md).
+
 `scripts/dlc2020_to_mods.py` turns SWOS 2020's server packs into those mods and
 writes the index. Each mod's uuid and folder name are kept in
 `scripts/dlc2020_uuids.json`, so commit it after a conversion.
