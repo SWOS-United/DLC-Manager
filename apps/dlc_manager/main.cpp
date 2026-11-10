@@ -468,6 +468,12 @@ int main(int argc, char *argv[])
     const DlcActions &actions = ui->global<DlcActions>();
     const Theme &theme = ui->global<Theme>();
     const DlcIcons &icons = ui->global<DlcIcons>();
+    ui->global<About>().set_version(SWOS_DLC_VERSION);
+    ui->global<About>().on_open_url([](slint::SharedString url) {
+        if (SDL_OpenURL(url.data()) != 0)
+            std::fprintf(stderr, "[about] cannot open %s: %s\n", url.data(), SDL_GetError());
+    });
+    if (std::getenv("SWOS_DLC_ABOUT")) ui->global<About>().set_open(true);   // a test hook, as SWOS_DLC_*
 
     swos::GlWindowAdapter *adapter = platform_ptr->adapter();
     if (!adapter) {

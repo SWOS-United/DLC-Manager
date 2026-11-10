@@ -129,6 +129,26 @@ export global DlcActions {
     callback open-folder();
 }
 
+// The About dialog (the header's info button): Baker76's, as Palette Agent's.
+export global About {
+    in-out property <bool> open;
+    in property <string> version;
+    callback open-url(string);    // a logo clicked: its website, in the browser
+}
+
+// A logo that opens its website.
+component LinkLogo inherits Rectangle {
+    in property <string> url;
+    in property <string> label;
+    touch := TouchArea {
+        mouse-cursor: pointer;
+        clicked => { About.open-url(root.url); }
+    }
+    opacity: touch.has-hover ? 0.85 : 1.0;
+    accessible-role: button;
+    accessible-label: root.label;
+}
+
 export global Theme {
     in-out property <int> mode: 0;          // 0 system, 1 light, 2 dark
     in-out property <int> system-scheme: 1; // 1 light, 2 dark
@@ -176,6 +196,129 @@ component ThemeToggle inherits HorizontalLayout {
         }
         accessible-role: button;
         accessible-label: entry.tip;
+    }
+}
+
+component CreditRow inherits HorizontalLayout {
+    in property <string> role;
+    in property <string> names;
+    spacing: 16px;
+    Text {
+        text: root.role;
+        width: 210px;
+        color: Palette.foreground.transparentize(0.35);
+    }
+    Text {
+        text: root.names;
+        wrap: word-wrap;
+        color: Palette.foreground;
+        horizontal-stretch: 1;
+    }
+}
+
+component AboutDialog inherits Rectangle {
+    background: #00000060;
+    TouchArea { }      // nothing behind it takes a click while it is open
+    panel := Rectangle {
+        x: (root.width - self.width) / 2;
+        y: (root.height - self.height) / 2;
+        width: min(560px, root.width - 32px);
+        height: min(layout.preferred-height, root.height - 32px);
+        background: Palette.background;
+        border-radius: 6px;
+        border-width: 1px;
+        border-color: Palette.border;
+        drop-shadow-blur: 16px;
+        drop-shadow-color: #00000050;
+
+        layout := VerticalLayout {
+            padding: 16px;
+            spacing: 12px;
+            Text {
+                text: "About";
+                font-size: 15px;
+                font-weight: 600;
+                color: Palette.foreground;
+            }
+            HorizontalLayout {
+                spacing: 16px;
+                Image {
+                    width: 96px;
+                    height: 96px;
+                    source: @image-url("../../assets/icon/swos.svg");
+                }
+                VerticalLayout {
+                    alignment: center;
+                    spacing: 4px;
+                    Text {
+                        text: "SWOS United DLC Manager " + About.version;
+                        font-size: 20px;
+                        font-weight: 600;
+                        color: Palette.foreground;
+                    }
+                    Text { text: "by Ben Baker"; color: Palette.foreground; }
+                    Text { text: "https://github.com/SWOS-United/DLC-Manager"; color: Palette.foreground; }
+                }
+            }
+            // SWOS United's credits, as the launcher's About page had them.
+            Rectangle {
+                background: Palette.alternate-background;
+                border-radius: 4px;
+                border-width: 1px;
+                border-color: Palette.border;
+                VerticalLayout {
+                    padding: 10px;
+                    spacing: 6px;
+                    CreditRow { role: "Project Management"; names: "Playaveli"; }
+                    CreditRow { role: "Engineering Lead"; names: "benbaker76"; }
+                    CreditRow { role: "SWOS Reverse Engineering"; names: "benbaker76 (Amiga) / zkz (DOS)"; }
+                    CreditRow { role: "SWOS 2020 Feature Engineering"; names: "starwindz"; }
+                    CreditRow { role: "SWOS Live (swos.eu)"; names: "Redhair"; }
+                    CreditRow { role: "SWOS Multiplayer (GGPO-X)"; names: "thd79"; }
+                    CreditRow { role: "SWOS Web Online Rankings"; names: "ElMichaJ"; }
+                    CreditRow { role: "Beta Testers"; names: "crom1, ElMichaJ, EMPI, gatifun, petarku, Playaveli, Predicador, Redhair, segra, starwindz, thd79"; }
+                    CreditRow { role: "Donators"; names: "benbaker76, Playaveli, starwindz, Petarku, gatifun, burellapaolo, az0man0, Cartoplotus68, JoSon, aliko"; }
+                }
+            }
+            // Baker76's lettering is drawn for a dark ground, so it has one in both themes.
+            LinkLogo {
+                url: "https://baker76.com";
+                label: "Baker76 (baker76.com)";
+                background: #202020;
+                border-radius: 8px;
+                HorizontalLayout {
+                    alignment: center;
+                    padding: 14px;
+                    Image {
+                        height: 36px;
+                        width: 36px * 1008.38 / 162.4;
+                        source: @image-url("../../assets/about/baker76.svg");
+                    }
+                }
+            }
+            HorizontalLayout {
+                alignment: center;
+                LinkLogo {
+                    url: "https://slint.dev";
+                    label: "Made with Slint (slint.dev)";
+                    height: 56px;
+                    width: self.height * 212 / 97;
+                    Image {
+                        width: parent.width;
+                        height: parent.height;
+                        source: @image-url("../../assets/about/made-with-slint.svg");
+                    }
+                }
+            }
+            HorizontalLayout {
+                alignment: end;
+                Button {
+                    text: "OK";
+                    primary: true;
+                    clicked => { About.open = false; }
+                }
+            }
+        }
     }
 }
 
@@ -254,10 +397,20 @@ export component DlcManagerWindow inherits Window {
             spacing: 12px;
             vertical-stretch: 0;
 
+            // SWOS United's banner, then what this is.
+            VerticalLayout {
+                alignment: center;
+                Image {
+                    height: 44px;
+                    width: self.height * 685 / 81;
+                    source: @image-url("../../assets/about/swos-united-banner.png");
+                    accessible-role: none;
+                }
+            }
             VerticalLayout {
                 alignment: center;
                 Text {
-                    text: "SWOS United DLC Manager";
+                    text: "DLC Manager";
                     font-size: 20px;
                     font-weight: 800;
                     color: Palette.foreground;
@@ -283,6 +436,26 @@ export component DlcManagerWindow inherits Window {
             VerticalLayout {
                 alignment: center;
                 ThemeToggle { }
+            }
+            VerticalLayout {
+                alignment: center;
+                Rectangle {
+                    width: 30px;
+                    height: 26px;
+                    border-radius: 5px;
+                    background: about-touch.has-hover ? Palette.foreground.transparentize(0.92) : transparent;
+                    Icon {
+                        size: 16px;
+                        source: @image-url("../../assets/icons/info-circle.svg");
+                        tint: Palette.foreground.transparentize(0.3);
+                    }
+                    about-touch := TouchArea {
+                        mouse-cursor: pointer;
+                        clicked => { About.open = true; }
+                    }
+                    accessible-role: button;
+                    accessible-label: "About";
+                }
             }
         }
 
@@ -664,5 +837,12 @@ export component DlcManagerWindow inherits Window {
                 clicked => { DlcActions.apply-selection(); }
             }
         }
+    }
+
+    if About.open: AboutDialog {
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
     }
 }

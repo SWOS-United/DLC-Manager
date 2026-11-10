@@ -72,14 +72,17 @@ them.
 
 ## Where your files live
 
-Settings and downloaded DLC go in the per-user SWOS folder, the same one
-SWOS-United uses, so the game and these tools agree:
+Settings and downloaded mods go in SWOS United's player folder, so the game
+reads what the manager installs:
 
 | | |
 |---|---|
-| Windows | `%USERPROFILE%\Documents\SWOS` |
-| macOS | `~/Library/Application Support/SWOS` |
-| Linux | `~/.swos` |
+| Windows | `%USERPROFILE%\Documents\SWOSUnited` |
+| macOS | `~/Library/Application Support/SWOSUnited` |
+| Linux | `~/.swosunited` |
+
+For OpenSWOS's own game (`SWOS` / `.swos`), configure with
+`-DSWOS_USER_DIR=SWOS -DSWOS_USER_DOT_DIR=.swos`.
 
 Inside it, `ini/`, `dlc/` and `temp/` keep the names the Delphi build used.
 

@@ -54,7 +54,7 @@ std::string pref_path()
 {
     // NULL organisation, matching SWOS-United's swos_io.c, so both land on the
     // same directory.
-    char *pref = SDL_GetPrefPath(nullptr, "SWOS");
+    char *pref = SDL_GetPrefPath(nullptr, SWOS_USER_DIR);
     if (!pref || !*pref) {
         if (pref) SDL_free(pref);
         return {};
@@ -68,19 +68,19 @@ std::string pref_path()
 std::string resolve_user_dir()
 {
 #if defined(_WIN32)
-    // %USERPROFILE%\Documents\SWOS. Forward slashes are fine for the CRT and
+    // %USERPROFILE%\Documents\<SWOS_USER_DIR>. Forward slashes are fine for the CRT and
     // keep the rest of the path handling uniform.
     if (const char *profile = std::getenv("USERPROFILE"); profile && *profile) {
-        std::string out = std::string(profile) + "/Documents/SWOS";
+        std::string out = std::string(profile) + "/Documents/" SWOS_USER_DIR;
         std::replace(out.begin(), out.end(), '\\', '/');
         return out;
     }
 #elif defined(__APPLE__)
     if (const char *home = std::getenv("HOME"); home && *home)
-        return std::string(home) + "/Library/Application Support/SWOS";
+        return std::string(home) + "/Library/Application Support/" SWOS_USER_DIR;
 #else
     if (const char *home = std::getenv("HOME"); home && *home)
-        return std::string(home) + "/.swos";
+        return std::string(home) + "/" SWOS_USER_DOT_DIR;
 #endif
 
     // A .app launched from Finder gets a trimmed environment with HOME unset,

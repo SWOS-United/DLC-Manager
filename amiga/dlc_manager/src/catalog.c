@@ -1,402 +1,365 @@
 /* catalog.c -- see catalog.h. */
 #include "catalog.h"
+#include "json.h"
 #include "util.h"
 
 #include <exec/memory.h>
 #include <proto/exec.h>
 
-struct Category g_categories[NUM_CATEGORIES];
+#define MAX_INSTALLED 64
+
+/* What the index offers, kept between merges. */
+struct Offered {
+    char uuid[MOD_UUID_LEN];
+    char slug[MOD_SLUG_LEN];
+    char title[80];
+    char author[64];
+    char version[MOD_SHORT_LEN];
+    char slot[MOD_SHORT_LEN];
+    char category[MOD_SHORT_LEN];
+    char changes[MOD_SHORT_LEN];
+    char about[ABOUT_LEN];
+    char url[URL_LEN];
+    char sha256[72];
+    ULONG size;
+};
+
+static struct Offered *s_offered;
+static LONG s_offered_count;
+static struct ModInfo *s_installed;
+static LONG s_installed_count;
+
+BOOL g_index_loaded;
+
+struct Category g_categories[NUM_CATEGORIES] = {
+    {{0}, "pitch", "Pitch", {0}, 0, {0}},
+    {{0}, "teamdb", "Team Database", {0}, 0, {0}},
+    {{0}, "cup", "Team Pack", {0}, 0, {0}},
+    {{0}, "bgi2", "Background", {0}, 0, {0}},
+    {{0}, "commentary", "Commentary", {0}, 0, {0}},
+    {{0}, "fx", "Sound Effects", {0}, 0, {0}},
+    {{0}, "tmusic", "Title Music", {0}, 0, {0}},
+    {{0}, "", "Other", {0}, 0, {0}},   /* anything else: last */
+};
 struct List g_category_list;
 
-/* Ids and labels in the PC manager's order (core/src/dlc_catalog.cpp). */
-static const char *const kIds[NUM_CATEGORIES][2] = {
-    {"teamdb", "Team Database"},   {"pitch", "Pitch"},
-    {"cup", "Cup"},                {"commentary", "Commentary"},
-    {"fx", "Sound Effects"},       {"bgi2", "Background Image"},
-    {"tmusic", "Title Music"},     {"mmusic", "Menu Music"},
-    {"sprite_ball", "Ball"},       {"sprite_gk", "Goalkeeper"},
-    {"sprite_goalnet", "Goal Net"}, {"sprite_manager", "Manager"},
-    {"sprite_referee", "Referee"}, {"sprite_team1", "Team 1 Kit"},
-    {"sprite_team2", "Team 2 Kit"}, {"sprite_team3", "Team 3 Kit"},
-    {"sprite_flag", "Corner Flags"},
-};
-
-/* --- Placeholder data -------------------------------------------------- */
-/* PLACEHOLDER: shown until a catalogue is fetched, and whenever there is no
- * TCP/IP stack. A few real titles so the demo looks like the real thing; the
- * rest are obviously fake. `installed` is the version "on disk", NULL if not
- * installed. */
-struct Seed {
-    const char *title, *author, *version, *installed;
-};
-
-static const struct Seed kSeedTeamDb[] = {
-    {"1996_97 - Original Amiga _ PC DOS", "Sensible Software", "1.0", "1.0"},
-    {"Placeholder - 2024_25 Season", "Placeholder Author", "1.2", "1.1"},
-    {"Placeholder - Retro Leagues", "Placeholder Author", "1.0", NULL},
-};
-static const struct Seed kSeedPitch[] = {
-    {"1994 - Moon Soccer", "Sensible Software and starwindz", "1.0", NULL},
-    {"1994 - SWOS 1.1 (Amiga)", "Sensible Software and starwindz", "1.0", "1.0"},
-    {"1997 - 96_97 - Original", "Sensible Software", "1.0", "1.0"},
-    {"1998 - Worldcup 98 (Amiga)", "Dominic Cresswell and starwindz", "1.0", NULL},
-    {"2020 - Official 2021", "Placeholder Author", "1.1", "1.0"},
-};
-static const struct Seed kSeedCup[] = {
-    {"1930 FIFA WORLD CUP (Uruguay)", "Insane", "1.0", NULL},
-    {"1934 FIFA WORLD CUP (Italy)", "Insane", "1.0", NULL},
-    {"1964 UEFA EURO CUP (Spain)", "Placeholder Author", "1.0", "1.0"},
-};
-static const struct Seed kSeedCommentary[] = {
-    {"English - Original 96_97 (Jonathan Pearce)", "Sensible Software", "1.0", "1.0"},
-    {"English - Barry Davies", "Carling4737 sir", "1.1", "1.0"},
-    {"English - Clive Tyldesley", "Carling4737 sir", "1.0", NULL},
-};
-static const struct Seed kSeedFx[] = {
-    {"Original 96_97", "Sensible Software", "1.0", "1.0"},
-    {"Placeholder - Stadium FX", "Placeholder Author", "1.0", NULL},
-};
-static const struct Seed kSeedBgi[] = {
-    {"Blue (DOS HD)", "Sensible Software", "1.0", "1.0"},
-    {"Placeholder - Green Stripes", "Placeholder Author", "1.0", NULL},
-};
-static const struct Seed kSeedTMusic[] = {
-    {"AMIGA - Goalscoringsuperstarhero", "Sensible Software", "1.0", "1.0"},
-    {"Placeholder - Remix", "Placeholder Author", "1.0", NULL},
-};
-static const struct Seed kSeedMMusic[] = {
-    {"AMIGA - SWOS 96_97", "Sensible Software", "1.0", "1.0"},
-    {"Placeholder - Chiptune", "Placeholder Author", "1.0", NULL},
-};
-static const struct Seed kSeedSprite[] = {
-    {"default", "Sensible Software", "1.0", "1.0"},
-    {"Placeholder - Variant A", "Placeholder Author", "1.0", NULL},
-    {"Placeholder - Variant B", "Placeholder Author", "1.0", NULL},
-};
-
-struct SeedSet {
-    const struct Seed *seeds;
-    WORD count;
-};
-#define SEEDS(a) {a, sizeof(a) / sizeof(a[0])}
-
-static const struct SeedSet kSeeds[NUM_CATEGORIES] = {
-    SEEDS(kSeedTeamDb), SEEDS(kSeedPitch),  SEEDS(kSeedCup),    SEEDS(kSeedCommentary),
-    SEEDS(kSeedFx),     SEEDS(kSeedBgi),    SEEDS(kSeedTMusic), SEEDS(kSeedMMusic),
-    SEEDS(kSeedSprite), SEEDS(kSeedSprite), SEEDS(kSeedSprite), SEEDS(kSeedSprite),
-    SEEDS(kSeedSprite), SEEDS(kSeedSprite), SEEDS(kSeedSprite), SEEDS(kSeedSprite),
-    SEEDS(kSeedSprite),
-};
-
-/* amiga.lib's NewList, which a -nostdlib build does not have. */
-static void init_list(struct List *l)
+static void new_list(struct List *l)
 {
     l->lh_Head = (struct Node *)&l->lh_Tail;
     l->lh_Tail = NULL;
     l->lh_TailPred = (struct Node *)&l->lh_Head;
 }
 
-/* --- Packs ------------------------------------------------------------- */
-
-static char *dup_into(char **cursor, const char *s)
-{
-    char *start = *cursor;
-    ULONG n = strlen(s) + 1;
-    memcpy(start, s, n);
-    *cursor += n;
-    return start;
-}
-
-/* One allocation per pack: the struct, then its four strings. */
-static struct Pack *add_pack(struct Category *cat, const char *title, const char *author,
-                             const char *version, const char *desc, BOOL from_server)
-{
-    ULONG size = sizeof(struct Pack) + strlen(title) + strlen(author) + strlen(version) +
-                 strlen(desc) + 4;
-    struct Pack *p = AllocVec(size, MEMF_CLEAR);
-    char *cursor;
-    if (!p) return NULL;
-
-    cursor = (char *)(p + 1);
-    p->title = dup_into(&cursor, title);
-    p->author = dup_into(&cursor, author);
-    p->version = dup_into(&cursor, version);
-    p->desc = dup_into(&cursor, desc);
-    p->from_server = from_server;
-    p->node.ln_Name = p->label;
-    AddTail(&cat->packs, &p->node);
-    cat->count++;
-    return p;
-}
-
-static void free_packs(struct Category *cat, BOOL server_too)
-{
-    struct Node *n = cat->packs.lh_Head, *next;
-    while ((next = n->ln_Succ)) {
-        struct Pack *p = (struct Pack *)n;
-        if (server_too || !p->from_server) {
-            Remove(n);
-            FreeVec(p);
-            cat->count--;
-        }
-        n = next;
-    }
-}
-
-static struct Installed *find_installed(struct Category *cat, const char *title)
-{
-    WORD i;
-    for (i = 0; i < cat->num_installed; i++)
-        if (str_equal(cat->installed[i].title, title)) return &cat->installed[i];
-    return NULL;
-}
-
-static struct Pack *find_server_pack(struct Category *cat, const char *title)
+static void free_packs(struct Category *cat)
 {
     struct Node *n;
-    for (n = cat->packs.lh_Head; n->ln_Succ; n = n->ln_Succ) {
-        struct Pack *p = (struct Pack *)n;
-        if (p->from_server && str_equal(p->title, title)) return p;
-    }
-    return NULL;
+    while ((n = RemHead(&cat->packs))) FreeVec(n);
+    cat->count = 0;
 }
 
-const char *pack_status_name(UBYTE status)
+static struct Category *category_for(const char *id)
 {
-    switch (status) {
-    case PACK_INSTALLED: return "Installed";
-    case PACK_UPDATE: return "Update available";
-    case PACK_REMOVED: return "Removed from server";
-    default: return "New";
-    }
+    LONG i;
+    for (i = 0; i < NUM_CATEGORIES - 1; i++)
+        if (str_equal(g_categories[i].id, id)) return &g_categories[i];
+    return &g_categories[NUM_CATEGORIES - 1];
 }
 
-static const char *status_tag(UBYTE status)
+static void relabel_categories(void)
 {
-    switch (status) {
-    case PACK_INSTALLED: return "[ OK] ";
-    case PACK_UPDATE: return "[UPD] ";
-    case PACK_REMOVED: return "[REM] ";
-    default: return "[NEW] ";
-    }
-}
-
-void catalog_merge(struct Category *cat)
-{
+    LONG i;
     struct Node *n;
-    WORD i, fresh;
-
-    free_packs(cat, FALSE);  /* drop the previous merge's Removed rows */
-
-    for (n = cat->packs.lh_Head; n->ln_Succ; n = n->ln_Succ) {
-        struct Pack *p = (struct Pack *)n;
-        struct Installed *inst = find_installed(cat, p->title);
-        if (!inst)
-            p->status = PACK_NEW;
+    /* Only the categories with something in them are listed. */
+    while ((n = RemHead(&g_category_list))) (void)n;
+    for (i = 0; i < NUM_CATEGORIES; i++) {
+        struct Category *c = &g_categories[i];
+        WORD fresh = catalog_new_count(c);
+        if (fresh)
+            str_format(c->label, sizeof(c->label), "%s (%ld new)", (ULONG)c->name, (LONG)fresh);
         else
-            p->status = str_equal(inst->version, p->version) ? PACK_INSTALLED : PACK_UPDATE;
+            str_format(c->label, sizeof(c->label), "%s (%ld)", (ULONG)c->name, (LONG)c->count);
+        c->node.ln_Name = (char *)c->label;
+        if (c->count || i < 2) AddTail(&g_category_list, &c->node);   /* Pitch, Team Database always */
     }
-
-    /* Installed but gone from the server: listed so it can still be removed. */
-    for (i = 0; i < cat->num_installed; i++) {
-        struct Installed *inst = &cat->installed[i];
-        if (!find_server_pack(cat, inst->title)) {
-            struct Pack *p = add_pack(cat, inst->title, "", inst->version, "", FALSE);
-            if (p) p->status = PACK_REMOVED;
-        }
-    }
-
-    for (n = cat->packs.lh_Head; n->ln_Succ; n = n->ln_Succ) {
-        struct Pack *p = (struct Pack *)n;
-        str_copy(p->label, status_tag(p->status), sizeof(p->label));
-        str_append(p->label, p->title, sizeof(p->label));
-    }
-
-    fresh = catalog_new_count(cat);
-    if (fresh)
-        str_format(cat->label, sizeof(cat->label), "%s (%ld)", (ULONG)cat->name, (LONG)fresh);
-    else
-        str_copy(cat->label, cat->name, sizeof(cat->label));
 }
 
 void catalog_init(void)
 {
-    WORD c, i;
-
-    init_list(&g_category_list);
-    for (c = 0; c < NUM_CATEGORIES; c++) {
-        struct Category *cat = &g_categories[c];
-        const struct SeedSet *set = &kSeeds[c];
-
-        memset(cat, 0, sizeof(*cat));
-        cat->id = kIds[c][0];
-        cat->name = kIds[c][1];
-        cat->node.ln_Name = cat->label;
-        init_list(&cat->packs);
-
-        for (i = 0; i < set->count; i++) {
-            const struct Seed *s = &set->seeds[i];
-            add_pack(cat, s->title, s->author, s->version, "", TRUE);
-            if (s->installed && cat->num_installed < MAX_INSTALLED) {
-                struct Installed *inst = &cat->installed[cat->num_installed++];
-                str_copy(inst->title, s->title, sizeof(inst->title));
-                str_copy(inst->version, s->installed, sizeof(inst->version));
-                if (!cat->applied[0]) str_copy(cat->applied, s->title, sizeof(cat->applied));
-            }
-        }
-        /* PLACEHOLDER: one pack that is "installed" but no longer published,
-         * so the Removed state is visible in the demo. */
-        if (c == 1 && cat->num_installed < MAX_INSTALLED) {
-            struct Installed *inst = &cat->installed[cat->num_installed++];
-            str_copy(inst->title, "Placeholder - Withdrawn Pitch", sizeof(inst->title));
-            str_copy(inst->version, "0.9", sizeof(inst->version));
-        }
-        catalog_merge(cat);
-        AddTail(&g_category_list, &cat->node);
-    }
+    LONG i;
+    new_list(&g_category_list);
+    for (i = 0; i < NUM_CATEGORIES; i++) new_list(&g_categories[i].packs);
+    s_installed = AllocVec(sizeof(struct ModInfo) * MAX_INSTALLED, MEMF_ANY | MEMF_CLEAR);
+    relabel_categories();
 }
 
 void catalog_free(void)
 {
-    WORD c;
-    for (c = 0; c < NUM_CATEGORIES; c++) free_packs(&g_categories[c], TRUE);
+    LONG i;
+    for (i = 0; i < NUM_CATEGORIES; i++) free_packs(&g_categories[i]);
+    if (s_offered) FreeVec(s_offered);
+    if (s_installed) FreeVec(s_installed);
+    s_offered = NULL;
+    s_installed = NULL;
+    s_offered_count = s_installed_count = 0;
 }
 
-/* --- CSV --------------------------------------------------------------- */
-
-/* Splits one line in place into up to `max` fields. Comma delimited, '"'
- * quoting with "" for a literal quote -- what Delphi's TStringList did. */
-static WORD split_csv(char *line, char **fields, WORD max)
+/* One entry of "mods". FALSE if it is not for the Amiga, or lacks what a
+ * download needs. */
+static BOOL read_entry(struct Json *j, struct Offered *o)
 {
-    WORD count = 0;
-    char *src = line;
+    char key[24];
+    BOOL amiga = FALSE, any_targets = FALSE;
+    LONG size = 0;
 
-    while (count < max) {
-        char *out = src, *start = src;
-        BOOL quoted = FALSE;
-
-        while (*src == ' ' || *src == '\t') src++;
-        if (*src == '"') {
-            quoted = TRUE;
-            src++;
-        }
-        out = start = src;
-        for (;;) {
-            char c = *src;
-            if (!c) break;
-            if (quoted) {
-                if (c == '"') {
-                    if (src[1] == '"') {
-                        *out++ = '"';
-                        src += 2;
-                        continue;
-                    }
-                    quoted = FALSE;
-                    src++;
-                    continue;
+    memset(o, 0, sizeof(*o));
+    if (!json_object_begin(j)) return FALSE;
+    while (json_next_key(j, key, sizeof(key))) {
+        char *dst = NULL;
+        ULONG n = 0;
+        if (str_equal(key, "uuid")) dst = o->uuid, n = sizeof(o->uuid);
+        else if (str_equal(key, "slug")) dst = o->slug, n = sizeof(o->slug);
+        else if (str_equal(key, "title")) dst = o->title, n = sizeof(o->title);
+        else if (str_equal(key, "name") && !o->title[0]) dst = o->title, n = sizeof(o->title);
+        else if (str_equal(key, "author")) dst = o->author, n = sizeof(o->author);
+        else if (str_equal(key, "version")) dst = o->version, n = sizeof(o->version);
+        else if (str_equal(key, "slot")) dst = o->slot, n = sizeof(o->slot);
+        else if (str_equal(key, "category")) dst = o->category, n = sizeof(o->category);
+        else if (str_equal(key, "changes")) dst = o->changes, n = sizeof(o->changes);
+        else if (str_equal(key, "about")) dst = o->about, n = sizeof(o->about);
+        else if (str_equal(key, "url")) dst = o->url, n = sizeof(o->url);
+        else if (str_equal(key, "sha256")) dst = o->sha256, n = sizeof(o->sha256);
+        if (dst && json_peek(j) == '"') {
+            json_string(j, dst, n);
+        } else if (str_equal(key, "size")) {
+            json_integer(j, &size);
+        } else if (str_equal(key, "targets") && json_peek(j) == '[') {
+            char t[16];
+            any_targets = TRUE;
+            json_array_begin(j);
+            while (json_array_next(j)) {
+                if (json_peek(j) == '"' && json_string(j, t, sizeof(t))) {
+                    if (str_equal(t, "amiga")) amiga = TRUE;
+                } else {
+                    json_skip(j);
                 }
-            } else if (c == ',') {
-                break;
             }
-            *out++ = c;
-            src++;
-        }
-        {
-            BOOL more = *src == ',';
-            *out = 0;
-            while (out > start && (out[-1] == ' ' || out[-1] == '\t')) *--out = 0;
-            fields[count++] = start;
-            if (!more) break;
-            src++;
+        } else {
+            json_skip(j);
         }
     }
-    return count;
+    o->size = size > 0 ? (ULONG)size : 0;
+    if (!o->version[0]) str_copy(o->version, "1.0", sizeof(o->version));
+    if (!o->title[0]) str_copy(o->title, o->slug, sizeof(o->title));
+    /* A mod that names no targets is the PC's (§10.1 makes "targets" required). */
+    return !j->error && any_targets && amiga && o->uuid[0] && o->slug[0] && o->url[0] &&
+           strlen(o->slug) <= 30;
 }
 
-BOOL catalog_load_csv(struct Category *cat, char *csv)
+/* Walks index.json's "mods". With `out` NULL it only counts the Amiga's mods. */
+static BOOL walk_index(const char *text, ULONG len, struct Offered *out, LONG max, LONG *count,
+                       LONG *version, BOOL *is_index)
 {
-    char *line = csv;
-    BOOL header = TRUE;
+    struct Json j;
+    char key[24], val[40];
+    struct Offered *tmp = out ? NULL : AllocVec(sizeof(struct Offered), MEMF_ANY);
+    LONG n = 0;
 
-    /* Same test as DlcCatalog::looks_like_catalog: the header row. */
-    if (!str_starts(csv, "Name,")) return FALSE;
-
-    free_packs(cat, TRUE);
-    while (*line) {
-        char *eol = line, *next;
-        char *f[4];
-        WORD n;
-
-        while (*eol && *eol != '\n') eol++;
-        next = *eol ? eol + 1 : eol;
-        *eol = 0;
-        if (eol > line && eol[-1] == '\r') eol[-1] = 0;
-
-        if (header) {
-            header = FALSE;
-        } else if (*line && *line != '#') {
-            n = split_csv(line, f, 4);
-            if (n > 0 && f[0][0])
-                add_pack(cat, f[0], n > 1 ? f[1] : "", n > 2 ? f[2] : "", n > 3 ? f[3] : "",
-                         TRUE);
+    *version = 0;
+    *is_index = FALSE;
+    if (!out && !tmp) return FALSE;
+    json_init(&j, text, len);
+    if (json_object_begin(&j)) {
+        while (json_next_key(&j, key, sizeof(key))) {
+            if (str_equal(key, "format") && json_peek(&j) == '"') {
+                json_string(&j, val, sizeof(val));
+                *is_index = str_equal(val, "openswos-mod-index");
+            } else if (str_equal(key, "version") && json_peek(&j) != '"') {
+                json_integer(&j, version);
+            } else if (str_equal(key, "mods") && json_peek(&j) == '[') {
+                json_array_begin(&j);
+                while (json_array_next(&j)) {
+                    if (json_peek(&j) != '{') json_skip(&j);
+                    else if (read_entry(&j, out ? &out[n < max ? n : max - 1] : tmp) &&
+                             (!out || n < max))
+                        n++;
+                    if (j.error) break;
+                }
+            } else {
+                json_skip(&j);
+            }
         }
-        line = next;
     }
-    cat->online = TRUE;
-    catalog_merge(cat);
+    if (tmp) FreeVec(tmp);
+    *count = n;
+    return !j.error;
+}
+
+BOOL catalog_load_index(const char *text, ULONG len, char *err, ULONG err_size)
+{
+    LONG version, n, got;
+    BOOL is_index;
+    struct Offered *list;
+
+    /* Counted first, so the table is the size it needs: an Amiga with 1 MB
+     * has no room for a guess. */
+    if (!walk_index(text, len, NULL, 0, &n, &version, &is_index) || !is_index) {
+        str_copy(err, "the server sent something that is not a mod index", err_size);
+        return FALSE;
+    }
+    if (version != 1) {
+        str_format(err, err_size, "a newer mod index (version %ld) - update SWOS-DLC", version);
+        return FALSE;
+    }
+    list = AllocVec(sizeof(struct Offered) * (n ? n : 1), MEMF_ANY | MEMF_CLEAR);
+    if (!list) {
+        str_copy(err, "out of memory", err_size);
+        return FALSE;
+    }
+    walk_index(text, len, list, n, &got, &version, &is_index);
+    if (s_offered) FreeVec(s_offered);
+    s_offered = list;
+    s_offered_count = got;
+    g_index_loaded = TRUE;
     return TRUE;
 }
 
-/* --- Queries and actions ----------------------------------------------- */
+static BOOL is_enabled(char ids[][MOD_SLUG_LEN], LONG n, const char *slug)
+{
+    LONG i;
+    for (i = 0; i < n; i++)
+        if (str_equal(ids[i], slug)) return TRUE;
+    return FALSE;
+}
+
+static void add_pack(struct Category *cat, struct Pack *p)
+{
+    static const char *const tag[] = {"[NEW]", "[ OK]", "[UPD]", "[OLD]"};
+    const char *t = tag[p->status];
+    if (p->enabled && p->status == PACK_INSTALLED) t = "[ ON]";
+    str_format(p->label, sizeof(p->label), "%s %s", (ULONG)t, (ULONG)p->title);
+    p->node.ln_Name = p->label;
+    AddTail(&cat->packs, &p->node);
+    cat->count++;
+}
+
+void catalog_merge(const char *root)
+{
+    char (*ids)[MOD_SLUG_LEN] = AllocVec(MODS_LIST_MAX * MOD_SLUG_LEN, MEMF_ANY | MEMF_CLEAR);
+    LONG enabled = 0, i, k;
+    BOOL *matched;
+
+    for (i = 0; i < NUM_CATEGORIES; i++) free_packs(&g_categories[i]);
+    s_installed_count = s_installed && root[0] ? mods_scan(root, s_installed, MAX_INSTALLED) : 0;
+    if (ids && root[0]) enabled = mods_enabled(root, ids, MODS_LIST_MAX);
+    matched = AllocVec(sizeof(BOOL) * (MAX_INSTALLED + 1), MEMF_ANY | MEMF_CLEAR);
+
+    for (i = 0; i < s_offered_count; i++) {
+        struct Offered *o = &s_offered[i];
+        struct Pack *p = AllocVec(sizeof(struct Pack), MEMF_ANY | MEMF_CLEAR);
+        if (!p) break;
+        p->uuid = o->uuid;
+        str_copy(p->slug, o->slug, sizeof(p->slug));
+        p->title = o->title;
+        p->author = o->author;
+        p->version = o->version;
+        p->slot = o->slot;
+        p->changes = o->changes;
+        p->about = o->about;
+        p->url = o->url;
+        p->sha256 = o->sha256;
+        p->size = o->size;
+        p->status = PACK_NEW;
+        for (k = 0; k < s_installed_count; k++) {
+            if (!str_equal(s_installed[k].uuid, o->uuid)) continue;
+            if (matched) matched[k] = TRUE;
+            /* Installed under the folder it has on disk, which data/MODS names. */
+            str_copy(p->slug, s_installed[k].slug, sizeof(p->slug));
+            str_copy(p->installed_version, s_installed[k].version, sizeof(p->installed_version));
+            p->status = str_equal(s_installed[k].version, o->version) ? PACK_INSTALLED : PACK_UPDATE;
+            p->enabled = is_enabled(ids, enabled, p->slug);
+            break;
+        }
+        add_pack(category_for(o->category), p);
+    }
+
+    /* Installed, but no longer offered (or offered elsewhere, before a Refresh). */
+    for (k = 0; k < s_installed_count; k++) {
+        struct ModInfo *m = &s_installed[k];
+        struct Pack *p;
+        if (matched && matched[k]) continue;
+        p = AllocVec(sizeof(struct Pack), MEMF_ANY | MEMF_CLEAR);
+        if (!p) break;
+        p->uuid = m->uuid;
+        str_copy(p->slug, m->slug, sizeof(p->slug));
+        p->title = m->title;
+        p->author = m->author;
+        p->version = m->version;
+        str_copy(p->installed_version, m->version, sizeof(p->installed_version));
+        p->slot = m->slot;
+        p->changes = m->changes;
+        p->about = g_index_loaded ? "Installed, but no longer offered."
+                                  : "Installed. Press Refresh to see what is offered.";
+        p->url = p->sha256 = "";
+        p->status = g_index_loaded ? PACK_REMOVED : PACK_INSTALLED;
+        p->enabled = is_enabled(ids, enabled, p->slug);
+        add_pack(category_for(m->category), p);
+    }
+    if (matched) FreeVec(matched);
+    if (ids) FreeVec(ids);
+    relabel_categories();
+}
 
 struct Pack *catalog_pack_at(struct Category *cat, LONG index)
 {
     struct Node *n;
+    LONG i = 0;
     if (index < 0) return NULL;
-    for (n = cat->packs.lh_Head; n->ln_Succ; n = n->ln_Succ)
-        if (index-- == 0) return (struct Pack *)n;
+    for (n = cat->packs.lh_Head; n->ln_Succ; n = n->ln_Succ, i++)
+        if (i == index) return (struct Pack *)n;
     return NULL;
 }
 
-LONG catalog_index_of(struct Category *cat, const char *title)
+LONG catalog_index_of(struct Category *cat, const char *uuid)
 {
     struct Node *n;
     LONG i = 0;
     for (n = cat->packs.lh_Head; n->ln_Succ; n = n->ln_Succ, i++)
-        if (str_equal(((struct Pack *)n)->title, title)) return i;
+        if (str_equal(((struct Pack *)n)->uuid, uuid)) return i;
     return -1;
 }
 
 WORD catalog_new_count(struct Category *cat)
 {
     struct Node *n;
-    WORD count = 0;
-    for (n = cat->packs.lh_Head; n->ln_Succ; n = n->ln_Succ) {
+    WORD c = 0;
+    for (n = cat->packs.lh_Head; n && n->ln_Succ; n = n->ln_Succ) {
         UBYTE s = ((struct Pack *)n)->status;
-        if (s == PACK_NEW || s == PACK_UPDATE) count++;
+        if (s == PACK_NEW || s == PACK_UPDATE) c++;
     }
-    return count;
+    return c;
 }
 
-void catalog_mark_installed(struct Category *cat, struct Pack *pack)
+const struct ModInfo *catalog_installed(LONG *count)
 {
-    struct Installed *inst = find_installed(cat, pack->title);
-    if (!inst) {
-        if (cat->num_installed >= MAX_INSTALLED) return;
-        inst = &cat->installed[cat->num_installed++];
-        str_copy(inst->title, pack->title, sizeof(inst->title));
-    }
-    str_copy(inst->version, pack->version, sizeof(inst->version));
+    *count = s_installed_count;
+    return s_installed;
 }
 
-void catalog_remove(struct Category *cat, struct Pack *pack)
+struct Pack *catalog_enabled_in(struct Category *cat)
 {
-    WORD i;
-    for (i = 0; i < cat->num_installed; i++) {
-        if (str_equal(cat->installed[i].title, pack->title)) {
-            cat->installed[i] = cat->installed[--cat->num_installed];
-            break;
-        }
+    struct Node *n;
+    for (n = cat->packs.lh_Head; n->ln_Succ; n = n->ln_Succ)
+        if (((struct Pack *)n)->enabled) return (struct Pack *)n;
+    return NULL;
+}
+
+const char *pack_status_name(UBYTE status)
+{
+    switch (status) {
+    case PACK_NEW: return "New";
+    case PACK_INSTALLED: return "Installed";
+    case PACK_UPDATE: return "Update available";
+    case PACK_REMOVED: return "No longer offered";
     }
-    if (str_equal(cat->applied, pack->title)) cat->applied[0] = 0;
+    return "?";
 }

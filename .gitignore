@@ -16,3 +16,4 @@ third_party/*.zip
 Thumbs.db
 *.swp
 compile_commands.json
+__pycache__/

@@ -1,41 +1,58 @@
 /* main.c -- SWOS United DLC Manager for AmigaOS 2.04+ (Intuition + GadTools).
  *
- * A demo of the PC manager's layout on the Workbench screen: categories on
- * the left, that category's packs on the right, the selected pack's details
- * below, then the actions and a status line with a progress bar.
+ * The PC manager's layout on the Workbench screen: categories on the left,
+ * that category's mods on the right, the selected mod's details below, then
+ * the actions and a status line with a progress bar.
  *
- * What is real: the UI, the catalogue model and its New / Installed /
- * Update / Removed merge, and Refresh, which fetches the live
- * <type>-info.csv from the DLC server over bsdsocket.library (Roadshow).
+ * Refresh reads SWOS United Amiga's mod index over bsdsocket.library
+ * (Roadshow, AmiTCP, Miami); Download streams a mod's zip into the game
+ * drawer's mods/, checks it against the index's sha256, and unpacks it;
+ * Turn on/off edits data/MODS, which the game reads; Remove deletes it.
+ * The game drawer is this program's own (or a WHDLoad package's data/), or
+ * the one picked with Project -> Game drawer, kept in PROGDIR:SWOS-DLC.prefs.
  *
- * What is a placeholder: Download (a timed progress bar, nothing is fetched
- * or unpacked), the installed list (memory only), and Apply (recorded, not
- * written anywhere). Search for PLACEHOLDER.
+ * From the Shell:  SWOS-DLC [INDEX=<url>] [TEST]
+ *   INDEX  reads that index instead of the server's (ENV:SWOS-DLC/IndexURL too)
+ *   TEST   refreshes, installs and turns on the first new mod of each
+ *          category, writes every status line to PROGDIR:SWOS-DLC.test, quits
  */
 #include <exec/types.h>
 #include <exec/memory.h>
+#include <dos/dos.h>
+#include <dos/var.h>
 #include <intuition/intuition.h>
 #include <intuition/intuitionbase.h>
 #include <intuition/gadgetclass.h>
 #include <intuition/screens.h>
 #include <libraries/gadtools.h>
+#include <libraries/asl.h>
 #include <graphics/text.h>
 #include <proto/exec.h>
+#include <proto/dos.h>
 #include <proto/intuition.h>
 #include <proto/gadtools.h>
 #include <proto/graphics.h>
+#include <proto/asl.h>
 
 #include "catalog.h"
+#include "fio.h"
+#include "mods.h"
 #include "net.h"
+#include "sha256.h"
 #include "util.h"
 
 /* For the Version command. The About box prints it, which also keeps
  * --gc-sections from discarding it as unreferenced. */
-static const char version_tag[] = "$VER: SWOS-DLC 0.1 (04.11.2026)";
+static const char version_tag[] = "$VER: SWOS-DLC 0.2 (10.11.2026)";
+
+#define INDEX_URL "http://" DLC_HOST DLC_BASEPATH "/swosutd/amiga/index.json"
+#define PREFS_FILE "PROGDIR:SWOS-DLC.prefs"
 
 struct IntuitionBase *IntuitionBase;
 struct GfxBase *GfxBase;
 struct Library *GadToolsBase;
+struct DosLibrary *DOSBase;
+struct Library *AslBase;
 
 enum {
     GID_CATEGORIES = 1,
@@ -44,22 +61,22 @@ enum {
     GID_VERSION,
     GID_STATUS,
     GID_INFO,
-    GID_APPLIED,
+    GID_INUSE,
     GID_REFRESH,
     GID_DOWNLOAD,
     GID_REMOVE,
-    GID_APPLY,
+    GID_TOGGLE,
     GID_QUIT,
     GID_STATUSLINE,
     GID_COUNT
 };
 
-enum { MID_REFRESH = 1, MID_REFRESH_ALL, MID_ABOUT, MID_QUIT };
+enum { MID_REFRESH = 1, MID_DRAWER, MID_ABOUT, MID_QUIT };
 
 static struct NewMenu s_menu[] = {
     {NM_TITLE, (STRPTR) "Project", 0, 0, 0, 0},
-    {NM_ITEM, (STRPTR) "Refresh category", (STRPTR) "R", 0, 0, (APTR)MID_REFRESH},
-    {NM_ITEM, (STRPTR) "Refresh all", (STRPTR) "A", 0, 0, (APTR)MID_REFRESH_ALL},
+    {NM_ITEM, (STRPTR) "Refresh", (STRPTR) "R", 0, 0, (APTR)MID_REFRESH},
+    {NM_ITEM, (STRPTR) "Game drawer...", (STRPTR) "G", 0, 0, (APTR)MID_DRAWER},
     {NM_ITEM, NM_BARLABEL, 0, 0, 0, 0},
     {NM_ITEM, (STRPTR) "About...", (STRPTR) "?", 0, 0, (APTR)MID_ABOUT},
     {NM_ITEM, NM_BARLABEL, 0, 0, 0, 0},
@@ -69,7 +86,7 @@ static struct NewMenu s_menu[] = {
 
 static struct TextAttr s_topaz8 = {(STRPTR) "topaz.font", 8, FS_NORMAL, FPF_ROMFONT};
 
-/* --- UI state ---------------------------------------------------------- */
+/* --- State ------------------------------------------------------------- */
 
 static struct Screen *s_screen;
 static struct DrawInfo *s_dri;
@@ -81,25 +98,35 @@ static struct Menu *s_menustrip;
 
 static WORD s_off_x, s_off_y;                  /* window border offsets */
 static WORD s_bar_x, s_bar_y, s_bar_w, s_bar_h; /* progress bar, inner coords */
+static WORD s_percent = -1;                    /* the bar; -1 when idle */
 
-static LONG s_cat = 1;    /* selected category: Pitch, as the PC manager opens */
+static LONG s_cat = 0;    /* selected row of the category list */
 static LONG s_pack = -1;  /* selected row in the pack list, -1 for none */
+static BOOL s_busy;       /* a download or unpack is running */
+static BOOL s_cancel;     /* Esc or the close gadget during one */
+
+/* The drawer holding mods/ and data/ (see mods.h); "" until known. */
+static char s_root[200];
+
+static char s_index_url[200];     /* INDEX= or ENV:SWOS-DLC/IndexURL; else INDEX_URL */
+static BOOL s_test;               /* TEST: see the top */
+static FioFile s_test_log;
 
 /* Text gadgets point at these, so they must outlive every GT_SetGadgetAttrs. */
-static char s_txt_author[96], s_txt_version[24], s_txt_status[32];
-static char s_txt_info[128], s_txt_applied[96], s_txt_statusline[128];
-
-/* PLACEHOLDER download: progress advanced by IDCMP_INTUITICKS. */
-static struct {
-    BOOL active;
-    LONG cat;
-    char title[TITLE_LEN];
-    WORD percent;
-} s_dl;
+static char s_txt_author[96], s_txt_version[48], s_txt_status[40];
+static char s_txt_info[176], s_txt_inuse[96], s_txt_statusline[128];
 
 /* --- Helpers ----------------------------------------------------------- */
 
-static struct Category *cur_cat(void) { return &g_categories[s_cat]; }
+static struct Category *cur_cat(void)
+{
+    struct Node *n;
+    LONG i = 0;
+    for (n = g_category_list.lh_Head; n->ln_Succ; n = n->ln_Succ, i++)
+        if (i == s_cat) return (struct Category *)n;
+    return &g_categories[0];
+}
+
 static struct Pack *cur_pack(void) { return catalog_pack_at(cur_cat(), s_pack); }
 
 static void set_text(UWORD id, const char *text)
@@ -116,9 +143,13 @@ static void status(const char *text)
 {
     str_copy(s_txt_statusline, text, sizeof(s_txt_statusline));
     set_text(GID_STATUSLINE, s_txt_statusline);
+    if (s_test_log) {
+        fio_write(s_test_log, text, (LONG)strlen(text));
+        fio_write(s_test_log, "\n", 1);
+    }
 }
 
-static void busy(BOOL on)
+static void busy_pointer(BOOL on)
 {
     /* WA_BusyPointer is V39 (OS 3.0); on 2.x the pointer just stays put. */
     if (IntuitionBase->LibNode.lib_Version >= 39)
@@ -133,7 +164,7 @@ static void draw_progress(void)
 
     DrawBevelBox(rp, x, y, s_bar_w, s_bar_h, GT_VisualInfo, (ULONG)s_vi, GTBB_Recessed, TRUE,
                  TAG_DONE);
-    fill = s_dl.active ? (WORD)(((LONG)iw * s_dl.percent) / 100) : 0;
+    fill = s_percent > 0 ? (WORD)(((LONG)iw * s_percent) / 100) : 0;
     if (fill > 0) {
         SetAPen(rp, s_dri->dri_Pens[FILLPEN]);
         RectFill(rp, x + 2, y + 1, x + 1 + fill, y + s_bar_h - 2);
@@ -144,43 +175,70 @@ static void draw_progress(void)
     }
 }
 
+/* Done and total as a percentage without a 32-bit multiply overflowing. */
+static WORD percent_of(ULONG done, ULONG total)
+{
+    if (!total) return 0;
+    if (done >= total) return 100;
+    if (total > 0x01000000UL) return (WORD)(done / (total / 100));
+    return (WORD)((done * 100) / total);
+}
+
 /* --- Refreshing gadgets from the model --------------------------------- */
 
 static void update_buttons(void)
 {
     struct Pack *p = cur_pack();
-    BOOL can_dl = p && (p->status == PACK_NEW || p->status == PACK_UPDATE);
+    BOOL offered = p && p->url[0];
     BOOL on_disk = p && p->status != PACK_NEW;
 
-    set_disabled(GID_DOWNLOAD, s_dl.active || !can_dl);
-    set_disabled(GID_REMOVE, s_dl.active || !on_disk);
-    set_disabled(GID_APPLY, s_dl.active || !on_disk);
-    set_disabled(GID_REFRESH, s_dl.active);
+    set_disabled(GID_DOWNLOAD, s_busy || !offered || !(p->status == PACK_NEW ||
+                                                       p->status == PACK_UPDATE));
+    set_disabled(GID_REMOVE, s_busy || !on_disk);
+    set_disabled(GID_TOGGLE, s_busy || !on_disk);
+    set_disabled(GID_REFRESH, s_busy);
+    set_disabled(GID_CATEGORIES, s_busy);
+    set_disabled(GID_PACKS, s_busy);
 }
 
 static void update_details(void)
 {
     struct Pack *p = cur_pack();
     struct Category *cat = cur_cat();
+    struct Pack *on = catalog_enabled_in(cat);
 
     if (p) {
         str_copy(s_txt_author, p->author[0] ? p->author : "-", sizeof(s_txt_author));
-        str_copy(s_txt_version, p->version[0] ? p->version : "-", sizeof(s_txt_version));
-        str_copy(s_txt_status, pack_status_name(p->status), sizeof(s_txt_status));
-        str_copy(s_txt_info, p->desc[0] ? p->desc : p->title, sizeof(s_txt_info));
+        if (p->status == PACK_UPDATE)
+            str_format(s_txt_version, sizeof(s_txt_version), "%s (have %s)", (ULONG)p->version,
+                       (ULONG)p->installed_version);
+        else
+            str_copy(s_txt_version, p->version, sizeof(s_txt_version));
+        if (p->status == PACK_NEW)
+            str_format(s_txt_status, sizeof(s_txt_status), "New, %ld KB",
+                       (LONG)((p->size + 1023) / 1024));
+        else
+            str_format(s_txt_status, sizeof(s_txt_status), "%s, %s",
+                       (ULONG)pack_status_name(p->status), (ULONG)(p->enabled ? "on" : "off"));
+        str_copy(s_txt_info, p->about[0] ? p->about : p->title, sizeof(s_txt_info));
     } else {
         s_txt_author[0] = s_txt_version[0] = s_txt_status[0] = 0;
-        str_format(s_txt_info, sizeof(s_txt_info), "%ld packs, %ld new or updated%s",
-                   (LONG)cat->count, (LONG)catalog_new_count(cat),
-                   (ULONG)(cat->online ? "" : "  (placeholder list)"));
+        if (!s_root[0])
+            str_copy(s_txt_info, "Choose the SWOS drawer: Project > Game drawer", sizeof(s_txt_info));
+        else if (!g_index_loaded)
+            str_format(s_txt_info, sizeof(s_txt_info), "%ld installed - press Refresh for more",
+                       (LONG)cat->count);
+        else
+            str_format(s_txt_info, sizeof(s_txt_info), "%ld mods, %ld new or updated",
+                       (LONG)cat->count, (LONG)catalog_new_count(cat));
     }
-    str_copy(s_txt_applied, cat->applied[0] ? cat->applied : "(none)", sizeof(s_txt_applied));
+    str_copy(s_txt_inuse, on ? on->title : "(none: the game's own)", sizeof(s_txt_inuse));
 
     set_text(GID_AUTHOR, s_txt_author);
     set_text(GID_VERSION, s_txt_version);
     set_text(GID_STATUS, s_txt_status);
     set_text(GID_INFO, s_txt_info);
-    set_text(GID_APPLIED, s_txt_applied);
+    set_text(GID_INUSE, s_txt_inuse);
     update_buttons();
 }
 
@@ -212,44 +270,144 @@ static void select_category(LONG index)
     update_details();
 }
 
-/* Re-select a pack by title after a merge rebuilt the list. */
-static void reselect(const char *title)
+/* Rebuilds the lists from the index and the disk, keeping the selection. */
+static void remerge(void)
 {
-    s_pack = title ? catalog_index_of(cur_cat(), title) : -1;
+    char keep_uuid[MOD_UUID_LEN], keep_cat[MOD_SHORT_LEN];
+    struct Pack *p = cur_pack();
+    struct Node *n;
+    LONG i = 0;
+
+    keep_uuid[0] = 0;
+    str_copy(keep_cat, cur_cat()->id, sizeof(keep_cat));
+    if (p) str_copy(keep_uuid, p->uuid, sizeof(keep_uuid));
+    detach_lists();
+    catalog_merge(s_root);
+    s_cat = 0;
+    for (n = g_category_list.lh_Head; n->ln_Succ; n = n->ln_Succ, i++)
+        if (str_equal(((struct Category *)n)->id, keep_cat)) s_cat = i;
+    s_pack = keep_uuid[0] ? catalog_index_of(cur_cat(), keep_uuid) : -1;
+    attach_lists(FALSE);
+    update_details();
+}
+
+/* --- While something runs ---------------------------------------------- */
+
+/* Called between pieces of a download or an unpack: repaints, and notes Esc
+ * or the close gadget as a cancel. Everything else waits. */
+static void poll_window(void)
+{
+    struct IntuiMessage *msg;
+    while ((msg = GT_GetIMsg(s_win->UserPort))) {
+        ULONG cls = msg->Class;
+        UWORD code = msg->Code;
+        GT_ReplyIMsg(msg);
+        if (cls == IDCMP_CLOSEWINDOW || (cls == IDCMP_VANILLAKEY && code == 0x1b))
+            s_cancel = TRUE;
+        else if (cls == IDCMP_REFRESHWINDOW) {
+            GT_BeginRefresh(s_win);
+            draw_progress();
+            GT_EndRefresh(s_win, TRUE);
+        }
+    }
+}
+
+static void set_percent(WORD pc)
+{
+    if (pc != s_percent) {
+        s_percent = pc;
+        draw_progress();
+    }
+}
+
+/* --- The game drawer --------------------------------------------------- */
+
+static BOOL is_game_root(const char *dir)
+{
+    char path[240];
+    fio_join(path, sizeof(path), dir, "data");
+    return dir[0] && fio_is_dir(path);
+}
+
+/* The drawer itself, or the data/ of a WHDLoad package chosen as a whole:
+ * under WHDLoad the game's data/ and mods/ are inside the package's data/. */
+static BOOL resolve_root(const char *dir, char *out, ULONG size)
+{
+    char inner[240], data2[260];
+    fio_join(inner, sizeof(inner), dir, "data");
+    fio_join(data2, sizeof(data2), inner, "data");
+    if (fio_is_dir(data2)) {
+        str_copy(out, inner, size);
+        return TRUE;
+    }
+    if (is_game_root(dir)) {
+        str_copy(out, dir, size);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+static void load_root(void)
+{
+    char *text;
+    ULONG len;
+
+    s_root[0] = 0;
+    text = fio_slurp(PREFS_FILE, 1024, &len);
+    if (text) {
+        char *p = text;
+        while (*p && *p != '\n' && *p != '\r') p++;
+        *p = 0;
+        if (!resolve_root(text, s_root, sizeof(s_root))) s_root[0] = 0;
+        mem_free(text);
+    }
+    if (!s_root[0]) resolve_root("PROGDIR:", s_root, sizeof(s_root));
+}
+
+static void choose_root(void)
+{
+    struct FileRequester *fr;
+    char picked[240], msg[128];
+
+    if (!AslBase) {
+        status("asl.library is needed to choose a drawer");
+        return;
+    }
+    fr = AllocAslRequestTags(ASL_FileRequest, ASLFR_TitleText, (ULONG)"Where is SWOS United?",
+                             ASLFR_DrawersOnly, TRUE, ASLFR_Window, (ULONG)s_win,
+                             ASLFR_InitialDrawer, (ULONG)(s_root[0] ? s_root : "SYS:"),
+                             TAG_DONE);
+    if (!fr) return;
+    if (AslRequest(fr, NULL)) {
+        str_copy(picked, (const char *)fr->fr_Drawer, sizeof(picked));
+        if (resolve_root(picked, s_root, sizeof(s_root))) {
+            FioFile f = fio_open_write(PREFS_FILE);
+            if (f) {
+                fio_write(f, picked, (LONG)strlen(picked));
+                fio_write(f, "\n", 1);
+                fio_close(f);
+            }
+            remerge();
+            str_format(msg, sizeof(msg), "Game drawer: %s", (ULONG)s_root);
+            status(msg);
+        } else {
+            str_format(msg, sizeof(msg), "%s has no data drawer: not a SWOS drawer", (ULONG)picked);
+            status(msg);
+        }
+    }
+    FreeAslRequest(fr);
 }
 
 /* --- Actions ----------------------------------------------------------- */
 
-static BOOL refresh_category(struct Category *cat)
+static void do_refresh(void)
 {
-    char path[96], err[80], msg[128];
+    char msg[128], err[80], host[64], path[160];
+    char url[200];
+    UWORD port;
     char *body;
     ULONG len;
-
-    str_format(path, sizeof(path), DLC_BASEPATH "/%s/%s-info.csv", (ULONG)cat->id,
-               (ULONG)cat->id);
-    if (!net_http_get(DLC_HOST, path, &body, &len, err, sizeof(err))) {
-        str_format(msg, sizeof(msg), "%s: %s", (ULONG)cat->name, (ULONG)err);
-        status(msg);
-        return FALSE;
-    }
-    if (!catalog_load_csv(cat, body)) {
-        /* Every sprite_* catalogue is unpublished today (HTTP 301 to HTML). */
-        str_format(msg, sizeof(msg), "%s: server sent something that is not a catalogue",
-                   (ULONG)cat->name);
-        status(msg);
-        FreeVec(body);
-        return FALSE;
-    }
-    FreeVec(body);
-    return TRUE;
-}
-
-static void do_refresh(BOOL all)
-{
-    char msg[128], keep[TITLE_LEN];
-    struct Pack *p = cur_pack();
-    LONG i, ok = 0, tried = 0;
+    LONG got;
 
     /* Checked on every Refresh: the network may have come up (or gone down)
      * since the window opened. */
@@ -258,117 +416,212 @@ static void do_refresh(BOOL all)
         status(msg);
         return;
     }
-    keep[0] = 0;
-    if (p) str_copy(keep, p->title, sizeof(keep));
-
-    busy(TRUE);
-    detach_lists();
-    for (i = 0; i < NUM_CATEGORIES; i++) {
-        struct Category *cat = &g_categories[i];
-        if (!all && i != s_cat) continue;
-        str_format(msg, sizeof(msg), "Fetching %s catalogue...", (ULONG)cat->name);
-        status(msg);
-        tried++;
-        if (refresh_category(cat)) ok++;
+    if (s_index_url[0]) {
+        str_copy(url, s_index_url, sizeof(url));
+    } else {
+        got = GetVar((STRPTR) "SWOS-DLC/IndexURL", (STRPTR)url, sizeof(url), GVF_GLOBAL_ONLY);
+        if (got <= 0) str_copy(url, INDEX_URL, sizeof(url));
     }
-    reselect(keep[0] ? keep : NULL);
-    attach_lists(FALSE);
-    busy(FALSE);
-    update_details();
+    if (!net_parse_url(url, host, sizeof(host), &port, path, sizeof(path))) {
+        str_format(msg, sizeof(msg), "Not an http:// address: %s", (ULONG)url);
+        status(msg);
+        return;
+    }
 
-    if (ok == tried) {
-        if (all)
-            str_format(msg, sizeof(msg), "All %ld catalogues up to date (%s)", ok,
+    status("Fetching the mod list...");
+    busy_pointer(TRUE);
+    body = NULL;
+    err[0] = 0;
+    if (net_http_get(host, port, path, &body, &len, err, sizeof(err))) {
+        if (!catalog_load_index(body, len, err, sizeof(err))) {
+            str_format(msg, sizeof(msg), "Mod list: %s", (ULONG)err);
+            status(msg);
+        } else {
+            remerge();
+            str_format(msg, sizeof(msg), "Mod list from %s (%s)", (ULONG)host,
                        (ULONG)net_stack_name());
-        else
-            str_format(msg, sizeof(msg), "%s: %ld packs from %s", (ULONG)cur_cat()->name,
-                       (LONG)cur_cat()->count, (ULONG)DLC_HOST);
-        status(msg);
-    } else if (all) {
-        str_format(msg, sizeof(msg), "%ld of %ld catalogues fetched; the rest kept as they were",
-                   ok, tried);
+            status(msg);
+        }
+        FreeVec(body);
+    } else {
+        str_format(msg, sizeof(msg), "Mod list: %s", (ULONG)err);
         status(msg);
     }
-    /* A single failed refresh already left its reason in the status line. */
+    busy_pointer(FALSE);
 }
 
-static void start_download(void)
+struct DlCtx {
+    FioFile out;
+    struct Sha256 sha;
+    ULONG done, expect;
+    BOOL write_failed;
+};
+
+static BOOL download_sink(void *vctx, const UBYTE *data, ULONG len, ULONG total)
+{
+    struct DlCtx *d = vctx;
+    if (!fio_write(d->out, data, (LONG)len)) {
+        d->write_failed = TRUE;
+        return FALSE;
+    }
+    sha256_update(&d->sha, data, len);
+    d->done += len;
+    set_percent(percent_of(d->done, total ? total : d->expect));
+    poll_window();
+    return !s_cancel;
+}
+
+static BOOL unpack_progress(void *ctx, ULONG done, ULONG total)
+{
+    set_percent(percent_of(done, total));
+    poll_window();
+    return !s_cancel;
+}
+
+static void do_download(void)
 {
     struct Pack *p = cur_pack();
-    char msg[128];
-    if (!p || s_dl.active) return;
+    char msg[128], err[96], host[64], path[200], zip[240], name[MOD_SLUG_LEN + 6];
+    char hex[65], title[MOD_TITLE_LEN], slug[MOD_SLUG_LEN], uuid[MOD_UUID_LEN];
+    UWORD port;
+    struct DlCtx d;
+    BOOL ok;
 
-    /* PLACEHOLDER: the real thing fetches DLC_BASEPATH/<type>/<name>.7z (and
-     * <name>_preview.7z) with net_http_get-style streaming to a file, then
-     * unpacks it. Here a timer just fills the bar. */
-    s_dl.active = TRUE;
-    s_dl.cat = s_cat;
-    s_dl.percent = 0;
-    str_copy(s_dl.title, p->title, sizeof(s_dl.title));
-    str_format(msg, sizeof(msg), "Downloading %s... (simulated)", (ULONG)p->title);
-    status(msg);
+    if (!p || !p->url[0] || s_busy) return;
+    if (!s_root[0]) {
+        status("Choose the SWOS drawer first: Project > Game drawer");
+        return;
+    }
+    if (!net_parse_url(p->url, host, sizeof(host), &port, path, sizeof(path))) {
+        status("The mod's address is not http://");
+        return;
+    }
+    if (!mods_make_root(s_root, err, sizeof(err))) {
+        status(err);
+        return;
+    }
+    /* The pack's strings point into the index, which stays put meanwhile;
+     * copied anyway, as the merge at the end frees the row. */
+    str_copy(title, p->title, sizeof(title));
+    str_copy(slug, p->slug, sizeof(slug));
+    str_copy(uuid, p->uuid, sizeof(uuid));
+
+    str_format(name, sizeof(name), ".%s.zip", (ULONG)slug);
+    {
+        char dir[220];
+        fio_join(dir, sizeof(dir), s_root, "mods");
+        fio_join(zip, sizeof(zip), dir, name);
+    }
+    memset(&d, 0, sizeof(d));
+    d.expect = p->size;
+    sha256_init(&d.sha);
+    d.out = fio_open_write(zip);
+    if (!d.out) {
+        status("Cannot write to the mods drawer (write-protected?)");
+        return;
+    }
+
+    s_busy = TRUE;
+    s_cancel = FALSE;
     update_buttons();
+    busy_pointer(TRUE);
+    str_format(msg, sizeof(msg), "Downloading %s... (Esc cancels)", (ULONG)title);
+    status(msg);
+    set_percent(0);
+
+    err[0] = 0;
+    ok = net_http_stream(host, port, path, download_sink, &d, err, sizeof(err));
+    fio_close(d.out);
+    if (ok) {
+        sha256_hex(&d.sha, hex);
+        if (p->size && d.done != p->size) {
+            str_format(err, sizeof(err), "got %lu bytes, the list says %lu", d.done, p->size);
+            ok = FALSE;
+        } else if (p->sha256[0] && !str_equal(hex, p->sha256)) {
+            str_copy(err, "the download is damaged (checksum)", sizeof(err));
+            ok = FALSE;
+        }
+    } else if (s_cancel) {
+        str_copy(err, "cancelled", sizeof(err));
+    } else if (d.write_failed) {
+        str_copy(err, "the disk is full or write-protected", sizeof(err));
+    }
+    if (ok) {
+        str_format(msg, sizeof(msg), "Unpacking %s...", (ULONG)title);
+        status(msg);
+        set_percent(0);
+        ok = mods_install_zip(s_root, zip, slug, uuid, unpack_progress, NULL, err, sizeof(err));
+        if (!ok && s_cancel) str_copy(err, "cancelled", sizeof(err));
+    }
+    fio_delete(zip);
+
+    s_busy = FALSE;
+    s_percent = -1;
+    busy_pointer(FALSE);
     draw_progress();
+    remerge();
+    if (ok)
+        str_format(msg, sizeof(msg), "Installed %s - Turn on to use it", (ULONG)title);
+    else
+        str_format(msg, sizeof(msg), "%s: %s", (ULONG)title, (ULONG)err);
+    status(msg);
 }
 
-static void finish_download(BOOL cancelled)
+static BOOL confirm(const char *text, const char *arg)
 {
-    struct Category *cat = &g_categories[s_dl.cat];
-    char msg[128];
-    LONG idx = catalog_index_of(cat, s_dl.title);
-    struct Pack *p = catalog_pack_at(cat, idx);
-    char keep[TITLE_LEN];
-    struct Pack *sel = cur_pack();
-
-    s_dl.active = FALSE;
-    keep[0] = 0;
-    if (sel) str_copy(keep, sel->title, sizeof(keep));
-
-    if (cancelled || !p) {
-        str_format(msg, sizeof(msg), "Download of %s cancelled", (ULONG)s_dl.title);
-    } else {
-        detach_lists();
-        catalog_mark_installed(cat, p);
-        catalog_merge(cat);
-        reselect(keep[0] ? keep : NULL);
-        attach_lists(FALSE);
-        str_format(msg, sizeof(msg), "Installed %s", (ULONG)s_dl.title);
-    }
-    draw_progress();
-    update_details();
-    status(msg);
+    if (s_test) return TRUE;
+    struct EasyStruct es = {sizeof(struct EasyStruct), 0, (STRPTR) "SWOS DLC Manager",
+                            (STRPTR)text, (STRPTR) "Yes|No"};
+    return EasyRequest(s_win, &es, NULL, (ULONG)arg) == 1;
 }
 
 static void do_remove(void)
 {
     struct Pack *p = cur_pack();
-    struct Category *cat = cur_cat();
-    char msg[128], keep[TITLE_LEN];
-    if (!p) return;
-
-    str_copy(keep, p->title, sizeof(keep));
-    detach_lists();
-    catalog_remove(cat, p);  /* PLACEHOLDER: would delete <type>/<name>/ too */
-    catalog_merge(cat);      /* p may be gone after this (a Removed row) */
-    reselect(keep);
-    attach_lists(FALSE);
-    update_details();
-    str_format(msg, sizeof(msg), "Removed %s", (ULONG)keep);
+    char msg[128], err[96], title[MOD_TITLE_LEN];
+    if (!p || p->status == PACK_NEW) return;
+    str_copy(title, p->title, sizeof(title));
+    if (!confirm("Delete %s from the mods drawer?", title)) return;
+    busy_pointer(TRUE);
+    if (mods_remove(s_root, p->slug, err, sizeof(err)))
+        str_format(msg, sizeof(msg), "Removed %s", (ULONG)title);
+    else
+        str_format(msg, sizeof(msg), "%s: %s", (ULONG)title, (ULONG)err);
+    busy_pointer(FALSE);
+    remerge();
     status(msg);
 }
 
-static void do_apply(void)
+static void do_toggle(void)
 {
     struct Pack *p = cur_pack();
-    struct Category *cat = cur_cat();
-    char msg[128];
-    if (!p) return;
+    char msg[128], err[96];
+    BOOL ok;
+    if (!p || p->status == PACK_NEW) return;
 
-    /* PLACEHOLDER: the PC build writes "[DLC] <type>=<title>" to
-     * ini/gameLauncher.ini and copies files into the game before launch. */
-    str_copy(cat->applied, p->title, sizeof(cat->applied));
-    update_details();
-    str_format(msg, sizeof(msg), "%s will use %s", (ULONG)cat->name, (ULONG)p->title);
+    if (p->enabled) {
+        ok = mods_turn_off(s_root, p->slug, err, sizeof(err));
+        if (ok) str_format(msg, sizeof(msg), "%s is off", (ULONG)p->title);
+    } else {
+        LONG n, i;
+        const struct ModInfo *all = catalog_installed(&n);
+        ok = FALSE;
+        str_copy(err, "it is not installed", sizeof(err));
+        for (i = 0; i < n; i++)
+            if (str_equal(all[i].slug, p->slug)) {
+                ok = mods_turn_on(s_root, &all[i], all, n, err, sizeof(err));
+                break;
+            }
+        if (ok) {
+            if (str_equal(p->slot, "pitch"))
+                str_format(msg, sizeof(msg), "%s is on - set OPTIONS > PITCHES to 2020",
+                           (ULONG)p->title);
+            else
+                str_format(msg, sizeof(msg), "%s is on", (ULONG)p->title);
+        }
+    }
+    if (!ok) str_format(msg, sizeof(msg), "%s: %s", (ULONG)p->title, (ULONG)err);
+    remerge();
     status(msg);
 }
 
@@ -376,13 +629,54 @@ static void do_about(void)
 {
     struct EasyStruct es = {
         sizeof(struct EasyStruct), 0, (STRPTR) "About SWOS DLC Manager",
-        (STRPTR) "SWOS United DLC Manager (demo)\n%s\n\n"
-                 "Packs from http://%s\n"
-                 "Network: %s\n\n"
-                 "Download, Remove and Apply are placeholders.",
+        (STRPTR) "SWOS United DLC Manager for the Amiga\n%s\n"
+                 "by Ben Baker (Baker76) - baker76.com\n"
+                 "https://github.com/SWOS-United/DLC-Manager\n\n"
+                 "SWOS United - swosunited.com\n"
+                 "Project Management: Playaveli\n"
+                 "Engineering Lead: benbaker76\n"
+                 "SWOS Reverse Engineering: benbaker76 (Amiga) / zkz (DOS)\n"
+                 "SWOS 2020 Feature Engineering: starwindz\n"
+                 "SWOS Live (swos.eu): Redhair\n"
+                 "SWOS Multiplayer (GGPO-X): thd79\n"
+                 "SWOS Web Online Rankings: ElMichaJ\n\n"
+                 "Mods from http://%s\n"
+                 "Game drawer: %s\n"
+                 "Network: %s",
         (STRPTR) "OK"};
     const char *stack = net_available() ? net_stack_name() : "none (offline)";
-    EasyRequest(s_win, &es, NULL, (ULONG)(version_tag + 6), (ULONG)DLC_HOST, (ULONG)stack);
+    EasyRequest(s_win, &es, NULL, (ULONG)(version_tag + 6), (ULONG)DLC_HOST,
+                (ULONG)(s_root[0] ? s_root : "(not chosen)"), (ULONG)stack);
+}
+
+/* TEST: the first new mod of each category, installed and turned on. */
+static void run_test(void)
+{
+    struct Node *n;
+    LONG c = 0;
+    char line[160], ids[MODS_LIST_MAX][MOD_SLUG_LEN];
+    LONG count, i;
+
+    do_refresh();
+    for (n = g_category_list.lh_Head; n->ln_Succ; n = n->ln_Succ, c++) {
+        struct Category *cat = (struct Category *)n;
+        struct Node *pn;
+        LONG row = 0;
+        select_category(c);
+        for (pn = cat->packs.lh_Head; pn->ln_Succ; pn = pn->ln_Succ, row++)
+            if (((struct Pack *)pn)->status == PACK_NEW) break;
+        if (!pn->ln_Succ) continue;
+        s_pack = row;
+        update_details();
+        do_download();
+        if (cur_pack() && cur_pack()->status == PACK_INSTALLED) do_toggle();
+    }
+    count = mods_enabled(s_root, ids, MODS_LIST_MAX);
+    for (i = 0; i < count; i++) {
+        str_format(line, sizeof(line), "data/MODS: %s", (ULONG)ids[i]);
+        status(line);
+    }
+    status("TEST DONE");
 }
 
 /* --- Window ------------------------------------------------------------ */
@@ -409,15 +703,13 @@ static BOOL open_window(void)
     struct TextAttr *font;
     WORD fh, rows, lv_h, row_h, btn_h, y_rows, y_btn, y_status, inner_w, inner_h;
     WORD lbl = 72, m = 8, cat_w = 168, i;
-    static const char *const btn_labels[5] = {"_Refresh", "_Download", "Re_move", "_Apply",
+    static const char *const btn_labels[5] = {"_Refresh", "_Download", "Re_move", "_Turn on/off",
                                               "_Quit"};
     struct TagItem t_cats[] = {{GTLV_Labels, (ULONG)&g_category_list},
                                {GTLV_ShowSelected, 0},
                                {GTLV_Selected, 0},
                                {TAG_DONE, 0}};
-    struct TagItem t_packs[] = {{GTLV_Labels, (ULONG)&g_categories[0].packs},
-                                {GTLV_ShowSelected, 0},
-                                {TAG_DONE, 0}};
+    struct TagItem t_packs[] = {{GTLV_Labels, 0}, {GTLV_ShowSelected, 0}, {TAG_DONE, 0}};
     struct TagItem t_text[] = {{GTTX_Border, TRUE}, {TAG_DONE, 0}};
     struct TagItem t_button[] = {{GT_Underscore, '_'}, {TAG_DONE, 0}};
 
@@ -469,18 +761,18 @@ static BOOL open_window(void)
     g = make(LISTVIEW_KIND, g, &ng, m, fh + 4, cat_w, lv_h, "Category", GID_CATEGORIES,
              PLACETEXT_ABOVE, t_cats);
     g = make(LISTVIEW_KIND, g, &ng, m + cat_w + 8, fh + 4, inner_w - cat_w - 8 - 2 * m, lv_h,
-             "Packs", GID_PACKS, PLACETEXT_ABOVE, t_packs);
+             "Mods", GID_PACKS, PLACETEXT_ABOVE, t_packs);
 
     g = make(TEXT_KIND, g, &ng, lbl, y_rows, inner_w - lbl - m, fh + 4, "Author", GID_AUTHOR,
              PLACETEXT_LEFT, t_text);
-    g = make(TEXT_KIND, g, &ng, lbl, y_rows + row_h, 96, fh + 4, "Version", GID_VERSION,
+    g = make(TEXT_KIND, g, &ng, lbl, y_rows + row_h, 136, fh + 4, "Version", GID_VERSION,
              PLACETEXT_LEFT, t_text);
-    g = make(TEXT_KIND, g, &ng, lbl + 96 + 64, y_rows + row_h, 176, fh + 4, "Status",
-             GID_STATUS, PLACETEXT_LEFT, t_text);
+    g = make(TEXT_KIND, g, &ng, lbl + 136 + 64, y_rows + row_h, inner_w - lbl - 136 - 64 - m,
+             fh + 4, "Status", GID_STATUS, PLACETEXT_LEFT, t_text);
     g = make(TEXT_KIND, g, &ng, lbl, y_rows + 2 * row_h, inner_w - lbl - m, fh + 4, "Info",
              GID_INFO, PLACETEXT_LEFT, t_text);
-    g = make(TEXT_KIND, g, &ng, lbl, y_rows + 3 * row_h, inner_w - lbl - m, fh + 4, "Applied",
-             GID_APPLIED, PLACETEXT_LEFT, t_text);
+    g = make(TEXT_KIND, g, &ng, lbl, y_rows + 3 * row_h, inner_w - lbl - m, fh + 4, "In use",
+             GID_INUSE, PLACETEXT_LEFT, t_text);
 
     {
         WORD gap = 8, bw = (inner_w - 2 * m - 4 * gap) / 5;
@@ -503,7 +795,7 @@ static BOOL open_window(void)
 
     s_win = OpenWindowTags(NULL,
         WA_Title, (ULONG)"SWOS United DLC Manager",
-        WA_ScreenTitle, (ULONG)"SWOS United DLC Manager 0.1 (demo)",
+        WA_ScreenTitle, (ULONG)"SWOS United DLC Manager 0.2",
         WA_PubScreen, (ULONG)s_screen,
         WA_InnerWidth, inner_w,
         WA_InnerHeight, inner_h,
@@ -511,8 +803,7 @@ static BOOL open_window(void)
         WA_Top, s_screen->BarHeight + 1,
         WA_Gadgets, (ULONG)s_glist,
         WA_IDCMP, LISTVIEWIDCMP | BUTTONIDCMP | TEXTIDCMP | IDCMP_CLOSEWINDOW |
-                  IDCMP_REFRESHWINDOW | IDCMP_MENUPICK | IDCMP_VANILLAKEY |
-                  IDCMP_INTUITICKS,
+                  IDCMP_REFRESHWINDOW | IDCMP_MENUPICK | IDCMP_VANILLAKEY,
         WA_DragBar, TRUE,
         WA_DepthGadget, TRUE,
         WA_CloseGadget, TRUE,
@@ -551,10 +842,10 @@ static BOOL handle_gadget(UWORD id, UWORD code)
         s_pack = code;
         update_details();
         break;
-    case GID_REFRESH: do_refresh(FALSE); break;
-    case GID_DOWNLOAD: start_download(); break;
+    case GID_REFRESH: do_refresh(); break;
+    case GID_DOWNLOAD: do_download(); break;
     case GID_REMOVE: do_remove(); break;
-    case GID_APPLY: do_apply(); break;
+    case GID_TOGGLE: do_toggle(); break;
     case GID_QUIT: return FALSE;
     }
     return TRUE;
@@ -565,19 +856,13 @@ static BOOL handle_gadget(UWORD id, UWORD code)
 static BOOL handle_key(UWORD key)
 {
     UWORD id = 0;
-    switch (key | 0x20) {  /* lower-case */
+    if (key == 0x1b) return FALSE;   /* Esc: quit (a running job takes it as cancel) */
+    switch (key | 0x20) {            /* lower-case */
     case 'r': id = GID_REFRESH; break;
     case 'd': id = GID_DOWNLOAD; break;
     case 'm': id = GID_REMOVE; break;
-    case 'a': id = GID_APPLY; break;
+    case 't': id = GID_TOGGLE; break;
     case 'q': return FALSE;
-    }
-    if (key == 0x1b) {  /* Esc: cancel a download, otherwise quit */
-        if (s_dl.active) {
-            finish_download(TRUE);
-            return TRUE;
-        }
-        return FALSE;
     }
     if (id && !(s_gad[id]->Flags & GFLG_DISABLED)) return handle_gadget(id, 0);
     return TRUE;
@@ -589,8 +874,8 @@ static BOOL handle_menu(UWORD code)
         struct MenuItem *item = ItemAddress(s_menustrip, code);
         if (!item) break;
         switch ((ULONG)GTMENUITEM_USERDATA(item)) {
-        case MID_REFRESH: if (!s_dl.active) do_refresh(FALSE); break;
-        case MID_REFRESH_ALL: if (!s_dl.active) do_refresh(TRUE); break;
+        case MID_REFRESH: if (!s_busy) do_refresh(); break;
+        case MID_DRAWER: if (!s_busy) choose_root(); break;
         case MID_ABOUT: do_about(); break;
         case MID_QUIT: return FALSE;
         }
@@ -622,19 +907,6 @@ static void event_loop(void)
                 draw_progress();
                 GT_EndRefresh(s_win, TRUE);
                 break;
-            case IDCMP_INTUITICKS:
-                /* ~10 a second while the window is active. PLACEHOLDER pacing:
-                 * a real download reports bytes received instead. */
-                if (s_dl.active) {
-                    s_dl.percent += 4;
-                    if (s_dl.percent >= 100) {
-                        s_dl.percent = 100;
-                        finish_download(FALSE);
-                    } else {
-                        draw_progress();
-                    }
-                }
-                break;
             }
         }
     }
@@ -647,22 +919,44 @@ int main(void)
     IntuitionBase = (struct IntuitionBase *)OpenLibrary((CONST_STRPTR) "intuition.library", 37);
     GfxBase = (struct GfxBase *)OpenLibrary((CONST_STRPTR) "graphics.library", 37);
     GadToolsBase = OpenLibrary((CONST_STRPTR) "gadtools.library", 37);
+    DOSBase = (struct DosLibrary *)OpenLibrary((CONST_STRPTR) "dos.library", 37);
+    AslBase = OpenLibrary((CONST_STRPTR) "asl.library", 37);   /* optional: Game drawer */
 
-    if (IntuitionBase && GfxBase && GadToolsBase) {
+    if (IntuitionBase && GfxBase && GadToolsBase && DOSBase) {
+        /* Shell arguments; from Workbench there are none. */
+        extern struct WBStartup *g_wb_startup;
+        if (!g_wb_startup) {
+            LONG args[2] = {0, 0};
+            struct RDArgs *rda = ReadArgs((STRPTR) "INDEX/K,TEST/S", args, NULL);
+            if (rda) {
+                if (args[0]) str_copy(s_index_url, (const char *)args[0], sizeof(s_index_url));
+                s_test = args[1] != 0;
+                FreeArgs(rda);
+            }
+        }
         catalog_init();
-        net_open();  /* optional: without it the placeholder lists stay */
+        load_root();
+        catalog_merge(s_root);
+        net_open();  /* optional: without it only the installed mods are listed */
 
         if (open_window()) {
             select_category(s_cat);
+            if (s_test) {
+                s_test_log = fio_open_write("PROGDIR:SWOS-DLC.test");
+                run_test();
+                if (s_test_log) fio_close(s_test_log);
+                s_test_log = NULL;
+            } else
             {
                 char msg[128];
-                if (net_ready(msg, sizeof(msg))) {
+                if (!s_root[0])
+                    str_copy(msg, "Choose the SWOS drawer: Project > Game drawer", sizeof(msg));
+                else if (net_ready(msg, sizeof(msg)))
                     str_format(msg, sizeof(msg), "%s online - press Refresh",
                                (ULONG)net_stack_name());
-                }
                 status(msg);
             }
-            event_loop();
+            if (!s_test) event_loop();
             rc = 0;
         }
         close_window();
@@ -670,6 +964,8 @@ int main(void)
         catalog_free();
     }
 
+    if (AslBase) CloseLibrary(AslBase);
+    if (DOSBase) CloseLibrary((struct Library *)DOSBase);
     if (GadToolsBase) CloseLibrary(GadToolsBase);
     if (GfxBase) CloseLibrary((struct Library *)GfxBase);
     if (IntuitionBase) CloseLibrary((struct Library *)IntuitionBase);

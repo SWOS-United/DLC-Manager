@@ -1,0 +1,378 @@
+{
+ "pitch/1994 - Moon Soccer": {
+  "uuid": "cabfbf94-b4bb-4d91-8cb9-1875ce1dacd3",
+  "slug": "apt-1994-moon-soccer"
+ },
+ "pitch/1994 - SWOS 1.1 (Amiga)": {
+  "uuid": "b2cdc9f6-8db3-4693-bbcb-bb11d8e25448",
+  "slug": "apt-1994-swos-1-1-amiga"
+ },
+ "pitch/1996 - 95_96 - ECE": {
+  "uuid": "15579505-bd2c-4f63-aebc-da6dd543a090",
+  "slug": "apt-1996-95-96-ece"
+ },
+ "pitch/1997 - 96_97 - Original": {
+  "uuid": "b7260bc7-f0a9-4a83-af06-0fc53aeecfa3",
+  "slug": "apt-1997-96-97-original"
+ },
+ "pitch/1998 - Worldcup 98 (Amiga)": {
+  "uuid": "22fde756-fd46-4641-81c4-ad8c6b589313",
+  "slug": "apt-1998-worldcup-98-amiga"
+ },
+ "pitch/2004 - 03_04 Pitches": {
+  "uuid": "16dcae12-cc4d-49f6-abec-0d0394c78440",
+  "slug": "apt-2004-03-04-pitches"
+ },
+ "pitch/2004 - intrav0lv0's Pitches": {
+  "uuid": "b50a01e7-2c4b-472f-8aed-93cdc8b97457",
+  "slug": "apt-2004-intrav0lv0-s-pitches"
+ },
+ "pitch/2005 - Component System": {
+  "uuid": "5f22273c-6c1f-4044-bab2-07a8d4c431f5",
+  "slug": "apt-2005-component-system"
+ },
+ "pitch/2006 - 05_06 (Amiga)": {
+  "uuid": "63ce0f1e-75e1-4b88-85c8-1cbb22621385",
+  "slug": "apt-2006-05-06-amiga"
+ },
+ "pitch/2006 - SWOS Grafiki - 2006": {
+  "uuid": "dccaae6a-b529-45a1-9d02-9aa0f7d02bbf",
+  "slug": "apt-2006-swos-grafiki-2006"
+ },
+ "pitch/2009 - SWOS Grafiki - 2009": {
+  "uuid": "0d364a3b-4e16-47d1-843f-820fa370a063",
+  "slug": "apt-2009-swos-grafiki-2009"
+ },
+ "pitch/2010 - Azscromados": {
+  "uuid": "a83f9c42-474a-49a4-a65b-e87effbb1c9e",
+  "slug": "apt-2010-azscromados"
+ },
+ "pitch/2012 - Summer Pack": {
+  "uuid": "bca358a6-d85a-4f17-bd9c-d909bf683f2c",
+  "slug": "apt-2012-summer-pack"
+ },
+ "pitch/2015 - New Graphics 2015": {
+  "uuid": "a7bf2200-bca5-474e-9f15-8d524f4a29c7",
+  "slug": "apt-2015-new-graphics-2015"
+ },
+ "pitch/2016 - 16_17 - SWOS United Anniv. Ed": {
+  "uuid": "cebf9182-befd-49a7-befe-cb3e19bd2d0d",
+  "slug": "apt-2016-16-17-swos-unit-6dfdb"
+ },
+ "pitch/2017 - New Graphics 2017": {
+  "uuid": "343adaee-9146-414d-a142-848e7aabf345",
+  "slug": "apt-2017-new-graphics-2017"
+ },
+ "pitch/2018 - EreWeGo Mod (Amiga)": {
+  "uuid": "0a550df4-2f36-4566-9475-f227cf0abeff",
+  "slug": "apt-2018-erewego-mod-amiga"
+ },
+ "pitch/2018 - EreWeGo Mod - Dark Grass (Amiga)": {
+  "uuid": "423697f8-2fda-46bf-b4f6-f217754b4bf8",
+  "slug": "apt-2018-erewego-mod-dar-655f3"
+ },
+ "pitch/2018 - New Graphics 2018": {
+  "uuid": "52f8cfb8-de7a-4321-81d7-5f94ce0c05e2",
+  "slug": "apt-2018-new-graphics-2018"
+ },
+ "pitch/2018 - Rugby": {
+  "uuid": "08886ab5-0a8a-460c-ace0-c3896465db42",
+  "slug": "apt-2018-rugby"
+ },
+ "pitch/2018 - SWOS.pl Pitches": {
+  "uuid": "364c455a-9fcb-4270-9e5d-be2ef3a106c6",
+  "slug": "apt-2018-swos-pl-pitches"
+ },
+ "pitch/2018 - Tomplus Lower Division Pitches": {
+  "uuid": "103d0782-49f3-43c3-8422-51a730a853ee",
+  "slug": "apt-2018-tomplus-lower-d-8483b"
+ },
+ "pitch/2019 - New Pitches 2019": {
+  "uuid": "2aac4f7a-afe0-493e-bfd4-5b342229460c",
+  "slug": "apt-2019-new-pitches-2019"
+ },
+ "pitch/2019 - Speedball": {
+  "uuid": "2737d960-c2a3-489e-b8ad-e8fc395a2ac2",
+  "slug": "apt-2019-speedball"
+ },
+ "pitch/2020 - 19_20 - Black Kit Asst. Refs": {
+  "uuid": "7cf57c69-5657-41bb-ad2d-24d99ef3c086",
+  "slug": "apt-2020-19-20-black-kit-5fd31"
+ },
+ "pitch/2020 - 19_20 - No Asst. Refs": {
+  "uuid": "1f80b4fa-8036-4aaf-b2d2-21af721d6de3",
+  "slug": "apt-2020-19-20-no-asst-refs"
+ },
+ "pitch/2020 - 19_20 - Yellow Kit Asst. Refs": {
+  "uuid": "b3c41996-aa48-47a1-a5da-dd9b73d16d21",
+  "slug": "apt-2020-19-20-yellow-ki-6b3fd"
+ },
+ "pitch/2020 - New Grass 2020": {
+  "uuid": "9760bae9-18d2-475d-93e2-f38348906c38",
+  "slug": "apt-2020-new-grass-2020"
+ },
+ "pitch/2020 - New Grass 2020 - Shadow": {
+  "uuid": "d4af060b-da27-4dde-b46a-a258e6f3294c",
+  "slug": "apt-2020-new-grass-2020-shadow"
+ },
+ "pitch/2020 - New Retro HD": {
+  "uuid": "ac37c390-7d88-4ac6-a5c8-4be95e59b744",
+  "slug": "apt-2020-new-retro-hd"
+ },
+ "pitch/2020 - New Retro HD - Shadow": {
+  "uuid": "8718e144-e70f-4bb0-876b-5ed1034433e6",
+  "slug": "apt-2020-new-retro-hd-shadow"
+ },
+ "pitch/2020 - Official 2020": {
+  "uuid": "1673698e-fabd-4552-bf2a-92e1f285d520",
+  "slug": "apt-2020-official-2020"
+ },
+ "pitch/2020 - Official 2021": {
+  "uuid": "19c2fdd8-d53b-421a-b50b-fcad4129c576",
+  "slug": "apt-2020-official-2021"
+ },
+ "pitch/2020 - Tribute 2020": {
+  "uuid": "a496fa34-2e33-43e3-80e7-258f2ebce318",
+  "slug": "apt-2020-tribute-2020"
+ },
+ "pitch/2021 - BAR Modern Retro HD - Shadow": {
+  "uuid": "cc3e2c45-65e1-4ea4-9531-f670a8f101cc",
+  "slug": "apt-2021-bar-modern-retr-5ddb8"
+ },
+ "pitch/2021 - BAY Modern Retro HD - Shadow": {
+  "uuid": "fbea0033-6052-4749-9679-2e46293d03e6",
+  "slug": "apt-2021-bay-modern-retr-8aaed"
+ },
+ "pitch/2021 - Classic World Cup Stadiums 1966-1998": {
+  "uuid": "857614ec-7e62-43e0-8ceb-ef1ce6758c92",
+  "slug": "apt-2021-classic-world-c-3977e"
+ },
+ "pitch/2021 - Classic World Cup Stadiums 2002-2018": {
+  "uuid": "9921ccf0-ee2e-49f1-8228-d4bd980c4e3d",
+  "slug": "apt-2021-classic-world-c-fcd39"
+ },
+ "pitch/2021 - EURO 2020 Modern Retro HD - Shadow": {
+  "uuid": "95dc88b7-748b-4d9c-a42d-c38ece2c7b2b",
+  "slug": "apt-2021-euro-2020-moder-5b45e"
+ },
+ "pitch/2021 - Euro Cup Classic Retro HD - Shadow": {
+  "uuid": "27df06c7-458c-43fd-bf93-51cead27b6a3",
+  "slug": "apt-2021-euro-cup-classi-23d54"
+ },
+ "pitch/2021 - Euro Cup Modern Retro HD - Shadow": {
+  "uuid": "eba61746-a50f-420e-ad00-0aaeb8689ac3",
+  "slug": "apt-2021-euro-cup-modern-4a72b"
+ },
+ "pitch/2021 - Futsal Retro HD": {
+  "uuid": "70c15169-cfa0-4a77-a35f-d2abcbfa5c75",
+  "slug": "apt-2021-futsal-retro-hd"
+ },
+ "pitch/2021 - Futsal Retro HD - Extra Assist": {
+  "uuid": "c09de8ae-6655-4218-a861-a211765f7684",
+  "slug": "apt-2021-futsal-retro-hd-3fd28"
+ },
+ "pitch/2021 - Futsal Retro HD World Tour": {
+  "uuid": "60a111ae-3ff2-4831-9796-e800b4d1f1c2",
+  "slug": "apt-2021-futsal-retro-hd-8338a"
+ },
+ "pitch/2021 - Futsal Retro HD World Tour - Extra Assist": {
+  "uuid": "4df30dad-bf77-45bd-b136-33375c0af923",
+  "slug": "apt-2021-futsal-retro-hd-19573"
+ },
+ "pitch/2021 - LIV Modern Retro HD - Shadow": {
+  "uuid": "e317d4b6-7e15-4e6d-ae4c-51e65a8f0e98",
+  "slug": "apt-2021-liv-modern-retr-5b8ea"
+ },
+ "pitch/2021 - Minor League": {
+  "uuid": "d9a57676-26bb-4219-9132-ddbdce2261b8",
+  "slug": "apt-2021-minor-league"
+ },
+ "pitch/2021 - SWOS Animated": {
+  "uuid": "637f87b6-25a2-4543-8a87-2e2e31975a04",
+  "slug": "apt-2021-swos-animated"
+ },
+ "pitch/2021 - Sci-Fi Pitches": {
+  "uuid": "d959705b-8a56-49fa-abd8-2879ec2cbb59",
+  "slug": "apt-2021-sci-fi-pitches"
+ },
+ "pitch/2021 - Star Trek": {
+  "uuid": "f2d7beb3-9d0a-4b30-ba0b-79650a8b4cd5",
+  "slug": "apt-2021-star-trek"
+ },
+ "pitch/2021 - Subbuteo": {
+  "uuid": "65e7275c-42b1-4e24-922d-0837d1b3e4cf",
+  "slug": "apt-2021-subbuteo"
+ },
+ "pitch/2021 - World Cup Modern Retro HD - Shadow": {
+  "uuid": "2483f0a5-ccd6-4b40-9ee8-ecef801a9ad5",
+  "slug": "apt-2021-world-cup-moder-c3e7e"
+ },
+ "pitch/2022 - AMIGA 23": {
+  "uuid": "c824afe4-66ad-4a08-a392-ba85bde14433",
+  "slug": "apt-2022-amiga-23"
+ },
+ "pitch/2023 - England Stadiums Pack A": {
+  "uuid": "62d0b1c2-2753-4f36-b3f6-67e0e5d2741c",
+  "slug": "apt-2023-england-stadium-30bb0"
+ },
+ "pitch/2023 - England Stadiums Pack B": {
+  "uuid": "978d1bb7-15e8-4ce4-a311-a344c49987d8",
+  "slug": "apt-2023-england-stadium-1921f"
+ },
+ "pitch/2023 - England Stadiums Pack C": {
+  "uuid": "362dc7e8-082d-4ace-b3f9-912dabd310b1",
+  "slug": "apt-2023-england-stadium-d057c"
+ },
+ "pitch/2023 - England Training Stadiums Pack A": {
+  "uuid": "5a17a350-dd6f-40e3-9a22-976c4ba86cf3",
+  "slug": "apt-2023-england-trainin-e8764"
+ },
+ "pitch/2023 - England Training Stadiums Pack B": {
+  "uuid": "19c6ef89-533f-40c7-b64e-b0cf257f4d39",
+  "slug": "apt-2023-england-trainin-5cfcc"
+ },
+ "pitch/2023 - England Training Stadiums Pack C": {
+  "uuid": "94f310d4-05a0-4b47-91c1-139281bf41ce",
+  "slug": "apt-2023-england-trainin-55905"
+ },
+ "pitch/2023 - France Stadiums Pack A": {
+  "uuid": "549dde64-fe54-47b4-8f91-5d9c3c6b94f2",
+  "slug": "apt-2023-france-stadiums-44711"
+ },
+ "pitch/2023 - France Training Stadiums Pack A": {
+  "uuid": "42bcc29a-f05d-4814-b43b-11fe9b02047d",
+  "slug": "apt-2023-france-training-6579d"
+ },
+ "pitch/2023 - Italy Stadiums Pack A": {
+  "uuid": "cb854d12-ffe1-4300-8f8f-e43550c811f0",
+  "slug": "apt-2023-italy-stadiums-pack-a"
+ },
+ "pitch/2023 - Italy Stadiums Pack B": {
+  "uuid": "af6ae333-766f-4af6-875b-f686a4b6a89d",
+  "slug": "apt-2023-italy-stadiums-pack-b"
+ },
+ "pitch/2023 - Italy Stadiums Pack C": {
+  "uuid": "c7733306-68e9-49f3-a412-04a88459f990",
+  "slug": "apt-2023-italy-stadiums-pack-c"
+ },
+ "pitch/2023 - Italy Training Stadiums Pack A": {
+  "uuid": "8bffaea4-3a70-4ac0-a82d-16290a0426f6",
+  "slug": "apt-2023-italy-training-7f905"
+ },
+ "pitch/2023 - Italy Training Stadiums Pack B": {
+  "uuid": "06bcc1fa-5538-451e-b400-88318430770f",
+  "slug": "apt-2023-italy-training-a1026"
+ },
+ "pitch/2023 - Italy Training Stadiums Pack C": {
+  "uuid": "af18b81c-6b5c-4c82-be2a-b0f96e51d7c6",
+  "slug": "apt-2023-italy-training-6fead"
+ },
+ "pitch/2023 - Netherlands Stadiums Pack A": {
+  "uuid": "e51e3e9a-0715-4d63-b7cd-20839602719f",
+  "slug": "apt-2023-netherlands-sta-f14eb"
+ },
+ "pitch/2023 - Netherlands Training Stadiums Pack A": {
+  "uuid": "4c9c1521-4554-4ae4-bff6-26c77571f150",
+  "slug": "apt-2023-netherlands-tra-906f4"
+ },
+ "pitch/2023 - Scotland Stadiums Pack A": {
+  "uuid": "0e199368-e5bc-4212-a5ef-95f8d42aa20f",
+  "slug": "apt-2023-scotland-stadiu-c7f91"
+ },
+ "pitch/2023 - Scotland Training Stadiums Pack A": {
+  "uuid": "02b90910-8435-4852-9a57-5f456d51cc1f",
+  "slug": "apt-2023-scotland-traini-49960"
+ },
+ "pitch/2023 - Spain Stadiums Pack A": {
+  "uuid": "dc0d22ef-3a43-4130-b147-6d7be44c8a7f",
+  "slug": "apt-2023-spain-stadiums-pack-a"
+ },
+ "pitch/2023 - Spain Stadiums Pack B": {
+  "uuid": "0a0f46a9-a9ae-4da9-afc8-1606f293ff07",
+  "slug": "apt-2023-spain-stadiums-pack-b"
+ },
+ "pitch/2023 - Spain Training Stadiums Pack A": {
+  "uuid": "734b2aa1-c9a2-4b39-8f4a-809a8888d029",
+  "slug": "apt-2023-spain-training-15f10"
+ },
+ "pitch/2023 - Spain Training Stadiums Pack B": {
+  "uuid": "a924f303-b8d8-4b6d-8710-461947d5bc1f",
+  "slug": "apt-2023-spain-training-da23d"
+ },
+ "pitch/2023 - Tiny Stadiums": {
+  "uuid": "3e04f411-8ebc-4025-af24-574ed87dcb56",
+  "slug": "apt-2023-tiny-stadiums"
+ },
+ "pitch/2023 - Tiny Training Stadiums": {
+  "uuid": "027aeb19-080a-4773-aab1-96ecfb8e864e",
+  "slug": "apt-2023-tiny-training-s-bb5ee"
+ },
+ "pitch/2024 - EURO 2024 Modern Retro HD - Shadow": {
+  "uuid": "2020c727-915a-46d6-b873-633aec55e27c",
+  "slug": "apt-2024-euro-2024-moder-47272"
+ },
+ "pitch/2024 - European Stadiums for Cup Finals Pack A": {
+  "uuid": "64c6a1e6-8a68-4d19-91d5-fae0de2b24d3",
+  "slug": "apt-2024-european-stadiu-6213b"
+ },
+ "pitch/2025 - England Stadiums Pack D": {
+  "uuid": "3c03d93b-51db-4afc-bdb1-4219dec226f3",
+  "slug": "apt-2025-england-stadium-a215f"
+ },
+ "pitch/2025 - England Training Stadiums Pack D": {
+  "uuid": "e7d1aed9-6205-4abd-a80f-8cdc6707973a",
+  "slug": "apt-2025-england-trainin-01e8e"
+ },
+ "pitch/2026 - Euro Cup Classic Retro HD - Shadow": {
+  "uuid": "abfa8d06-a1a6-4e20-b2f5-6fb4a0f25c8d",
+  "slug": "apt-2026-euro-cup-classi-8d561"
+ },
+ "pitch/2026 - Euro Cup Modern Retro HD - Shadow": {
+  "uuid": "21ba6727-6aad-482f-9430-5edace60997d",
+  "slug": "apt-2026-euro-cup-modern-30086"
+ },
+ "pitch/2026 - Futsal Retro HD": {
+  "uuid": "83c5991e-7269-4eb8-b7cb-36f7218beb48",
+  "slug": "apt-2026-futsal-retro-hd"
+ },
+ "pitch/2026 - Futsal Retro HD - Extra Assist": {
+  "uuid": "f692f950-c499-4755-ad49-1230e28117c6",
+  "slug": "apt-2026-futsal-retro-hd-85bd8"
+ },
+ "pitch/Graphics Composer": {
+  "uuid": "5b1d9014-e9eb-4347-a09c-836981967eb7",
+  "slug": "apt-graphics-composer"
+ },
+ "teamdb/1996_97 - Original Amiga _ PC DOS": {
+  "uuid": "2452c7ad-6863-43f2-a1e8-9dda730d2ca9",
+  "slug": "atd-1996-97-original-ami-b1f94"
+ },
+ "teamdb/1996_97 - Revised (some leagues corrected)": {
+  "uuid": "472366be-d4d2-42ab-bd34-2f852f2668c6",
+  "slug": "atd-1996-97-revised-some-b4f87"
+ },
+ "teamdb/2007_08 - Mega Data Patch": {
+  "uuid": "5813bf69-c1f8-404d-ada2-8a63796de4cc",
+  "slug": "atd-2007-08-mega-data-patch"
+ },
+ "teamdb/2016_17 - SWOS United Anniversary Edition": {
+  "uuid": "4b8ef660-b9ef-4a1b-9c21-e90a3a4be296",
+  "slug": "atd-2016-17-swos-united-032aa"
+ },
+ "teamdb/2019_20 - SWOS 2020 Winter Transfer": {
+  "uuid": "17d8dbfa-d4f4-49af-be14-6b3006a88b39",
+  "slug": "atd-2019-20-swos-2020-wi-ce8c5"
+ },
+ "teamdb/SPECIAL EDITION - All National Teams": {
+  "uuid": "961b8f76-6179-4e34-a30c-329fbd8034f7",
+  "slug": "atd-special-edition-all-f447d"
+ },
+ "teamdb/SPECIAL EDITION - Synchronated SWOS Fantasy": {
+  "uuid": "e5027558-fbc4-4a7d-a8ce-95f0bd4e11e5",
+  "slug": "atd-special-edition-sync-80e71"
+ },
+ "teamdb/SPECIAL EDITION - VIVA SWOS (History of the World Cup 1930-1974)": {
+  "uuid": "36f6ad35-34c0-4df7-aee6-7664e41a965e",
+  "slug": "atd-special-edition-viva-f92c9"
+ }
+}

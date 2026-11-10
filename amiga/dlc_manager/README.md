@@ -1,40 +1,52 @@
-# SWOS United DLC Manager — Amiga (demo)
+# SWOS United DLC Manager — Amiga
 
 An Intuition + GadTools take on `swos-dlc-manager` for AmigaOS 2.04 or later,
-on the Workbench screen. **This is a demo**: the UI and catalogue model are
-real, and so is fetching the catalogues over the network. Downloading,
-installing and applying are placeholders.
+on the Workbench screen. It installs SWOS United Amiga's mods into the game's
+drawer and turns them on.
 
 ```
 +- SWOS United DLC Manager -------------------------------------------+
-| Category           Packs                                            |
+| Category           Mods                                             |
 | +----------------+ +----------------------------------------------+ |
-| |Team Database(1)| |[NEW] 1994 - Moon Soccer                      | |
-| |Pitch (3)       | |[ OK] 1994 - SWOS 1.1 (Amiga)                 | |
-| |Cup (2)         | |[UPD] 2020 - Official 2021                    | |
-| |...             | |[REM] Placeholder - Withdrawn Pitch           | |
+| |Pitch (3 new)   | |[NEW] 1994 - Moon Soccer                      | |
+| |Team Database(8)| |[ ON] 2018 - Rugby                            | |
+| |                | |[ OK] 2026 - Futsal Retro HD                  | |
 | +----------------+ +----------------------------------------------+ |
 |  Author [Sensible Software and starwindz                          ] |
-| Version [1.0       ]  Status [New                    ]              |
-|    Info [1994 - Moon Soccer                                       ] |
-| Applied [1994 - SWOS 1.1 (Amiga)                                  ] |
-| [Refresh] [Download] [Remove] [Apply] [Quit]                        |
-| [Roadshow 4.364 online - press Refresh             ] [#####       ]  |
+| Version [1.0          ]  Status [Installed, on                    ] |
+|    Info [SWOS 2020's pitch, for an AGA Amiga: set OPTIONS > PITC  ] |
+|  In use [2018 - Rugby                                             ] |
+| [Refresh] [Download] [Remove] [Turn on/off] [Quit]                  |
+| [Installed 2018 - Rugby - Turn on to use it        ] [#####       ]  |
 +---------------------------------------------------------------------+
 ```
 
-## What works
+## What it does
 
 | | |
 |---|---|
-| **Refresh** (and *Project → Refresh all*) | Real. `GET http://www.sensiblesoccer.de/swos2020/dlc/<type>/<type>-info.csv` over `bsdsocket.library`, the same catalogue the PC manager reads (see `core/include/dlc_catalog.h`). |
-| Status merge | Real. New / Installed / Update / Removed, computed the same way as `DlcCatalog::merge`. |
-| No TCP/IP stack | Opens anyway, with placeholder lists, and says so in the status line. |
-| Stack loaded but offline | Asks Roadshow whether an interface, DNS server and default route are up, at start-up and on every Refresh, and says which one is missing instead of failing to resolve the host. |
-| **Download** | *Placeholder.* A progress bar that runs for about 2.5 seconds, then marks the pack installed. Esc cancels. |
-| **Remove / Apply** | *Placeholder.* They change the in-memory state only. |
+| **Refresh** | Reads `http://www.sensiblesoccer.de/swos2020/dlc/swosutd/amiga/index.json` (OpenSWOS's `openswos-mod-index` v1; only mods whose `targets` include `amiga`) over `bsdsocket.library`, and merges it with what is installed: New / Installed / Update / No longer offered, and whether each is on. |
+| **Download** | Streams the mod's zip into `mods/`, checks its size and SHA-256 against the index, unpacks it (stored or deflated entries, each CRC-checked; no name may leave the drawer or be longer than AmigaDOS's 30 characters) into `mods/.<slug>`, checks its `mod.json` uuid, then puts it in place of any older copy. Esc cancels. |
+| **Turn on/off** | Edits `data/MODS`, which the game reads at its first file read: the mod is added (with `*` when it is not cosmetic, as OpenSWOS Setup writes it) and the others of its slot taken out. Lines it did not write, such as the setup's built-in mods, stay where they are. |
+| **Remove** | Turns it off and deletes `mods/<slug>`. |
+| **About** | Credits, the game drawer and the network stack. |
 
-Grep for `PLACEHOLDER` to find every stub.
+The game drawer is this program's own drawer when it has a `data/` drawer, or
+the `data/` of a WHDLoad package (where the game's `mods/` and `data/MODS`
+are). Otherwise *Project → Game drawer...* asks, and the choice is kept in
+`PROGDIR:SWOS-DLC.prefs`.
+
+The mods are made by `scripts/dlc2020_to_amiga.py` from SWOS 2020's packs:
+its pitches as AGA maps (`grafs_aga/P2020_n.MAP`; set OPTIONS → PITCHES to 2020),
+and the team databases that have 96/97's leagues exactly, as their binary team
+files.
+
+From the Shell, `SWOS-DLC INDEX=<url>` reads another index, and `TEST` refreshes,
+installs and turns on the first new mod of each category, writes each status
+line to `PROGDIR:SWOS-DLC.test`, and quits (how it is tested in FS-UAE).
+
+Memory stays small for a 1 MB machine: the index is sized exactly after a
+counting pass, and unpacking needs a 32 KB window and a few KB besides.
 
 ## Networking
 
@@ -43,9 +55,10 @@ At run time it only needs *a* `bsdsocket.library`, so Roadshow, AmiTCP and
 Miami all work. The DLC server is plain `http://`, so no TLS library is
 needed. That matters on an Amiga: TLS would mean AmiSSL.
 
-Requests block, with a 15-second receive timeout. The window does not repaint
-during a fetch, and on OS 3.0+ it shows the busy pointer. Each catalogue is
-under 8 KB, so a fetch takes a moment.
+Requests have a 15-second receive timeout. A download repaints the window and
+its progress bar between pieces and takes Esc as cancel; on OS 3.0+ it shows the
+busy pointer. Tested in FS-UAE (A1200, Kickstart 3.1) with its emulated
+`bsdsocket.library`: index, download, checks, unpacking and `data/MODS`.
 
 ## Build
 
@@ -71,18 +84,17 @@ there and run `python3 tools/make_icon.py --preview icon.png` to regenerate
 Workbench starts. To use a Roadshow SDK
 somewhere else, pass `ROADSHOW_SDK=<path>`.
 
-## Next steps
+## Code
 
-1. **Real downloads.** Stream `<name>.7z` to disk in chunks instead of
-   buffering it, with a timer.device-paced progress bar. Fetch it on a
-   separate process, or with non-blocking sockets and `WaitSelect()`, so the
-   window keeps repainting.
-2. **Unpacking.** The packs are `.7z`. That means porting a 7z decoder (LZMA
-   is feasible but slow on a 68000), or asking for the server to publish LhA
-   copies too.
-3. **What the Amiga game can actually use.** The packs are made for the PC
-   SWOS 2020 build (DOS HD art, PC audio). Which categories mean anything to
-   the Amiga game, or to OpenSWOS on the Amiga, and whether they need
-   converting, decides which of the 17 categories this tool should list at all.
-4. Store the installed state on disk as `<type>-info.csv`, as the PC version
-   does, and write the selection somewhere the game reads it.
+| | |
+|---|---|
+| `main.c` | the window, actions and event loop |
+| `catalog.c` | the index merged with what is installed |
+| `mods.c` | `mods/` and `data/MODS` |
+| `net.c` | HTTP/1.0 GET, streamed |
+| `unzip.c`, `inflate.c` | zip entries, DEFLATE (RFC 1951) |
+| `sha256.c`, `json.c`, `fio.c` | download checks, the JSON reader, dos.library files |
+
+`json`, `sha256`, `inflate`, `unzip`, `fio` and `mods` also build on a PC
+(`tests/host_test.c`, see its top) and are tested there against the real mod
+zips.

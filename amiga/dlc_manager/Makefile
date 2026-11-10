@@ -39,7 +39,8 @@ ROADSHOW_SDK ?= ../../../../../Amiga/Roadshow/Roadshow-SDK-1.8
 PROGRAM  = out/SWOS-DLC
 
 # startup.c first: AmigaDOS enters at the first byte of the first hunk.
-SOURCES  = src/startup.c src/main.c src/catalog.c src/net.c src/util.c
+SOURCES  = src/startup.c src/main.c src/catalog.c src/net.c src/util.c src/fio.c \
+           src/json.c src/sha256.c src/inflate.c src/unzip.c src/mods.c
 OBJECTS  = $(patsubst src/%.c,obj/%.o,$(SOURCES))
 HEADERS  = $(wildcard src/*.h)
 

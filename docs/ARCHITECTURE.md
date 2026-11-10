@@ -140,6 +140,7 @@ so the UI can be smoke-tested where the window manager cannot be screenshotted
 | `SWOS_DLC_DOWNLOAD=<row>` | DLC manager: install the pack in row *row* |
 | `SWOS_DLC_REMOVE=<row>` | DLC manager: uninstall the pack in row *row* |
 | `SWOS_DLC_SCREENSHOT=<file>` | DLC manager: capture once idle, then exit |
+| `SWOS_DLC_ABOUT=1` | DLC manager: open with the About dialog showing |
 
 The capture fires once the UI has settled — nothing left to redraw, and for the
 DLC manager no download or extraction still running — with a deadline so it

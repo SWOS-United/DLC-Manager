@@ -152,6 +152,16 @@ add_library(swos-core STATIC
 )
 
 target_include_directories(swos-core PUBLIC core/include)
+
+# The player's folder, where mods/ and SWOS.ini are: the game's own, so what the
+# manager installs is what the game reads. SWOS United's (include/project_identity.h
+# PROJECT_USER_DIR / PROJECT_USER_DOT_DIR there): Documents/<dir> on Windows,
+# ~/Library/Application Support/<dir> on macOS, ~/<dot dir> elsewhere. OpenSWOS's
+# own game uses SWOS / .swos.
+set(SWOS_USER_DIR "SWOSUnited" CACHE STRING "the player's folder on Windows and macOS")
+set(SWOS_USER_DOT_DIR ".swosunited" CACHE STRING "the player's folder on Linux, in the home folder")
+target_compile_definitions(swos-core PUBLIC
+    SWOS_USER_DIR="${SWOS_USER_DIR}" SWOS_USER_DOT_DIR="${SWOS_USER_DOT_DIR}")
 target_link_libraries(swos-core
     PUBLIC Slint::Slint SDL2::SDL2 OpenGL::GL
     PRIVATE CURL::libcurl LibArchive::LibArchive)
@@ -290,6 +300,9 @@ swos_add_app(swos-dlc-manager
     DISPLAY_NAME "SWOS United DLC Manager"
     SOURCES apps/dlc_manager/main.cpp apps/dlc_manager/audio_preview.cpp
     SLINT   apps/dlc_manager/dlc_manager.slint)
+
+# The About dialog's version: the project's.
+target_compile_definitions(swos-dlc-manager PRIVATE SWOS_DLC_VERSION="${PROJECT_VERSION}")
 
 if(SDL2_mixer_FOUND)
     target_link_libraries(swos-dlc-manager PRIVATE SDL2_mixer::SDL2_mixer)

@@ -22,9 +22,10 @@ std::string executable_dir();
 // manager and the game all agree on where a user's files live. Mirrors
 // swos_io.c in that project:
 //
-//   Windows  %USERPROFILE%\Documents\SWOS
-//   macOS    ~/Library/Application Support/SWOS
-//   Linux    ~/.swos
+//   Windows  %USERPROFILE%\Documents\SWOSUnited
+//   macOS    ~/Library/Application Support/SWOSUnited
+//   Linux    ~/.swosunited
+// (SWOS_USER_DIR / SWOS_USER_DOT_DIR, CMake options: OpenSWOS's own is SWOS / .swos)
 //
 // SWOS-United keeps SWOS.ini and SWOS.log directly in here (career saves go in
 // a save/ subfolder, which this port has no use for); the launcher and the DLC
