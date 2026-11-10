@@ -24,8 +24,15 @@
 
 #include <SDL.h>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>   // AttachConsole, for --version from a Command Prompt
+#endif
+
 #include <algorithm>
 #include <atomic>
+#include <cstring>
 #include <initializer_list>
 #include <cstdio>
 #include <memory>
@@ -424,12 +431,37 @@ private:
     std::atomic<bool> m_cancel{false};
 };
 
+// A Windows GUI program has no console, so a line printed for --version would
+// go nowhere: it borrows the Command Prompt it was started from, if any.
+void attach_console()
+{
+#ifdef _WIN32
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+        std::freopen("CONOUT$", "w", stdout);
+        std::freopen("CONOUT$", "w", stderr);
+    }
+#endif
+}
+
 } // namespace
 
 int main(int argc, char *argv[])
 {
-    (void)argc;
-    (void)argv;
+    for (int i = 1; i < argc; ++i) {
+        if (std::strcmp(argv[i], "--version") == 0 || std::strcmp(argv[i], "-v") == 0) {
+            attach_console();
+            std::printf("SWOS United DLC Manager %s\n", SWOS_DLC_VERSION);
+            return 0;
+        }
+        if (std::strcmp(argv[i], "--help") == 0 || std::strcmp(argv[i], "-h") == 0) {
+            attach_console();
+            std::printf("SWOS United DLC Manager %s\n\n"
+                        "  --version   print the version and exit\n"
+                        "  --help      this\n",
+                        SWOS_DLC_VERSION);
+            return 0;
+        }
+    }
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
         std::fprintf(stderr, "SDL_Init: %s\n", SDL_GetError());

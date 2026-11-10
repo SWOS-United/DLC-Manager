@@ -62,6 +62,12 @@ Dependencies via `vcpkg install sdl2 curl libarchive sdl2-mixer --triplet x64-wi
 build, so the app must be built with MSVC too — for MinGW, build Slint from
 source.
 
+For one `.exe` with no DLLs beside it but Slint's, use the static triplet:
+`--triplet x64-windows-static` for the libraries, and
+`-DVCPKG_TARGET_TRIPLET=x64-windows-static` when configuring. CMake then links
+vcpkg's static SDL2 and SDL2_mixer (`SDL2::SDL2-static`) and builds with the
+static C runtime (`/MT`) to match them.
+
 ## Building Slint from source
 
 Needed for Intel macOS, MinGW, or any platform without a prebuilt package.
@@ -84,6 +90,11 @@ CMake configure step fails with a clear message if it is missing.
 | `-DSlint_DIR=<prefix>/lib/cmake/Slint` | use a Slint outside `third_party/slint` |
 | `-DSWOS_SLINT_ROOT=<prefix>` | same, given as the SDK root |
 | `-DCMAKE_BUILD_TYPE=Debug` | default is Release |
+| `-DSWOS_USER_DIR=SWOSUnited` | the player's folder on Windows and macOS (OpenSWOS's: `SWOS`) |
+| `-DSWOS_USER_DOT_DIR=.swosunited` | the player's folder on Linux (OpenSWOS's: `.swos`) |
+| `-DCMAKE_MSVC_RUNTIME_LIBRARY=...` | overrides the C runtime a static vcpkg triplet picks |
+
+`swos-dlc-manager --version` prints the version (the project's, in `CMakeLists.txt`).
 
 ## Smoke test
 

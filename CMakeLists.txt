@@ -22,6 +22,13 @@ endif()
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
+# vcpkg's static triplets (x64-windows-static, ...) build every library with the
+# static C runtime, so this program must use it too, or the link fails on
+# mismatched runtimes (LNK2038). Set CMAKE_MSVC_RUNTIME_LIBRARY to choose otherwise.
+if(MSVC AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY AND VCPKG_TARGET_TRIPLET MATCHES "-static$")
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 # ---------------------------------------------------------------------------
 # Dependencies
 # ---------------------------------------------------------------------------
@@ -89,6 +96,12 @@ if(NOT SDL2_FOUND AND PkgConfig_FOUND)
         add_library(SDL2::SDL2 ALIAS PkgConfig::SDL2)
     endif()
 endif()
+# A static SDL2 (vcpkg's static triplets, or SDL built with SDL_SHARED off)
+# exports SDL2::SDL2-static and no SDL2::SDL2: the rest of this file links the latter.
+if(SDL2_FOUND AND NOT TARGET SDL2::SDL2 AND TARGET SDL2::SDL2-static)
+    add_library(SDL2::SDL2 ALIAS SDL2::SDL2-static)
+    message(STATUS "SDL2: the static library")
+endif()
 if(NOT SDL2_FOUND)
     message(FATAL_ERROR "SDL2 not found. Install libsdl2-dev / brew install sdl2 / vcpkg install sdl2.")
 endif()
@@ -124,6 +137,9 @@ if(NOT SDL2_mixer_FOUND AND PkgConfig_FOUND)
         add_library(SDL2_mixer::SDL2_mixer ALIAS PkgConfig::SDL2_MIXER)
         set(SDL2_mixer_FOUND TRUE)
     endif()
+endif()
+if(SDL2_mixer_FOUND AND NOT TARGET SDL2_mixer::SDL2_mixer AND TARGET SDL2_mixer::SDL2_mixer-static)
+    add_library(SDL2_mixer::SDL2_mixer ALIAS SDL2_mixer::SDL2_mixer-static)
 endif()
 if(SDL2_mixer_FOUND)
     message(STATUS "SDL2_mixer found -- DLC audio preview enabled")
