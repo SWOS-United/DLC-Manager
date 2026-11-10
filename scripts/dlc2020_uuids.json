@@ -259,6 +259,161 @@
   "uuid": "d9584633-75bd-46fd-8e9c-c8fd883e2e3b",
   "slug": "cm-turkish-ertem-sener"
  },
+ "cup/1900s Retro Pack Teams (1900-1970)": {
+  "uuid": "56425d8f-4de2-47d3-aed1-c175c02ab814",
+  "slug": "tp-1900s-retro-pack-teams-83743",
+  "number": 150
+ },
+ "cup/1968-69 TEAMS": {
+  "uuid": "92d4dbb8-a49e-40bc-87ea-0af450feadb3",
+  "slug": "tp-1968-69-teams",
+  "number": 180
+ },
+ "cup/British Football Pioneers (England)": {
+  "uuid": "e20edb32-41e6-41de-9c11-a71a4dcbadc7",
+  "slug": "tp-british-football-pione-00ee1",
+  "number": 179
+ },
+ "cup/CLUB TEAMS (1956-1979)": {
+  "uuid": "bfb383ab-4be7-4d59-a77d-dae6addaacea",
+  "slug": "tp-club-teams-1956-1979",
+  "number": 152
+ },
+ "cup/CLUB TEAMS (1970-1979)": {
+  "uuid": "7f955565-5b42-44cc-93d4-4066708f4eb4",
+  "slug": "tp-club-teams-1970-1979",
+  "number": 155
+ },
+ "cup/CLUB TEAMS (1970-2017)": {
+  "uuid": "5b995232-1792-4a13-94cb-d52405aa7276",
+  "slug": "tp-club-teams-1970-2017",
+  "number": 153
+ },
+ "cup/CLUB TEAMS (1972-2019)": {
+  "uuid": "fee4db8f-59c3-4788-8f96-cc89821e779e",
+  "slug": "tp-club-teams-1972-2019",
+  "number": 154
+ },
+ "cup/CLUB TEAMS (1980-1989)": {
+  "uuid": "06a851e5-93de-4806-a1bc-fe8c1693a8f8",
+  "slug": "tp-club-teams-1980-1989",
+  "number": 156
+ },
+ "cup/CLUB TEAMS (1980-2010)": {
+  "uuid": "79cc735a-ceff-4081-ac37-26b19665d483",
+  "slug": "tp-club-teams-1980-2010",
+  "number": 160
+ },
+ "cup/CLUB TEAMS (1990-1999)": {
+  "uuid": "489b5bf6-1f4c-483c-abd3-b97fb910334d",
+  "slug": "tp-club-teams-1990-1999",
+  "number": 157
+ },
+ "cup/CLUB TEAMS (1992-1996)": {
+  "uuid": "d4345c3c-45e0-4fb5-8f21-d39d093e3e71",
+  "slug": "tp-club-teams-1992-1996",
+  "number": 151
+ },
+ "cup/CLUB TEAMS (1995-2018)": {
+  "uuid": "94d283d3-6f94-4ddd-ae67-fe4d49c68a90",
+  "slug": "tp-club-teams-1995-2018",
+  "number": 161
+ },
+ "cup/CLUB TEAMS (1996-2019)": {
+  "uuid": "1d39113e-0945-468a-9422-422f32612cac",
+  "slug": "tp-club-teams-1996-2019",
+  "number": 162
+ },
+ "cup/CLUB TEAMS (1998-2021)": {
+  "uuid": "32b00c98-d135-4ed0-8429-2c6c0f239ca0",
+  "slug": "tp-club-teams-1998-2021",
+  "number": 163
+ },
+ "cup/CLUB TEAMS (2000-2009)": {
+  "uuid": "e0d388c3-bac1-4650-a960-45622cbf3880",
+  "slug": "tp-club-teams-2000-2009",
+  "number": 158
+ },
+ "cup/CLUB TEAMS (2010-2019)": {
+  "uuid": "e269bb46-44d2-4903-b632-c03abe4a0e40",
+  "slug": "tp-club-teams-2010-2019",
+  "number": 159
+ },
+ "cup/FIFA SOCCER 94 (SEGA Mega Drive-Genesis)": {
+  "uuid": "fed3166d-d4b6-4acd-abdd-32ce880916fe",
+  "slug": "tp-fifa-soccer-94-sega-me-d1232",
+  "number": 171
+ },
+ "cup/FIFA SOCCER 95 - NATIONAL TEAMS (SEGA Mega Drive-Genesis)": {
+  "uuid": "bcc54795-ce66-4ec8-95ef-038ec9381aa0",
+  "slug": "tp-fifa-soccer-95-nationa-92c04",
+  "number": 172
+ },
+ "cup/INTERNATIONAL SUPERSTAR SOCCER 64 (N64)": {
+  "uuid": "666c9049-01a4-4c57-aa13-129991272b0b",
+  "slug": "tp-international-supersta-a250b",
+  "number": 174
+ },
+ "cup/INTERNATIONAL SUPERSTAR SOCCER DELUXE (SNES)": {
+  "uuid": "6505eef1-7eab-4928-8a11-e33557860f07",
+  "slug": "tp-international-supersta-d37ed",
+  "number": 173
+ },
+ "cup/LEGENDS - FIFA WORLD CUP (1966-2010)": {
+  "uuid": "45f31603-e550-4ddc-abff-a18e6afef2d0",
+  "slug": "tp-legends-fifa-world-cup-39694",
+  "number": 165
+ },
+ "cup/LEGENDS - FIFA WORLD CUP AND UEFA EURO CUP FINALS (1966-2012)": {
+  "uuid": "f7fb4d00-4ac6-4c78-8186-884607f5fb83",
+  "slug": "tp-legends-fifa-world-cup-b4bca",
+  "number": 167
+ },
+ "cup/LEGENDS - HOLLAND (1990-1999)": {
+  "uuid": "4f8d505a-6f4c-4844-a85d-998c5fb21a6d",
+  "slug": "tp-legends-holland-1990-1999",
+  "number": 164
+ },
+ "cup/LEGENDS - UEFA EURO CUP (1964-2008)": {
+  "uuid": "5d52e835-1e34-47d0-a413-8c54951fe3e9",
+  "slug": "tp-legends-uefa-euro-cup-a4b25",
+  "number": 166
+ },
+ "cup/NBA ALL-STARS (1946-2021)": {
+  "uuid": "e3529bd3-819e-4ce3-a6f1-25d3b890f897",
+  "slug": "tp-nba-all-stars-1946-2021",
+  "number": 175
+ },
+ "cup/PENALTY SHOOTOUTS - FIFA WORLD CUP (1982-2018)": {
+  "uuid": "fb50d401-3103-4d25-aba7-5766924ff11f",
+  "slug": "tp-penalty-shootouts-fifa-e2402",
+  "number": 168
+ },
+ "cup/PENALTY SHOOTOUTS - UEFA EURO CUP (1976-2020)": {
+  "uuid": "e866dd7b-a06c-4dbb-bb25-179b4f26805b",
+  "slug": "tp-penalty-shootouts-uefa-d511a",
+  "number": 169
+ },
+ "cup/PENALTY SHOOTOUTS - UEFA EUROPEAN CUP FINALS (1980-2022)": {
+  "uuid": "047de3cb-bd86-47c9-90d1-08d57e7cf82b",
+  "slug": "tp-penalty-shootouts-uefa-9bb53",
+  "number": 170
+ },
+ "cup/SENSIBLE SOCCER IE - CLUB TEAMS (SEGA Mega Drive-SNES)": {
+  "uuid": "9e1735ad-d5c2-4452-9772-a4eded66240f",
+  "slug": "tp-sensible-soccer-ie-clu-0b147",
+  "number": 176
+ },
+ "cup/SENSIBLE SOCCER IE - NATIONAL TEAMS (SEGA Mega Drive-SNES)": {
+  "uuid": "3dae0c19-fa1e-4256-88e2-42a962eb7178",
+  "slug": "tp-sensible-soccer-ie-nat-6a3ad",
+  "number": 177
+ },
+ "cup/WORLD CUP ITALIA 90 (SEGA Mega Drive)": {
+  "uuid": "92f41e36-0a69-4c3d-b6f3-7fd9b20f1aa8",
+  "slug": "tp-world-cup-italia-90-se-b91d3",
+  "number": 178
+ },
  "fx/Amiga Original Sound Part 1": {
   "uuid": "dfabca59-4bc3-4701-8bb8-901335244ccc",
   "slug": "fx-amiga-original-sound-part-1"

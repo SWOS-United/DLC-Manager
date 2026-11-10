@@ -239,10 +239,15 @@ bool turn_mod_on(const std::string &base_dir, const DlcEntry &mod, DlcType categ
     case DlcType::Commentary:
     case DlcType::Fx:         ini.write_string("audio", "style", "pc"); break;
     case DlcType::TitleMusic: ini.write_string("audio", "music", "pc"); break;
-    case DlcType::MenuMusic:
+    case DlcType::MenuMusic: {
+        // A recording (sound_dos/menu.mp3), or the PC game's song as MIDI
+        // (sound_dos/menu.xmi), played on the engine's emulated AdLib card.
+        const std::string midi = path_join(path_join(path_join(mods_root(base_dir), mod.slug),
+                                                     "sound_dos"), "menu.xmi");
         ini.write_string("audio", "music", "pc");
-        ini.write_string("audio", "menu_music", "mp3");
+        ini.write_string("audio", "menu_music", file_exists(midi) ? "midi" : "mp3");
         break;
+    }
     default: return true;
     }
     return ini.save(path);

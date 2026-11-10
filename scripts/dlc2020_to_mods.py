@@ -23,6 +23,7 @@ Layouts (checked against OpenSWOS's readers, 2026-11-09):
                                                the engine plays all five, mixed to mono
     tmusic      <title>.mp3                 -> sound_dos/title.mp3                  slot title_music
     mmusic      <title>.mp3                 -> sound_dos/menu.mp3                   slot menu_music
+                <title>.xmi                 -> sound_dos/menu.xmi (menu_music = midi)
     pitch       PITCH1-6.BLK/.DAT, SPRITE,  -> grafs_2020/... (the whole set:       slot pitch
                 CHARSET, SCORE, TEAM1-3 ...    the 2020 graphics tier reads them
                                                all from one folder)
@@ -31,7 +32,7 @@ Layouts (checked against OpenSWOS's readers, 2026-11-09):
 
 All are "cosmetic". Each needs a setting the DLC manager makes when it turns the mod on:
 commentary and fx [audio] style = pc; music [audio] music = pc (menu music also
-menu_music = mp3); a pitch [graphics] style = 2020; a gallery's pictures are chosen on the
+menu_music = mp3, or midi for an .xmi); a pitch [graphics] style = 2020; a gallery's pictures are chosen on the
 backgrounds mod's page.
 
     teamdb      data/TEAM.NNN, *.TMD,       -> data_json/teams/<COUNTRY>.json (OpenSWOS's slot teamdb
@@ -51,8 +52,16 @@ title's first year) and, for two, its folder name. The
 league rules SWOS 2020 applied at a career's start (fixupLeague) are the engine's, driven by
 teamdb.json.
 
-Cups are not converted here: the tournaments are in OpenSWOS's canonical classics mod, and
-the team-only collections become team packs (150..249).
+    cup         CUSTOMS.EDT (a team        -> data_json/teampacks/<slug>.json      no slot
+                collection: no .DIY)           (OpenSWOS make_team_pack.py), number "data"
+                                               150..182, kept in the registry
+
+A cup pack with a .DIY is a tournament: those are in OpenSWOS's canonical classics mod, and
+are left out here. A team collection becomes a TEAM PACK (OpenSWOS docs/TEAM_IDS.md §6):
+its teams with uuids derived from the mod's (so a re-conversion gives the same ones), the
+game's checksums, and a number of its own, kept in the registry with the mod's uuid. Its
+<slug>.registry.inc -- the matchmaking server's lines for its teams -- is written beside
+the zip, not in it. Team packs need --openswos too (make_team_pack.py, swos_team_file.py).
 
 Each mod's uuid (a uuid4) and slug are made the first time it is converted and kept in
 scripts/dlc2020_uuids.json, so converting again gives the same mod the same identity and
@@ -107,9 +116,16 @@ def map_fx(rel):
     return "sound_dos/%s/%s%s" % (FX_DIR[name], name, ext)
 
 
-def map_music(target):
+def map_music(target, midi=None):
+    # A recording (.mp3), or -- for the menus -- the PC game's song as MIDI (.xmi), which the
+    # engine plays on its emulated AdLib card ([audio] menu_music = midi).
     def m(rel):
-        return target if rel.lower().endswith(".mp3") else None
+        low = rel.lower()
+        if low.endswith(".mp3"):
+            return target
+        if midi and low.endswith(".xmi"):
+            return midi
+        return None
     return m
 
 
@@ -125,10 +141,11 @@ TYPES = {
     "commentary": ("commentary", "cosmetic", map_commentary, "Commentary", "cm"),
     "fx": ("fx", "cosmetic", map_fx, "Sound effects", "fx"),
     "tmusic": ("title_music", "cosmetic", map_music("sound_dos/title.mp3"), "Title music", "tm"),
-    "mmusic": ("menu_music", "cosmetic", map_music("sound_dos/menu.mp3"), "Menu music", "mm"),
+    "mmusic": ("menu_music", "cosmetic", map_music("sound_dos/menu.mp3", "sound_dos/menu.xmi"), "Menu music", "mm"),
     "pitch": ("pitch", "cosmetic", map_pitch, "Pitch", "pt"),
     "bgi2": ("", "cosmetic", None, "Backgrounds", "bg"),     # galleries: convert_gallery()
     "teamdb": ("teamdb", "data", None, "Team database", "td"),  # convert_teamdb()
+    "cup": ("", "data", None, "Team pack", "tp"),               # convert_team_pack()
 }
 SLUG_MAX = 31          # OpenSWOS MODS_ID_MAX - 1: a longer folder name is left out
 IMAGE_NAME_MAX = 63    # a background's file name, as the backgrounds page lists it
@@ -142,7 +159,12 @@ ABOUT_NOTE = {
     "pitch": "Seen with SWOS 2020's graphics ([graphics] style = 2020).",
     "bgi2": "Menu backgrounds, chosen on the backgrounds mod's page.",
     "teamdb": "Offline only: careers, seasons and friendlies, not online play.",
+    "cup": "Its teams are on CHOOSE TEAMS' TEAM PACKS row (FUN CUP TEAMS in SWOS United). "
+           "Online, both players need it.",
 }
+
+MIDI_NOTE = ("The PC game's own menu song as MIDI, played on an emulated AdLib card "
+             "([audio] music = pc, menu_music = midi).")
 
 
 # ---- the server -----------------------------------------------------------------------
@@ -254,7 +276,7 @@ def convert(type_id, row, archive, out_dir, uuids, seven, base_url):
         os.makedirs(raw)
         extract(archive, raw, seven)
 
-        placed, skipped = 0, []
+        placed, skipped, midi = 0, [], False
         for root, _, files in os.walk(raw):
             for f in files:
                 rel = os.path.relpath(os.path.join(root, f), raw).replace(os.sep, "/")
@@ -268,6 +290,7 @@ def convert(type_id, row, archive, out_dir, uuids, seven, base_url):
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.copyfile(os.path.join(root, f), dst)
                 placed += 1
+                midi = midi or target.endswith(".xmi")
         if placed == 0:
             raise ValueError("nothing in the pack is a %s file" % type_id)
 
@@ -277,7 +300,7 @@ def convert(type_id, row, archive, out_dir, uuids, seven, base_url):
             "name": "%s: %s" % (label, row["title"]),
             "version": row["version"] or "1.0",
             "author": row["author"],
-            "about": "%s from SWOS 2020's DLC. %s" % (label, ABOUT_NOTE[type_id]),
+            "about": "%s from SWOS 2020's DLC. %s" % (label, MIDI_NOTE if midi else ABOUT_NOTE[type_id]),
             "targets": ["sdl"],
             "changes": changes,
             "slot": slot,
@@ -534,6 +557,136 @@ def convert_teamdb(row, archive, out_dir, registry, seven, base_url, openswos, r
         shutil.rmtree(work, ignore_errors=True)
 
 
+# ---- team packs (cup team collections) ------------------------------------------------------
+
+PACK_FIRST, PACK_LAST = 150, 182   # OpenSWOS TEAMPACK_FIRST..; below the worlds' 186-197
+PACK_NAME_MAX = 31                 # team_packs.c s_name
+PACK_DESC_MAX = 63                 # team_packs.c s_desc
+# A name for CHOOSE TEAMS' list when the title is longer than it shows (the title is the
+# description, under the cursor).
+PACK_NAMES = {
+    "1900s Retro Pack Teams (1900-1970)": "1900S RETRO TEAMS (1900-1970)",
+    "LEGENDS - FIFA WORLD CUP (1966-2010)": "LEGENDS WORLD CUP (1966-2010)",
+    "LEGENDS - UEFA EURO CUP (1964-2008)": "LEGENDS EURO CUP (1964-2008)",
+    "LEGENDS - FIFA WORLD CUP AND UEFA EURO CUP FINALS (1966-2012)": "LEGENDS FINALS (1966-2012)",
+    "PENALTY SHOOTOUTS - FIFA WORLD CUP (1982-2018)": "PENALTIES WORLD CUP (1982-2018)",
+    "PENALTY SHOOTOUTS - UEFA EURO CUP (1976-2020)": "PENALTIES EURO CUP (1976-2020)",
+    "PENALTY SHOOTOUTS - UEFA EUROPEAN CUP FINALS (1980-2022)": "PENALTIES EC FINALS (1980-2022)",
+    "FIFA SOCCER 94 (SEGA Mega Drive-Genesis)": "FIFA SOCCER 94 (MEGA DRIVE)",
+    "FIFA SOCCER 95 - NATIONAL TEAMS (SEGA Mega Drive-Genesis)": "FIFA 95 NATIONAL TEAMS",
+    "INTERNATIONAL SUPERSTAR SOCCER DELUXE (SNES)": "ISS DELUXE (SNES)",
+    "INTERNATIONAL SUPERSTAR SOCCER 64 (N64)": "ISS 64 (N64)",
+    "SENSIBLE SOCCER IE - CLUB TEAMS (SEGA Mega Drive-SNES)": "SENSI SOCCER IE CLUB TEAMS",
+    "SENSIBLE SOCCER IE - NATIONAL TEAMS (SEGA Mega Drive-SNES)": "SENSI SOCCER IE NATIONAL TEAMS",
+    "WORLD CUP ITALIA 90 (SEGA Mega Drive)": "ITALIA 90 (MEGA DRIVE)",
+    "British Football Pioneers (England)": "BRITISH FOOTBALL PIONEERS",
+}
+
+
+def is_team_collection(row):
+    """A cup pack that is only teams: SWOS 2020's "*|*|*" Desc, or a FIFA one (checked for a
+    .DIY once extracted)."""
+    return row["desc"] == "*|*|*" or row["desc"].startswith("FIFA|")
+
+
+def pack_number(registry, key):
+    entry = registry[key]
+    if "number" not in entry:
+        taken = {v.get("number") for v in registry.values() if isinstance(v, dict)}
+        free = [n for n in range(PACK_FIRST, PACK_LAST + 1) if n not in taken]
+        if not free:
+            raise ValueError("no team pack number left in %d..%d" % (PACK_FIRST, PACK_LAST))
+        entry["number"] = free[0]
+    return entry["number"]
+
+
+def convert_team_pack(row, archive, out_dir, registry, seven, base_url, openswos):
+    if not openswos:
+        raise ValueError("team packs need --openswos (its make_team_pack.py and swos_team_file.py)")
+    scripts = os.path.join(openswos, "scripts")
+    sys.path.insert(0, scripts)
+    import swos_team_file as tf
+
+    key = "cup/%s" % row["title"]
+    work = tempfile.mkdtemp(prefix="dlc2020-")
+    try:
+        raw = os.path.join(work, "raw")
+        os.makedirs(raw)
+        extract(archive, raw, seven)
+        files = [os.path.join(dp, f) for dp, _, fs in os.walk(raw) for f in fs]
+        if any(f.upper().endswith(".DIY") for f in files):
+            raise SkipPack("a tournament (.DIY): in OpenSWOS's classics mod, not a team pack")
+        edts = [f for f in files if f.upper().endswith(".EDT")]
+        if len(edts) != 1:
+            raise ValueError("%d .EDT files in the pack (one expected)" % len(edts))
+        teams = tf.parse_blob(open(edts[0], "rb").read())
+        if not teams:
+            raise ValueError("%s has no teams" % os.path.basename(edts[0]))
+
+        mod_uuid, slug = identity(registry, key, "cup", row["title"])
+        number = pack_number(registry, key)
+        name = PACK_NAMES.get(row["title"], row["title"]).upper()
+        if len(name) > PACK_NAME_MAX:
+            raise ValueError("%r is longer than a pack's name shows (%d): add it to PACK_NAMES"
+                             % (name, PACK_NAME_MAX))
+        ns = uuid.UUID(mod_uuid)
+        for ordinal, t in enumerate(teams):     # ids of its own, the same every conversion
+            t["uuid"] = str(uuid.uuid5(ns, "team/%d" % ordinal))
+            for i, pl in enumerate(t["players"]):
+                pl["uuid"] = str(uuid.uuid5(ns, "team/%d/player/%d" % (ordinal, i)))
+        pack = {"type": "team", "country": number, "country_name": name,
+                "description": row["title"].upper()[:PACK_DESC_MAX],
+                "source": {"format": "swos2020-edt", "dlc": row["title"],
+                           "file": os.path.basename(edts[0])},
+                "count": len(teams), "teams": teams}
+
+        mod = os.path.join(work, slug)
+        packs = os.path.join(mod, "data_json", "teampacks")
+        os.makedirs(packs)
+        path = os.path.join(packs, slug + ".json")
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(pack, f, indent=1, ensure_ascii=False)
+        r = subprocess.run([sys.executable, "-I", os.path.join(scripts, "make_team_pack.py"), path,
+                            "--number", str(number)], capture_output=True, text=True)
+        if r.returncode != 0:
+            raise ValueError("make_team_pack.py: " + (r.stderr or r.stdout).strip()[-300:])
+        # The server's lines are for SWOS United's matchmaking server, not for players.
+        reg_dir = os.path.join(out_dir, "cup")
+        os.makedirs(reg_dir, exist_ok=True)
+        os.replace(os.path.splitext(path)[0] + ".registry.inc",
+                   os.path.join(reg_dir, slug + ".registry.inc"))
+
+        notes = []
+        for f in files:                          # the authors' notes travel with their teams
+            if f.lower().endswith(".txt"):
+                shutil.copyfile(f, os.path.join(mod, os.path.basename(f)))
+                notes.append(os.path.basename(f))
+
+        manifest = {
+            "uuid": mod_uuid,
+            "id": slug,
+            "name": "Team pack: %s" % row["title"],
+            "version": row["version"] or "1.0",
+            "author": row["author"],
+            "about": "%d teams from SWOS 2020's DLC, as team pack %d. %s" % (
+                len(teams), number, ABOUT_NOTE["cup"]),
+            "targets": ["sdl"],
+            "changes": "data",
+            "slot": "",
+            "title": row["title"],
+            "category": "cup",
+            "swos2020": {"type": "cup", "title": row["title"], "team_pack": number},
+        }
+        placed = sum(len(fs) for _, _, fs in os.walk(mod))
+        return finish(mod, manifest, "cup", out_dir, base_url), placed, ["number %d" % number]
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
+class SkipPack(Exception):
+    """A pack this converter leaves out on purpose (not a failure)."""
+
+
 _shipped = {}
 SHIPPED_TEAMS = None      # --openswos-teams: the 96/97 team files, when not in --openswos
 
@@ -677,7 +830,7 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", required=True, help="where the zips and index.json go")
     ap.add_argument("--cache", help="where downloads are kept (default: <out>/.cache)")
-    ap.add_argument("--types", default=",".join(t for t in TYPES if t != "teamdb"), help="comma-separated, of: " + ", ".join(TYPES))
+    ap.add_argument("--types", default=",".join(t for t in TYPES if t not in ("teamdb", "cup")), help="comma-separated, of: " + ", ".join(TYPES))
     ap.add_argument("--only", help="convert only packs whose title contains this (case-insensitive)")
     ap.add_argument("--limit", type=int, default=0,
                     help="at most this many packs a type (for bgi2: pictures, before grouping)")
@@ -751,15 +904,23 @@ def main():
                     (", left out: " + ", ".join(skipped)) if skipped else ""))
                 save_registry(uuids)
             continue
+        if t == "cup":
+            rows = [r for r in rows if is_team_collection(r)]
         for row in rows:
             try:
                 archive = pack_file(t, row["title"], cache)
-                if t == "teamdb":
+                if t == "cup":
+                    entry, placed, skipped = convert_team_pack(row, archive, args.out, uuids, seven,
+                                                               args.base_url, args.openswos)
+                elif t == "teamdb":
                     entry, placed, skipped = convert_teamdb(row, archive, args.out, uuids, seven,
                                                             args.base_url, args.openswos)
                 else:
                     entry, placed, skipped = convert(t, row, archive, args.out, uuids, seven,
                                                      args.base_url)
+            except SkipPack as e:
+                print("  left out %s: %s" % (row["title"], e))
+                continue
             except Exception as e:     # one bad pack does not stop the rest
                 failures += 1
                 print("  FAILED %s: %s" % (row["title"], e))
