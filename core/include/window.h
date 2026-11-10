@@ -111,7 +111,7 @@ public:
     void swap() const;
 
     // Writes the current back buffer to a 24-bit BMP. Used by the
-    // SWOS_LAUNCHER_SCREENSHOT debug hook and for bug reports; BMP keeps this
+    // SWOS_DLC_SCREENSHOT debug hook and for bug reports; BMP keeps this
     // dependency-free. Must be called before swap(), while the frame is still
     // in the back buffer.
     bool capture_framebuffer(const std::string &path) const;

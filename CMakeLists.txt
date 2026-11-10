@@ -1,14 +1,12 @@
 # SWOS tools -- cross-platform C++ port of the Delphi SWOS 2020 suite.
 #
-# One project, one shared core, several apps:
+# A core library and one app:
 #
 #   swos-core         window/GL/Slint hosting, ini, settings, DLC model, http
-#   swos-launcher     the game launcher      (miniLauncher_u.pas)
 #   swos-dlc-manager  the DLC manager        (contents_downloader_u.pas)
 #
-# The core is shared rather than duplicated because the Delphi build shares it
-# too: the launcher applies DLC before starting the game, and both programs
-# read and write the same ini/gameLauncher.ini. See docs/ARCHITECTURE.md.
+# There was a game launcher too (miniLauncher_u.pas); SWOS United's own menus
+# and SWOS.ini cover its options, so it was retired. See docs/ARCHITECTURE.md.
 
 cmake_minimum_required(VERSION 3.21)
 project(swos-tools VERSION 0.1.0 LANGUAGES CXX)
@@ -143,7 +141,6 @@ add_library(swos-core STATIC
     core/src/slint_gl_platform.cpp
     core/src/ini_file.cpp
     core/src/settings.cpp
-    core/src/game_launch.cpp
     core/src/paths.cpp
     core/src/system_theme.cpp
     core/src/http.cpp
@@ -288,11 +285,6 @@ function(swos_add_app target)
                 DESTINATION share/icons)
     endif()
 endfunction()
-
-swos_add_app(swos-launcher
-    DISPLAY_NAME "SWOS United Launcher"
-    SOURCES apps/launcher/main.cpp
-    SLINT   apps/launcher/launcher.slint)
 
 swos_add_app(swos-dlc-manager
     DISPLAY_NAME "SWOS United DLC Manager"

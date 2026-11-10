@@ -1,22 +1,20 @@
 # Architecture
 
-Each app is an SDL2 program with an OpenGL 3.3 core context and a Slint UI
+The DLC Manager is an SDL2 program with an OpenGL 3.3 core context and a Slint UI
 composited into that context as a texture. Nothing else in the process owns a
 window.
 
 ## Layout
 
 ```
-core/                shared library (swos-core)
-apps/launcher/       swos-launcher
+core/                library (swos-core)
 apps/dlc_manager/    swos-dlc-manager
 ```
 
-The core is shared rather than duplicated because the Delphi build shares it
-too: `dlc_info_u.pas` is used by both the launcher (which applies the selected
-DLC before starting the game) and the DLC manager, and both read and write the
-same `ini/gameLauncher.ini`. Keeping them in one project means the DLC model is
-edited once — the same reason SWOS-United merged its two repos.
+The core is a library of its own because it held what a game launcher and the
+DLC Manager shared, as the Delphi build did. The launcher has since been retired
+(see PORTING.md), and the split is kept so another tool can be added on the same
+core.
 
 ```
         SDL2 window  +  GL 3.3 core context          src/window.cpp
@@ -37,7 +35,7 @@ apps cannot use them for two reasons:
    owns an SDL2 window. Two window systems in one process is not a thing worth
    untangling later.
 
-So the launcher registers a custom `slint::platform::Platform`. That interface is
+So the app registers a custom `slint::platform::Platform`. That interface is
 stable in the C++ API (only `TargetPixelBuffer` and a couple of rotation helpers
 sit behind `SLINT_FEATURE_EXPERIMENTAL`, and we use neither).
 
@@ -52,7 +50,7 @@ Consequences worth knowing:
 
 * **The UI is opaque.** `Rgb8Pixel` has no alpha, so the UI covers the window
   completely and nothing can be composited underneath it. That is right for a
-  launcher. When the game renderer arrives and the UI needs to float over it, the
+  standalone tool. When the game renderer arrives and the UI needs to float over it, the
   options are Slint's `SkiaRenderer` (it takes a native window handle) or the
   experimental `TargetPixelBuffer`; neither is needed yet.
 * **Repainting is whole-surface, not damage-tracked.** The renderer is
@@ -78,7 +76,7 @@ Consequences worth knowing:
 5. A frame is rendered and swapped **only if** Slint asked for a redraw or an
    animation is running.
 
-The launcher is therefore idle (0% CPU) when nothing is happening.
+The app is therefore idle (0% CPU) when nothing is happening.
 
 ## Coordinates and scaling
 
@@ -136,9 +134,6 @@ so the UI can be smoke-tested where the window manager cannot be screenshotted
 
 | variable | effect |
 |---|---|
-| `SWOS_LAUNCHER_TAB=<n>` | open on tab *n* |
-| `SWOS_LAUNCHER_CLICK=<x>,<y>` | synthesise a left click at window pixel *x,y* |
-| `SWOS_LAUNCHER_SCREENSHOT=<file>` | write the settled frame to a BMP, then exit |
 | `SWOS_DLC_CATEGORY=<n>` | DLC manager: open category *n* |
 | `SWOS_DLC_REFRESH=1` | DLC manager: fetch every catalogue at startup |
 | `SWOS_DLC_ROW=<row>` | DLC manager: highlight row *row* |

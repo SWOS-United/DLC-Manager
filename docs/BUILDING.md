@@ -23,10 +23,10 @@ sudo apt install build-essential cmake ninja-build libsdl2-dev libgl1-mesa-dev \
 ./scripts/fetch_slint.sh
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build
-./build/bin/swos-launcher      # or ./build/bin/swos-dlc-manager
+./build/bin/swos-dlc-manager
 ```
 
-`libinput10` is not used by the launcher — it is a link-time dependency of the
+`libinput10` is not used by the DLC Manager — it is a link-time dependency of the
 prebuilt `libslint_cpp.so`, which is built with Slint's LinuxKMS backend enabled.
 Without it the link fails with `undefined reference to libinput_*`.
 
@@ -59,7 +59,7 @@ cmake --build build --config Release
 ```
 
 Dependencies via `vcpkg install sdl2 curl libarchive sdl2-mixer --triplet x64-windows`. The prebuilt Slint package is an MSVC
-build, so the launcher must be built with MSVC too — for MinGW, build Slint from
+build, so the app must be built with MSVC too — for MinGW, build Slint from
 source.
 
 ## Building Slint from source
@@ -74,7 +74,7 @@ cmake -S slint -B slint-build -DCMAKE_INSTALL_PREFIX=$PWD/third_party/slint \
 cmake --build slint-build --target install
 ```
 
-The software renderer is the one feature the launcher genuinely requires; the
+The software renderer is the one feature the app genuinely requires; the
 CMake configure step fails with a clear message if it is missing.
 
 ## Useful CMake options
@@ -91,9 +91,7 @@ The UI can be verified without a visible desktop — useful in CI and under WSLg
 where the compositor cannot be screenshotted:
 
 ```bash
-SWOS_LAUNCHER_TAB=1 SWOS_LAUNCHER_SCREENSHOT=/tmp/ui.bmp ./build/bin/swos-launcher
-
-# The DLC manager can drive a real catalogue refresh and install headlessly:
+# A real catalogue refresh and install, headless:
 SWOS_DLC_REFRESH=1 SWOS_DLC_CATEGORY=5 SWOS_DLC_DOWNLOAD=2 \
     SWOS_DLC_SCREENSHOT=/tmp/dlc.bmp ./build/bin/swos-dlc-manager
 ```

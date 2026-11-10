@@ -1,9 +1,8 @@
 // main.cpp -- SWOS United DLC Manager.
 //
-// Port of DLCManager.dpr / contents_downloader_u.pas. Same window hosting as
-// the launcher (SDL2 + GL 3.3 core + Slint through swos-core), and the same
-// ini/gameLauncher.ini, so a pack selected here is the pack the launcher
-// applies when it starts the game.
+// Port of DLCManager.dpr / contents_downloader_u.pas: SDL2 + GL 3.3 core +
+// Slint through swos-core. SWOS United's mods are turned on in its SWOS.ini;
+// the manager's own settings live in ini/gameLauncher.ini.
 //
 // Downloads and extraction run on a worker thread; the UI thread polls them
 // once per frame, which is why the event loop below wakes on a timer while
@@ -841,7 +840,7 @@ int main(int argc, char *argv[])
         actions.invoke_remove();
     }
     // Catalogue refresh walks 17 types over the network, so the capture needs a
-    // far longer grace period than the launcher's.
+    // long grace period.
     const Uint64 capture_deadline_ms = SDL_GetTicks64() + 120000;
 
     // --- Event loop --------------------------------------------------------

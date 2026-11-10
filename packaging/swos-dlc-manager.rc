@@ -1,3 +1,4 @@
-// Windows resource script: gives swos-dlc-manager.exe its icon. See the note
-// in swos-launcher.rc about the resource id.
+// Windows resource script: gives swos-dlc-manager.exe its icon.
+// IDI_ICON1 (id 1) is what Explorer and the task bar use for the first icon
+// resource, so the numbering matters.
 1 ICON "swos.ico"

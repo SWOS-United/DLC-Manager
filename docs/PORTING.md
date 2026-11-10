@@ -7,7 +7,7 @@ app per executable.
 
 | Delphi program | entry point | ported to |
 |---|---|---|
-| SWOS 2020 Game Launcher | `gameLauncher.dpr` + `miniLauncher_u.pas` (~8000 lines) | `swos-launcher` |
+| SWOS 2020 Game Launcher | `gameLauncher.dpr` + `miniLauncher_u.pas` (~8000 lines) | `swos-launcher`, since retired (below) |
 | DLC Manager | `DLCManager.dpr` + `contents_downloader_u.pas` (~7800 lines) | `swos-dlc-manager` |
 | Database Browser | `databaseBrowser.dpr` + `database_browser_u.pas` | not yet |
 | Advanced Tactics Creator | `advanced_tactics_editor_p.dpr` | not yet |
@@ -16,6 +16,16 @@ app per executable.
 applies the selected DLC before starting the game — so its port
 (`core/dlc_catalog`) lives in the shared core rather than in either app.
 
+### The launcher, retired
+
+`swos-launcher` was ported first and then removed. Its options were SWOS 2020
+command-line flags, which SWOS United does not read: SWOS United keeps its
+settings in `SWOS.ini` and changes them from its own menus, which now cover
+everything the launcher offered except two things SWOS United cannot take:
+the HQx and xBRZ scalers (their licences) and super power CPU mode (switched
+off in SWOS 2020's own code). The DLC Manager stays, because SWOS United has
+no downloader of its own. The launcher's code is in the git history.
+
 ## Mapping
 
 | Delphi | C++ |
@@ -23,19 +33,15 @@ applies the selected DLC before starting the game — so its port
 | `TSetting` record | `swos::Settings` (`core/include/settings.h`) |
 | `LoadIni` / `SaveIni` | `Settings::load` / `Settings::save` |
 | `TIniFile` | `swos::IniFile` (`core/include/ini_file.h`) |
-| `getCLI` | `swos::build_arguments` (`core/src/game_launch.cpp`) |
-| `SetupSWOSIni` | `swos::write_game_ini` |
-| `WinExecAndWait32` | `swos::run_game` (CreateProcess / posix_spawn) |
 | `getSWOSDir` | `swos::swos_dir` (`core/src/paths.cpp`) |
-| `SetUI` enable/visible rules | `if` / `enabled:` bindings in `ui/launcher.slint` |
 | `gCurDir` | `swos::executable_dir()` |
-| VCL form + `.dfm` | `apps/launcher/launcher.slint` |
+| VCL form + `.dfm` | `apps/dlc_manager/dlc_manager.slint` |
 
 ## File format compatibility
 
 `ini/gameLauncher.ini` is read and written with the **same sections, key
 spellings and defaults** as the Delphi build, so an existing install keeps
-working and the two launchers can share a file. Deliberate oddities inherited
+working and the Delphi suite can share the file. Deliberate oddities inherited
 from the original, which must not be "tidied up":
 
 * `aspectRatio` is stored under the key **`aspectRatioEx`**.
@@ -47,23 +53,6 @@ from the original, which must not be "tidied up":
 
 New keys added by this port, all under `[Launcher]`: `themeMode` (0 system,
 1 light, 2 dark) and `activeTab`.
-
-The game's `swos.ini` `[video]` section is rewritten on launch exactly as
-`SetupSWOSIni` did, and every other section in that file is preserved.
-
-## Command line
-
-`build_arguments` reproduces `getCLI` flag for flag for the settings that are
-ported. Verified against the Delphi output for default settings — identical.
-
-Two conditional branches in `getCLI` are reproduced rather than simplified, since
-they look like bugs but are what the game expects:
-
-* `--shader` is derived from **`screenFilter`**, not `scaleQuality` (the
-  `scaleQuality` branch beside it was commented out in the original).
-* `--menu-background-image` and `--alpha-blending-menu` are forced off unless
-  the screen mode is Widescreen, matching the `cmbMenuBGImage.Enabled` guard in
-  `SetUI`.
 
 ## DLC Manager
 
@@ -92,7 +81,7 @@ http://www.sensiblesoccer.de/swos2020/dlc/<type>/<name>.7z
 
 The 17 type ids, the per-type default selections and the `<type>_Enabled` flags
 are exactly what `loadCurrentFromIni` used, and the selections live in the same
-`[DLC]` section of `ini/gameLauncher.ini` the launcher reads. Note `bgi2`, not
+`[DLC]` section of `ini/gameLauncher.ini` the Delphi launcher read. Note `bgi2`, not
 `bgi`: the Delphi code moved background images to a second-generation layout and
 the directory name went with it.
 
@@ -129,42 +118,12 @@ game, and changing it is a gameplay decision rather than a porting one.
 
 ## Not ported yet
 
-The Delphi tree is a suite; this port covers the launcher's settings surface and
-the launch path. Still outstanding, roughly in order of how much they change the
-architecture:
+The rest of the Delphi suite:
 
-* **`--vsync=1`** — `getCLI` adds it when the monitor is not 60 Hz. The refresh
-  rate is already available from `Window::enumerate_displays()`; this is a
-  few lines and should be done next.
-* **Applying a pack to the game directory.** The DLC manager installs packs and
-  records the selection, but `runSWOS2020`'s `applyDLC` step — copying the
-  chosen pitch, commentary, SFX, music and sprite files into the SWOS folder
-  before launch — is not ported. Until it is, the launcher's `--teamdb-dir` and
-  friends are not passed either. **This is the next thing to do.**
 * **Cup/DIY editing** (`diy_edit_u.pas`, `tabCupTeams`, `tabCupDIYSetting`):
   reading and rewriting `.diy` competition files and `customs.edt`.
 * **Custom SFX builder** (`custom_sfx_main_u.pas`, `custom_sfx_selector_u.pas`,
   `tabPreviewSFX`) — assembling a sound pack from individual samples.
-* **Random pitch selection** (`pitch_MakeRandom*` keys are round-tripped in the
-  ini but nothing writes them yet).
 * **Online version checks and the self-updater** (`timUpdater`, `updater_u.pas`).
 * **Sibling applications**: `database_browser_u.pas`,
   `advanced_tactics_editor_u.pas`.
-* **Season-year combo** — the Delphi form listed 1994–2100; the port uses a
-  plain numeric field. Functionally equivalent, visually different.
-* **Custom pitch, `altImages`, `scaleQuality`, `monitorID2`, `customPitch`** —
-  round-tripped in the ini but not yet surfaced in the UI.
-
-## Resolution lists
-
-The Delphi launcher hard-coded one resolution list per screen mode. Those lists
-are kept verbatim as the leading entries so existing ini indices still mean the
-same thing, and every mode the selected monitor actually reports is appended
-(`resolution_labels` in `src/main.cpp`). That is what "support all resolutions"
-needs without breaking the file format.
-
-## Game executable
-
-The Delphi launcher ran `swos-port-Release.exe`. This port looks for
-`SWOS.exe` / `SWOS`, which is what SWOS-United's Makefile produces. See
-`swos::game_executable_name()`.

@@ -1,32 +1,15 @@
-# SWOS Tools
+# SWOS United DLC Manager
 
-A cross-platform C++ port of the Delphi **SWOS 2020** suite, built on SDL2,
-OpenGL 3.3 core and [Slint](https://slint.dev). Targets Windows, macOS and
-Linux, and is intended to fold into
-[SWOS-United](https://github.com/benbaker76/SWOS-United) once it settles.
+Browse, download and turn on DLC for
+[SWOS United](https://github.com/benbaker76/SWOS-United): pitches, commentary,
+sound effects, music, team databases and team packs, including everything SWOS
+2020 offered. A cross-platform C++ port of the Delphi **SWOS 2020** DLC Manager
+(`DLCManager.dpr`), built on SDL2, OpenGL 3.3 core and
+[Slint](https://slint.dev), for Windows, macOS and Linux.
 
-| binary | name | replaces | what it does |
-|---|---|---|---|
-| `swos-launcher` | SWOS United Launcher | `gameLauncher.dpr` | game settings and launching |
-| `swos-dlc-manager` | SWOS United DLC Manager | `DLCManager.dpr` | browse, download and install DLC |
-
-Both share `swos-core` and the same `ini/gameLauncher.ini`, so a pack selected
-in the manager is the pack the launcher applies.
-
-![SWOS United Launcher](docs/images/launcher.png)
-
-## The launcher
-
-* Reads and writes `ini/gameLauncher.ini` with the **exact** sections, keys and
-  defaults the Delphi launcher used, so an existing install keeps working.
-* Builds the game's command line (a flag-for-flag port of `getCLI`) and launches
-  it, waiting for it to exit.
-* Rewrites the game's `swos.ini` `[video]` section before launching.
-* Enumerates real display modes from SDL, so every resolution the monitor
-  supports is offered — not just the hard-coded list the Delphi build shipped.
-* Windowed, borderless-fullscreen and exclusive-fullscreen, with Alt+Enter to
-  toggle and a 100%–200% interface scale.
-* Light / dark themes, defaulting to the desktop setting.
+SWOS 2020's game launcher was ported here too and has since been retired: SWOS
+United's own menus and `SWOS.ini` cover its options. See
+[docs/PORTING.md](docs/PORTING.md).
 
 ## The DLC manager
 
@@ -44,7 +27,6 @@ in the manager is the pack the launcher applies.
   commentary, sound effects and music. The artwork comes from the pack's own
   `_preview` archive, fetched alongside it.
 * Country flags in the Commentary and Cup lists, from the original's own icons.
-* Records the selection the launcher then applies.
 
 ### SWOS United mods
 
@@ -58,15 +40,15 @@ checked against the index's sha256, and unpacked into the user folder's `mods/`.
 **Turn on** adds it to `SWOS.ini`'s `[mods] enabled`, turns off the other mods of
 its slot (one pitch, one commentary, …), and makes the setting the game needs
 to use it: `[graphics] style = 2020` for a pitch, `[audio] style = pc` for
-commentary and effects, `[audio] music = pc` for music (menu music also sets
-`menu_music = mp3`).
+commentary and effects, `[audio] music = pc` for music, with `title_music` / `menu_music` set to `mp3`, or
+`midi` for a PC DOS song.
 
 `scripts/dlc2020_to_mods.py` turns SWOS 2020's server packs into those mods and
 writes the index. Each mod's uuid and folder name are kept in
 `scripts/dlc2020_uuids.json`, so commit it after a conversion.
 
-See [docs/PORTING.md](docs/PORTING.md) for what is not ported yet — chiefly
-applying an installed pack to the game directory, and the cup/DIY editor.
+See [docs/PORTING.md](docs/PORTING.md) for what of the Delphi suite is not
+ported, such as the cup/DIY editor.
 
 ## Build
 
@@ -82,17 +64,11 @@ Full per-platform instructions, including building Slint from source, are in
 ## Run
 
 ```
-swos-launcher [options]
-
-  --fullscreen[=desktop|exclusive]  start full screen (default: desktop)
-  --windowed                        start windowed (overrides the saved setting)
-  --display=N                       open on monitor N (0 = primary)
-  --scale=F                         interface scale, e.g. 1.25
-  --help
+swos-dlc-manager
 ```
 
-The launcher looks for the game in `swos-path.txt` next to the executable, or in
-`./SWOS` if that file is absent.
+It has no options. Mods go into the user folder below, where SWOS United finds
+them.
 
 ## Where your files live
 
@@ -110,18 +86,16 @@ Inside it, `ini/`, `dlc/` and `temp/` keep the names the Delphi build used.
 ## Layout
 
 ```
-core/                shared library
+core/                swos-core library
   window.*             SDL2 window + GL 3.3 core context (ported from SWOS-United)
   slint_gl_platform.*  Slint custom platform -> software render -> GL texture
   settings.*           the Delphi TSetting record and its ini format
-  game_launch.*        command-line construction and process spawn
-  dlc_catalog.*        the DLC model, shared by both apps
+  dlc_catalog.*        the DLC model
   mod_store.*          SWOS United mods: the index, mods/, SWOS.ini [mods]
   json.*, sha256.*     small readers for the index and download checks
   http.*               libcurl downloads, sync and async
   archive_extract.*    libarchive 7z extraction
   system_theme.*       desktop light/dark detection
-apps/launcher/       swos-launcher + launcher.slint
 apps/dlc_manager/    swos-dlc-manager + dlc_manager.slint + audio preview
 assets/icons/        Tabler icons (MIT), vendored
 docs/                architecture, porting and build notes
