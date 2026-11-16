@@ -60,6 +60,8 @@ palette like the chrome above.
 | `mmusic.svg` | Menu Music | Tabler `playlist` |
 | `fx.svg` | Sound Effects | [Iconoir](https://iconoir.com) solid `sound-high` |
 | `tmusic.svg` | Title Music | Iconoir solid `music-note` |
+| `cutscenes.svg` | Cutscenes | Tabler `video` |
+| `pitchmaps.svg` | Pitch Maps | Tabler `grid-pattern` |
 
 ## List flags — `flags.png`
 

@@ -50,6 +50,9 @@ enum class DlcType {
     SpriteTeam2,
     SpriteTeam3,
     SpriteFlag,
+    // Not SWOS 2020's: only ever mods from the mod index (is_mod_only_type).
+    Cutscenes,
+    PitchMaps,
 };
 
 // Wire/directory name, e.g. "pitch", "sprite_ball". Note BackgroundImage is
@@ -61,6 +64,8 @@ const char *dlc_type_label(DlcType type);
 // Every type, in tab order.
 const std::vector<DlcType> &all_dlc_types();
 bool is_sprite_type(DlcType type);
+// A type SWOS 2020 never had, so it has no catalogue there: only the mod index lists it.
+bool is_mod_only_type(DlcType type);
 
 // What kind of preview a type offers, which decides the right-hand pane.
 enum class PreviewKind {

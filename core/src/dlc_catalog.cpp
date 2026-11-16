@@ -31,7 +31,7 @@ struct TypeInfo {
 // Ids, defaults and the _Enabled flags are exactly what loadCurrentFromIni
 // used. "bgi2" is deliberate: the Delphi code moved background images to a
 // second-generation layout and the directory name went with it.
-constexpr std::array<TypeInfo, 17> kTypes{{
+constexpr std::array<TypeInfo, 19> kTypes{{
     {DlcType::TeamDb, "teamdb", "Team Database", PreviewKind::Image,
      "1996/97 - Original Amiga / PC DOS", true, false},
     {DlcType::Pitch, "pitch", "Pitch", PreviewKind::Image, "2020 - Official 2021", false, false},
@@ -62,6 +62,11 @@ constexpr std::array<TypeInfo, 17> kTypes{{
      true, false},
     {DlcType::SpriteFlag, "sprite_flag", "Corner Flags", PreviewKind::Image, "corner-flags-default",
      true, false},
+    // Not SWOS 2020's types, so only the mod index offers them: OpenSWOS's
+    // upscaled PC cutscenes (slot cutscenes_hd), and pitches in the Tile Agent
+    // format that its pitchmaps mod draws (slot pitchmap).
+    {DlcType::Cutscenes, "cutscenes", "Cutscenes", PreviewKind::None, "", false, false},
+    {DlcType::PitchMaps, "pitchmaps", "Pitch Maps", PreviewKind::None, "", false, false},
 }};
 
 const TypeInfo &info_for(DlcType type)
@@ -269,6 +274,11 @@ PreviewKind dlc_preview_kind(DlcType type)
 bool is_sprite_type(DlcType type)
 {
     return std::string(dlc_type_id(type)).rfind("sprite_", 0) == 0;
+}
+
+bool is_mod_only_type(DlcType type)
+{
+    return type == DlcType::Cutscenes || type == DlcType::PitchMaps;
 }
 
 const std::vector<DlcType> &all_dlc_types()

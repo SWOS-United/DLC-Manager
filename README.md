@@ -43,6 +43,18 @@ to use it: `[graphics] style = 2020` for a pitch, `[audio] style = pc` for
 commentary and effects, `[audio] music = pc` for music, with `title_music` / `menu_music` set to `mp3`, or
 `midi` for a PC DOS song.
 
+Two categories are not SWOS 2020's, so only the mod index lists them:
+
+* **Pitch Maps**: pitches in the Tile Agent format (`grafs_dos/pitch.tmj` and
+  its tilesets), one on at a time (slot `pitchmap`). The game's `pitchmaps` mod
+  draws them, so turning one on also adds `pitchmaps` to `[mods] enabled`. They
+  need the PC graphics (`[graphics] style = dos`), which the manager leaves to the
+  player and says so.
+* **Cutscenes**: OpenSWOS's upscaled PC career cutscenes, x4 (1280x800) or x8
+  (2560x1600), one on at a time (slot `cutscenes_hd`). They play through the
+  game's PC cutscenes mod, so they need the PC game's cutscenes, which OpenSWOS
+  Setup installs.
+
 ### The Amiga
 
 `amiga/dlc_manager` is the same manager for SWOS United on the Amiga (AmigaOS
@@ -54,7 +66,9 @@ databases with 96/97's leagues. See [amiga/dlc_manager/README.md](amiga/dlc_mana
 
 `scripts/dlc2020_to_mods.py` turns SWOS 2020's server packs into those mods and
 writes the index. Each mod's uuid and folder name are kept in
-`scripts/dlc2020_uuids.json`, so commit it after a conversion.
+`scripts/dlc2020_uuids.json`, so commit it after a conversion. Mods built
+elsewhere, such as the cutscenes, are listed in `scripts/extra_mods.json`, and
+every run copies them into the index as they are.
 
 See [docs/PORTING.md](docs/PORTING.md) for what of the Delphi suite is not
 ported, such as the cup/DIY editor.

@@ -1,0 +1,36 @@
+[
+ {
+  "uuid": "b94178df-3033-407c-9881-0fd859349be0",
+  "name": "PC cutscenes HD (x4)",
+  "version": "1.0",
+  "author": "OpenSWOS (the PC game's cutscenes upscaled with upscale / RealESRGAN_anime_x4)",
+  "changes": "cosmetic",
+  "slot": "cutscenes_hd",
+  "targets": [
+   "sdl"
+  ],
+  "about": "The PC game's 98 cutscenes upscaled x4 (1280x800), played by the PC cutscenes mod in place of the originals. Needs the PC game's cutscenes (OpenSWOS Setup) and the PC cutscenes mod on.",
+  "slug": "cutscenes-hd-x4",
+  "url": "http://www.sensiblesoccer.de/swos2020/dlc/swosutd/cutscenes/cutscenes-hd-x4.zip",
+  "sha256": "940efff3aff1a95b54c591d088e5384884538087506d97cb6037ed11f91dce94",
+  "size": 404158735,
+  "category": "cutscenes"
+ },
+ {
+  "uuid": "b298967e-caa0-40b7-86c8-dd3963e24027",
+  "name": "PC cutscenes HD (x8)",
+  "version": "1.0",
+  "author": "OpenSWOS (the PC game's cutscenes upscaled with upscale / RealESRGAN_x8)",
+  "changes": "cosmetic",
+  "slot": "cutscenes_hd",
+  "targets": [
+   "sdl"
+  ],
+  "about": "The PC game's 98 cutscenes upscaled x8 (2560x1600), played by the PC cutscenes mod in place of the originals. Needs the PC game's cutscenes (OpenSWOS Setup) and the PC cutscenes mod on.",
+  "slug": "cutscenes-hd-x8",
+  "url": "http://www.sensiblesoccer.de/swos2020/dlc/swosutd/cutscenes/cutscenes-hd-x8.zip",
+  "sha256": "2e9d17127dd6ac9453426970049d1945ed2ba065505ba2f692a64d0d0841624e",
+  "size": 819230986,
+  "category": "cutscenes"
+ }
+]

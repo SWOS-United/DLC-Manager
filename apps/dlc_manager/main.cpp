@@ -43,7 +43,7 @@
 namespace {
 
 constexpr int kDesignWidth = 1260;
-constexpr int kDesignHeight = 780;
+constexpr int kDesignHeight = 820;   // the sidebar's 21 rows, unscrolled
 
 slint::SharedString shared(const std::string &s)
 {
@@ -62,7 +62,8 @@ const std::vector<CategoryGroup> &category_groups()
     using swos::DlcType;
     static const std::vector<CategoryGroup> groups = {
             {"CONTENT",
-             {DlcType::TeamDb, DlcType::Cup, DlcType::Pitch, DlcType::BackgroundImage}},
+             {DlcType::TeamDb, DlcType::Cup, DlcType::Pitch, DlcType::PitchMaps,
+              DlcType::BackgroundImage, DlcType::Cutscenes}},
             {"AUDIO",
              {DlcType::Commentary, DlcType::Fx, DlcType::TitleMusic, DlcType::MenuMusic}},
             {"SPRITES",
@@ -94,6 +95,8 @@ CategoryIcon icon_for(const DlcIcons &icons, swos::DlcType type)
     case swos::DlcType::Fx:               return {icons.get_fx(), true};
     case swos::DlcType::TitleMusic:       return {icons.get_tmusic(), true};
     case swos::DlcType::MenuMusic:        return {icons.get_mmusic(), true};
+    case swos::DlcType::Cutscenes:        return {icons.get_cutscenes(), true};
+    case swos::DlcType::PitchMaps:        return {icons.get_pitchmaps(), true};
 
     // Full-colour SWOS artwork from here down.
     case swos::DlcType::SpriteGoalNet:    return {icons.get_sprite_goalnet(), false};
@@ -645,8 +648,13 @@ int main(int argc, char *argv[])
                               static_cast<double>(entry->size) / (1024.0 * 1024.0));
                 description += size;
             }
+            // The game draws a pitch map only with its PC graphics, which the
+            // manager leaves for the player to choose.
+            if (current_catalog().type() == swos::DlcType::PitchMaps)
+                description += "\nNeeds the PC graphics: OPTIONS > DISPLAY, graphics style PC.";
             if (!entry->slot.empty())
-                description += "\nOne " + entry->slot + " mod is on at a time: turning this on turns the other off.";
+                description += std::string("\nOne ") + swos::dlc_type_label(current_catalog().type()) +
+                               " mod is on at a time: turning this on turns the other off.";
             if (entry->offline_only)
                 description += "\nOffline only: turn it off to play online.";
         }
@@ -953,7 +961,8 @@ int main(int argc, char *argv[])
             const bool accepted =
                     result.ok &&
                     catalogs[catalog_refresh_index].set_server_csv(catalog_download.result_body());
-            if (!accepted)
+            // SWOS 2020 has no catalogue for OpenSWOS's own types.
+            if (!accepted && !swos::is_mod_only_type(category_order()[catalog_refresh_index]))
                 catalog_failures.emplace_back(
                         swos::dlc_type_label(category_order()[catalog_refresh_index]));
 

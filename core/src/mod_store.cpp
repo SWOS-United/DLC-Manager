@@ -61,6 +61,7 @@ bool category_of(const JsonValue &v, DlcType &out)
             {"pitch", DlcType::Pitch},           {"commentary", DlcType::Commentary},
             {"fx", DlcType::Fx},                 {"title_music", DlcType::TitleMusic},
             {"menu_music", DlcType::MenuMusic},  {"teamdb", DlcType::TeamDb},
+            {"cutscenes_hd", DlcType::Cutscenes}, {"pitchmap", DlcType::PitchMaps},
     };
     const std::string slot = v["slot"].str();
     for (const auto &pair : by_slot)
@@ -228,6 +229,13 @@ bool turn_mod_on(const std::string &base_dir, const DlcEntry &mod, DlcType categ
                               }),
                list.end());
     list.push_back(mod.slug);
+    // A pitch map is drawn by the game's own pitchmaps mod, which is off by
+    // default, so it goes on too. Turning the pitch map off leaves it alone:
+    // with no pitch map on it draws the usual pitches.
+    if (category == DlcType::PitchMaps &&
+        std::none_of(list.begin(), list.end(),
+                     [&](const std::string &item) { return same_text(name_of(item), "pitchmaps"); }))
+        list.push_back("pitchmaps");
     if (!write_enabled(base_dir, list)) return false;
 
     // What the game needs set for the mod to be heard or seen.

@@ -87,6 +87,10 @@ import zipfile
 SERVER = "http://www.sensiblesoccer.de/swos2020/dlc"
 HERE = os.path.dirname(os.path.abspath(__file__))
 UUIDS = os.path.join(HERE, "dlc2020_uuids.json")
+# Index entries for mods built elsewhere (OpenSWOS's upscaled cutscenes), uploaded beside
+# the converted packs: every run puts them in the index as they are, so a rebuilt index
+# keeps them.
+EXTRA_MODS = os.path.join(HERE, "extra_mods.json")
 
 
 def map_commentary(rel):
@@ -873,6 +877,9 @@ def main():
     if os.path.exists(index_path):
         index = json.load(open(index_path, encoding="utf-8"))
     by_uuid = {m["uuid"]: m for m in index["mods"]}
+    if os.path.exists(EXTRA_MODS):
+        for m in json.load(open(EXTRA_MODS, encoding="utf-8")):
+            by_uuid[m["uuid"]] = m
 
     failures = 0
     if args.local_teamdb:
