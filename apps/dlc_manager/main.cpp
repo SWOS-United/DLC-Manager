@@ -158,7 +158,10 @@ std::string preview_image_path(const swos::DlcCatalog &catalog, const swos::DlcE
     const std::string dir = catalog.install_dir(entry);
     const std::string name = entry.folder_name();
 
-    // A gallery shows its first picture. Other mods carry no artwork of their own.
+    // A pitch map shows the preview its package.json names; a gallery its first
+    // picture. Other mods carry no artwork of their own.
+    if (catalog.mods_mode() && catalog.type() == swos::DlcType::PitchMaps)
+        return swos::pitch_map_preview(dir);
     if (catalog.mods_mode())
         return first_file(swos::path_join(dir, "images"), {".png", ".jpg", ".jpeg", ".bmp"});
 
@@ -258,6 +261,7 @@ public:
         // so a failed update leaves the old one working and the game never reads
         // half a mod.
         m_mod = catalog.mods_mode() ? std::make_unique<swos::DlcEntry>(entry) : nullptr;
+        m_pitch_map = catalog.type() == swos::DlcType::PitchMaps;
         m_final.clear();
         if (m_mod) {
             m_final = m_destination;
@@ -393,7 +397,8 @@ private:
     // Checks the unpacked mod and swaps it in for any older copy.
     void finish_mod()
     {
-        m_error = swos::check_extracted_mod(m_destination, *m_mod);
+        m_error = m_pitch_map ? swos::check_extracted_pitch_map(m_destination, *m_mod)
+                              : swos::check_extracted_mod(m_destination, *m_mod);
         if (m_error.empty()) {
             swos::remove_directory(m_final);
             if (!swos::rename_file(m_destination, m_final))
@@ -427,6 +432,7 @@ private:
     std::string m_title, m_archive, m_destination, m_error;
     std::string m_preview_archive, m_preview_url;
     std::unique_ptr<swos::DlcEntry> m_mod;   // set when installing a mod
+    bool m_pitch_map = false;                // ...a pitch map, checked by its package.json
     std::string m_final;                      // the mod's folder, once checked
     swos::Download m_download;
     std::thread m_extract_thread;

@@ -11,7 +11,7 @@
 // sha256 and size of its zip. scripts/dlc2020_to_mods.py makes both from SWOS
 // 2020's own packs.
 //
-// A mod's "slot" (pitch, commentary, fx, title_music, menu_music, teamdb) means
+// A mod's "slot" (pitch, commentary, fx, title_music, menu_music, teamdb, cutscenes_hd) means
 // one mod of that slot at a time: turning one on turns the others of its slot
 // off, as the game would leave all but the first out anyway.
 
@@ -67,5 +67,40 @@ bool turn_mod_off(const std::string &base_dir, const std::string &slug);
 // Checks a freshly extracted mod folder against the index entry it came from:
 // a mod.json at its root whose uuid is the entry's. "" when it is fine.
 std::string check_extracted_mod(const std::string &folder, const DlcEntry &entry);
+
+// --- Pitch maps ----------------------------------------------------------------
+//
+// A pitch map is not a mod: it is data for the game's canonical "pitchmaps" mod,
+// kept with any mod's downloaded data in the player folder's moddata/<slug>/.
+// A pack is Tile Agent's own export ("File > Export Package...", its
+// docs/FORMAT.md §11): a zip whose root holds package.json ({"format":
+// "tileagent-package", "format_version": 1, uuid, name, author, version, about,
+// "map": "<file>.tmj", "preview": "<file>.png" or absent}), the map, its tileset
+// images and the preview. It is installed as moddata/pitchmaps/<uuid>/, and the
+// one in use is SWOS.ini's [mod.pitchmaps] map = <uuid> ("off" for none).
+
+// <base>/moddata/pitchmaps
+std::string pitch_maps_root(const std::string &base_dir);
+
+// Every folder there whose package.json can be read, with its folder as the
+// slug and its version in server_version.
+std::vector<DlcEntry> scan_pitch_maps(const std::string &base_dir);
+
+// [mod.pitchmaps] map: the uuid of the pitch map in use, or "" for none.
+std::string selected_pitch_map(const std::string &base_dir);
+
+// Selects `uuid` and turns the pitchmaps mod on, which draws it.
+bool turn_pitch_map_on(const std::string &base_dir, const std::string &uuid);
+
+// map = off, if `uuid` is the one selected. The pitchmaps mod stays on: with no
+// map it draws the game's own pitches.
+bool turn_pitch_map_off(const std::string &base_dir, const std::string &uuid);
+
+// As check_extracted_mod, for a pitch map: a package.json at the root, of
+// format tileagent-package, whose uuid is the entry's.
+std::string check_extracted_pitch_map(const std::string &folder, const DlcEntry &entry);
+
+// The preview image an installed pitch map's package.json names, or "".
+std::string pitch_map_preview(const std::string &folder);
 
 } // namespace swos

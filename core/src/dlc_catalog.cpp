@@ -64,9 +64,9 @@ constexpr std::array<TypeInfo, 19> kTypes{{
      true, false},
     // Not SWOS 2020's types, so only the mod index offers them: OpenSWOS's
     // upscaled PC cutscenes (slot cutscenes_hd), and pitches in the Tile Agent
-    // format that its pitchmaps mod draws (slot pitchmap).
+    // format: data for its pitchmaps mod, not mods (mod_store.h, "Pitch maps").
     {DlcType::Cutscenes, "cutscenes", "Cutscenes", PreviewKind::None, "", false, false},
-    {DlcType::PitchMaps, "pitchmaps", "Pitch Maps", PreviewKind::None, "", false, false},
+    {DlcType::PitchMaps, "pitchmaps", "Pitch Maps", PreviewKind::Image, "", false, false},
 }};
 
 const TypeInfo &info_for(DlcType type)
@@ -398,6 +398,7 @@ std::string DlcCatalog::package_path(const DlcEntry &entry, bool preview) const
 
 std::string DlcCatalog::install_dir(const DlcEntry &entry) const
 {
+    if (m_mods && m_type == DlcType::PitchMaps) return path_join(pitch_maps_root(m_base_dir), entry.slug);
     if (m_mods) return path_join(mods_root(m_base_dir), entry.slug);
     return path_join(type_dir(), entry.folder_name());
 }
@@ -592,7 +593,8 @@ bool DlcCatalog::remove(const std::string &title)
 
     if (m_mods) {
         const DlcEntry gone = *entry;
-        const bool off = turn_mod_off(m_base_dir, gone.slug);
+        const bool off = m_type == DlcType::PitchMaps ? turn_pitch_map_off(m_base_dir, gone.uuid)
+                                                      : turn_mod_off(m_base_dir, gone.slug);
         const bool deleted = remove_directory(install_dir(gone));
         remove_file(package_path(gone, false));
         rescan_mods();
@@ -681,9 +683,14 @@ void DlcCatalog::set_mods(std::vector<DlcEntry> server, std::vector<DlcEntry> in
     m_mods = true;
     m_server = std::move(server);
     m_local = std::move(installed);
-    const std::vector<std::string> on = enabled_mods(m_base_dir);
-    for (DlcEntry &e : m_local)
-        e.on = std::find(on.begin(), on.end(), e.slug) != on.end();
+    if (m_type == DlcType::PitchMaps) {      // on: the one [mod.pitchmaps] map names
+        const std::string selected = selected_pitch_map(m_base_dir);
+        for (DlcEntry &e : m_local) e.on = !selected.empty() && e.uuid == selected;
+    } else {
+        const std::vector<std::string> on = enabled_mods(m_base_dir);
+        for (DlcEntry &e : m_local)
+            e.on = std::find(on.begin(), on.end(), e.slug) != on.end();
+    }
     merge();
 }
 
@@ -701,8 +708,12 @@ bool DlcCatalog::set_mod_on(const std::string &title, bool on)
                                     [&](const DlcEntry &e) { return e.title == title; });
     if (!m_mods || entry == m_entries.end() || !entry->installed()) return false;
     const DlcEntry mod = *entry;
-    const bool ok = on ? turn_mod_on(m_base_dir, mod, m_type, scan_installed_mods(m_base_dir))
-                       : turn_mod_off(m_base_dir, mod.slug);
+    bool ok;
+    if (m_type == DlcType::PitchMaps)
+        ok = on ? turn_pitch_map_on(m_base_dir, mod.uuid) : turn_pitch_map_off(m_base_dir, mod.uuid);
+    else
+        ok = on ? turn_mod_on(m_base_dir, mod, m_type, scan_installed_mods(m_base_dir))
+                : turn_mod_off(m_base_dir, mod.slug);
     rescan_mods();
     return ok;
 }

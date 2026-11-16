@@ -45,11 +45,15 @@ commentary and effects, `[audio] music = pc` for music, with `title_music` / `me
 
 Two categories are not SWOS 2020's, so only the mod index lists them:
 
-* **Pitch Maps**: pitches in the Tile Agent format (`grafs_dos/pitch.tmj` and
-  its tilesets), one on at a time (slot `pitchmap`). The game's `pitchmaps` mod
-  draws them, so turning one on also adds `pitchmaps` to `[mods] enabled`. They
-  need the PC graphics (`[graphics] style = dos`), which the manager leaves to the
-  player and says so.
+* **Pitch Maps**: pitches made in Tile Agent. They are not mods but data for
+  the game's own `pitchmaps` mod, and like any mod's downloaded data they go in
+  the player folder's `moddata/`. A pack is Tile Agent's *Export Package* zip
+  (`package.json` of format `tileagent-package`, the `.tmj` map it names, its
+  tilesets, maybe a preview): it is unpacked into `moddata/pitchmaps/<uuid>/`,
+  its uuid checked against the index. Turning one on sets `[mod.pitchmaps] map =
+  <uuid>` and adds `pitchmaps` to `[mods] enabled`. Removing the one in use sets
+  `map = off`. They need the PC graphics (`[graphics] style = dos`), which the
+  manager leaves to the player and says so.
 * **Cutscenes**: OpenSWOS's upscaled PC career cutscenes, x4 (1280x800) or x8
   (2560x1600), one on at a time (slot `cutscenes_hd`). They play through the
   game's PC cutscenes mod, so they need the PC game's cutscenes, which OpenSWOS

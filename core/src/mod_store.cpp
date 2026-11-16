@@ -61,7 +61,7 @@ bool category_of(const JsonValue &v, DlcType &out)
             {"pitch", DlcType::Pitch},           {"commentary", DlcType::Commentary},
             {"fx", DlcType::Fx},                 {"title_music", DlcType::TitleMusic},
             {"menu_music", DlcType::MenuMusic},  {"teamdb", DlcType::TeamDb},
-            {"cutscenes_hd", DlcType::Cutscenes}, {"pitchmap", DlcType::PitchMaps},
+            {"cutscenes_hd", DlcType::Cutscenes},
     };
     const std::string slot = v["slot"].str();
     for (const auto &pair : by_slot)
@@ -167,6 +167,7 @@ bool parse_mod_index(const std::string &body, std::vector<CategorisedMod> &out,
         DlcType type;
         if (!m.is_object() || !for_sdl(m) || !category_of(m, type)) continue;
         DlcEntry e = entry_from(m);
+        if (type == DlcType::PitchMaps) e.slug = e.uuid;   // installed as moddata/pitchmaps/<uuid>
         if (e.uuid.empty() || e.slug.empty() || e.url.empty()) continue;
         out.emplace_back(type, std::move(e));
     }
@@ -189,6 +190,7 @@ std::vector<CategorisedMod> scan_installed_mods(const std::string &base_dir)
         e.slug = slug;                                  // the folder is what [mods] names
         out.emplace_back(type, std::move(e));
     }
+    for (DlcEntry &e : scan_pitch_maps(base_dir)) out.emplace_back(DlcType::PitchMaps, std::move(e));
     return out;
 }
 
@@ -229,13 +231,6 @@ bool turn_mod_on(const std::string &base_dir, const DlcEntry &mod, DlcType categ
                               }),
                list.end());
     list.push_back(mod.slug);
-    // A pitch map is drawn by the game's own pitchmaps mod, which is off by
-    // default, so it goes on too. Turning the pitch map off leaves it alone:
-    // with no pitch map on it draws the usual pitches.
-    if (category == DlcType::PitchMaps &&
-        std::none_of(list.begin(), list.end(),
-                     [&](const std::string &item) { return same_text(name_of(item), "pitchmaps"); }))
-        list.push_back("pitchmaps");
     if (!write_enabled(base_dir, list)) return false;
 
     // What the game needs set for the mod to be heard or seen.
@@ -285,6 +280,127 @@ std::string check_extracted_mod(const std::string &folder, const DlcEntry &entry
     if (!JsonValue::parse(text, manifest, error)) return "its mod.json is not JSON (" + error + ")";
     if (manifest["uuid"].str() != entry.uuid) return "its mod.json is for a different mod";
     return {};
+}
+
+// --- Pitch maps ----------------------------------------------------------------
+
+namespace {
+
+constexpr const char *kPitchMapsMod = "pitchmaps";
+constexpr const char *kPitchMapsSection = "mod.pitchmaps";
+
+// package.json, if it is one: Tile Agent's format, and a uuid. Keys it does
+// not know are fine.
+bool read_pitch_map(const std::string &folder, JsonValue &out, std::string &error)
+{
+    const std::string text = read_text(path_join(folder, "package.json"));
+    if (text.empty()) {
+        error = "it has no package.json";
+        return false;
+    }
+    if (!JsonValue::parse(text, out, error)) {
+        error = "its package.json is not JSON (" + error + ")";
+        return false;
+    }
+    if (out["format"].str() != "tileagent-package") {
+        error = "its package.json is not a Tile Agent package's";
+        return false;
+    }
+    if (out["format_version"].num(0) != 1) {
+        error = "a newer Tile Agent package than this manager knows";
+        return false;
+    }
+    if (out["uuid"].str().empty()) {
+        error = "its package.json has no uuid";
+        return false;
+    }
+    return true;
+}
+
+// A file name of the package's own, at its root: nothing that leaves the folder.
+bool plain_file_name(const std::string &name)
+{
+    return !name.empty() && name != "." && name != ".." &&
+           name.find_first_of("/\\:") == std::string::npos;
+}
+
+} // namespace
+
+std::string pitch_maps_root(const std::string &base_dir)
+{
+    return path_join(path_join(base_dir, "moddata"), kPitchMapsMod);
+}
+
+std::vector<DlcEntry> scan_pitch_maps(const std::string &base_dir)
+{
+    std::vector<DlcEntry> out;
+    const std::string root = pitch_maps_root(base_dir);
+    for (const std::string &folder : list_directory(root, true)) {
+        if (folder.empty() || folder[0] == '.') continue;   // .<uuid>.part: an install in progress
+        JsonValue map;
+        std::string error;
+        if (!read_pitch_map(path_join(root, folder), map, error)) continue;
+        DlcEntry e = entry_from(map);
+        e.slug = folder;
+        out.push_back(std::move(e));
+    }
+    return out;
+}
+
+std::string selected_pitch_map(const std::string &base_dir)
+{
+    IniFile ini;
+    ini.load(game_ini_path(base_dir));
+    const std::string map = trim(ini.read_string(kPitchMapsSection, "map", "off"));
+    return (map.empty() || map == "off") ? std::string() : map;
+}
+
+bool turn_pitch_map_on(const std::string &base_dir, const std::string &uuid)
+{
+    std::vector<std::string> list = enabled_mods(base_dir);
+    const bool on = std::any_of(list.begin(), list.end(), [](std::string item) {
+        if (!item.empty() && item.back() == '*') item.pop_back();
+        return same_text(item, kPitchMapsMod);
+    });
+    if (!on) {
+        list.push_back(kPitchMapsMod);
+        if (!write_enabled(base_dir, list)) return false;
+    }
+    const std::string path = game_ini_path(base_dir);
+    IniFile ini;
+    ini.load(path);
+    ini.write_string(kPitchMapsSection, "map", uuid);
+    return ini.save(path);
+}
+
+bool turn_pitch_map_off(const std::string &base_dir, const std::string &uuid)
+{
+    if (!same_text(selected_pitch_map(base_dir), uuid)) return true;
+    const std::string path = game_ini_path(base_dir);
+    IniFile ini;
+    ini.load(path);
+    ini.write_string(kPitchMapsSection, "map", "off");
+    return ini.save(path);
+}
+
+std::string check_extracted_pitch_map(const std::string &folder, const DlcEntry &entry)
+{
+    JsonValue map;
+    std::string error;
+    if (!read_pitch_map(folder, map, error)) return error;
+    if (map["uuid"].str() != entry.uuid) return "its package.json is for a different pitch map";
+    return {};
+}
+
+std::string pitch_map_preview(const std::string &folder)
+{
+    JsonValue map;
+    std::string error;
+    if (!read_pitch_map(folder, map, error)) return {};
+    const std::string name = map["preview"].str();
+    if (!plain_file_name(name)) return {};
+    const std::string path = path_join(folder, name);
+    return file_exists(path) ? path : std::string();
 }
 
 } // namespace swos
