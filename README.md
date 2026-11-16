@@ -129,6 +129,17 @@ docs/                architecture, porting and build notes
 
 ## Licence
 
-The Slint runtime is used under its royalty-free desktop licence; see
-`third_party/slint/licenses` after fetching. Icons are
-[Tabler Icons](https://tabler.io/icons) (MIT).
+Copyright (C) 2026 Ben Baker.
+
+The DLC Manager, the Amiga manager and the scripts are free software: you can
+redistribute them and/or modify them under the terms of the **GNU General Public
+License, version 3 or (at your option) any later version** (GPL-3.0-or-later),
+as SWOS United is. See [LICENSE](LICENSE). They are distributed in the hope that
+they will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+The Slint runtime is used under its own licence (GPLv3, or its royalty-free
+desktop licence); see `third_party/slint/licenses` after fetching. Icons are
+[Tabler Icons](https://tabler.io/icons) and [Iconoir](https://iconoir.com)
+(both MIT). The game's own artwork in `assets/icons/dlc` and the mods'
+content belong to their authors.
